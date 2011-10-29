@@ -15,29 +15,25 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.dialogs.ViewContentProvider;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.part.ViewPart;
 
 import br.ufrj.coppe.pinel.ligeiro.data.Result;
@@ -64,7 +60,9 @@ public class LigeiroView extends ViewPart
 	 */
 	public static final String ID = "br.ufrj.coppe.pinel.ligeiro.views.LigeiroView";
 
-	private TableViewer viewer;
+	private TableViewer dfViewer;
+	private TableViewer tfViewer;
+
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
@@ -77,28 +75,35 @@ public class LigeiroView extends ViewPart
 		super();
 	}
 
+	private FormToolkit toolkit;
+
 	/**
 	 * @see org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
 	 */
 	public void createPartControl(Composite parent)
 	{
+		toolkit = new FormToolkit(parent.getDisplay());
+		ScrolledForm form = toolkit.createScrolledForm(parent);
+		form.setText(Messages.getString("LigeiroView.title"));
+
 		GridLayout layout = new GridLayout(2, false);
-		parent.setLayout(layout);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		form.getBody().setLayout(layout);
 
-		Label viewLabel = new Label(parent, SWT.NONE);
-		viewLabel.setText("Ligeiro Plug-in");
-		Label emptyLabel = new Label(parent, SWT.NONE);
-		emptyLabel.setText("");
+		// Statistic Files
+		createStatisticSection(form.getBody());
 
-		Label configurationLabel = new Label(parent, SWT.NONE);
-		configurationLabel.setText("Configuration: ");
-		configurationLabel.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		// Dependency Files
+		createDependencySection(form.getBody());
 
-		Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
-		searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		form.getBody().setLayout(layout);
 
-		createTableViewer(parent);
-//
+		// Configuration File
+		createControlSection(form.getBody());
+
+		createResultSection(form.getBody());
+
 //		// Create the help context id for the viewer's control
 //		PlatformUI.getWorkbench().getHelpSystem()
 //				.setHelp(viewer.getControl(), "LigeiroPlug-in.viewer");
@@ -108,32 +113,154 @@ public class LigeiroView extends ViewPart
 //		contributeToActionBars();
 	}
 
-	private void createTableViewer(Composite parent)
+	private void createStatisticSection(Composite parent)
 	{
-		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		createColumns(parent, viewer);
-		final Table table = viewer.getTable();
+		Section statisticSection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
+		statisticSection.setText(Messages.getString("LigeiroView.statistic.section.title"));
+
+		Composite statisticComposite = toolkit.createComposite(statisticSection, SWT.WRAP);
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		statisticComposite.setLayout(layout);
+
+		Table table = toolkit.createTable(statisticComposite, SWT.NULL);
+		GridData gd = new GridData(GridData.FILL_BOTH);
+		gd.heightHint = 200;
+		gd.widthHint = 300;
+		table.setLayoutData(gd);
+		toolkit.paintBordersFor(statisticComposite);
+
+		Composite buttonComposite = toolkit.createComposite(statisticComposite, SWT.WRAP);
+		layout = new GridLayout(1, true);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		buttonComposite.setLayout(layout);
+
+		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
+
+		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.statistic.button.add.label"), SWT.PUSH);
+		button.setLayoutData(gd);
+
+		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.statistic.button.remove.label"), SWT.PUSH);
+		button.setLayoutData(gd);
+
+		statisticSection.setClient(statisticComposite);
+	}
+
+	private void createDependencySection(Composite parent)
+	{
+		Section dependencySection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE| Section.EXPANDED);
+		dependencySection.setText(Messages.getString("LigeiroView.dependency.section.title"));
+
+		Composite dependencyComposite = toolkit.createComposite(dependencySection, SWT.WRAP);
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		dependencyComposite.setLayout(layout);
+
+		Table table = toolkit.createTable(dependencyComposite, SWT.NULL);
+		GridData gd = new GridData(GridData.FILL_BOTH);
+		gd.heightHint = 200;
+		gd.widthHint = 300;
+		table.setLayoutData(gd);
+		toolkit.paintBordersFor(dependencyComposite);
+
+		Composite buttonComposite = toolkit.createComposite(dependencyComposite, SWT.WRAP);
+		layout = new GridLayout(1, true);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		buttonComposite.setLayout(layout);
+
+		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
+
+		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.dependency.button.add.label"), SWT.PUSH);
+		button.setLayoutData(gd);
+
+		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.dependency.button.remove.label"), SWT.PUSH);
+		button.setLayoutData(gd);
+
+		dependencySection.setClient(dependencyComposite);
+	}
+
+	private void createControlSection(Composite parent)
+	{
+		GridData gridData = new GridData();
+		gridData.horizontalAlignment = GridData.FILL;
+		gridData.horizontalSpan = 2;
+		gridData.grabExcessHorizontalSpace = true;
+
+		Section controlSection = toolkit.createSection(parent, Section.TITLE_BAR);
+		controlSection.setText(Messages.getString("LigeiroView.control.section.title"));
+		controlSection.setLayoutData(gridData);
+
+		Composite controlComposite = toolkit.createComposite(controlSection, SWT.WRAP);
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		controlComposite.setLayout(layout);
+
+		Label configurationLabel = new Label(controlComposite, SWT.NONE);
+		configurationLabel.setText(Messages.getString("LigeiroView.control.configuration.file.label"));
+		configurationLabel.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+
+		// TODO: add file browser
+
+		controlSection.setClient(controlComposite);
+	}
+
+	private void createResultSection(Composite parent)
+	{
+		GridData gridData = new GridData();
+		gridData.horizontalAlignment = GridData.FILL;
+		gridData.horizontalSpan = 2;
+		gridData.grabExcessHorizontalSpace = true;
+
+		Section resultSection = toolkit.createSection(parent, Section.TITLE_BAR);
+		resultSection.setText(Messages.getString("LigeiroView.result.section.title"));
+		resultSection.setLayoutData(gridData);
+
+		Composite resultComposite = toolkit.createComposite(resultSection, SWT.WRAP);
+		GridLayout layout = new GridLayout(2, true);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		resultComposite.setLayout(layout);
+
+		dfViewer = new TableViewer(resultComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		createColumns(resultComposite, dfViewer, true);
+		Table table = dfViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+		dfViewer.setContentProvider(new ArrayContentProvider());
+		dfViewer.setInput(ModelProvider.INSTANCE.getResults());
 
-		viewer.setContentProvider(new ArrayContentProvider());
+		tfViewer = new TableViewer(resultComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		createColumns(resultComposite, tfViewer, false);
+		table = tfViewer.getTable();
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		tfViewer.setContentProvider(new ArrayContentProvider());
+		tfViewer.setInput(ModelProvider.INSTANCE.getResults());
 
-		// Get the content for the viewer, setInput will call getElements in the contentProvider
-		viewer.setInput(ModelProvider.INSTANCE.getResults());
-		//viewer.setInput(getViewSite());
+		//getSite().setSelectionProvider(dfViewer);
 
-		// Make the selection available to other views
-		getSite().setSelectionProvider(viewer);
+		resultSection.setClient(resultComposite);
 	}
 
 	// This will create the columns for the table
-	private void createColumns(final Composite parent, final TableViewer viewer)
+	private void createColumns(final Composite parent, final TableViewer viewer, final boolean isDataFunction)
 	{
-		String[] titles = {"Element", "RET/FTR", "DET", "Complexity", "Value"};
+		String message;
 		int[] bounds = {100, 100, 100, 100, 100};
 
 		// First column is for the element
-		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
+
+		if (isDataFunction)
+			message = Messages.getString("LigeiroView.result.table.data.function");
+		else
+			message = Messages.getString("LigeiroView.result.table.transaction.function");
+
+		TableViewerColumn col = createTableViewerColumn(viewer, message, bounds[0], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -142,18 +269,14 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		// Second column is for the det
-		col = createTableViewerColumn(titles[1], bounds[1], 0);
-		col.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				Result p = (Result) element;
-				return Integer.toString(p.getDet());
-			}
-		});
+		// Second column is for the RET/FRT
 
-		// Third column is for the ret/ftr
-		col = createTableViewerColumn(titles[2], bounds[2], 0);
+		if (isDataFunction)
+			message = Messages.getString("LigeiroView.result.table.ret");
+		else
+			message = Messages.getString("LigeiroView.result.table.ftr");
+
+		col = createTableViewerColumn(viewer, message, bounds[1], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -162,8 +285,20 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
+		// Third column is for the DET
+
+		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.result.table.det"), bounds[2], 0);
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				Result p = (Result) element;
+				return Integer.toString(p.getDet());
+			}
+		});
+
 		// Fourth column is for the complexity
-		col = createTableViewerColumn(titles[3], bounds[3], 0);
+
+		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.result.table.complexity"), bounds[3], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -173,7 +308,8 @@ public class LigeiroView extends ViewPart
 		});
 
 		// Fifth column is for the complexity value
-		col = createTableViewerColumn(titles[3], bounds[3], 0);
+
+		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.result.table.complexity.value"), bounds[4], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -183,7 +319,7 @@ public class LigeiroView extends ViewPart
 		});
 	}
 
-	private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber)
+	private TableViewerColumn createTableViewerColumn(final TableViewer viewer, String title, int bound, final int colNumber)
 	{
 		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
 		final TableColumn column = viewerColumn.getColumn();
@@ -228,9 +364,9 @@ public class LigeiroView extends ViewPart
 				LigeiroView.this.fillContextMenu(manager);
 			}
 		});
-		Menu menu = menuMgr.createContextMenu(viewer.getControl());
-		viewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, viewer);
+		Menu menu = menuMgr.createContextMenu(dfViewer.getControl());
+		dfViewer.getControl().setMenu(menu);
+		getSite().registerContextMenu(menuMgr, dfViewer);
 	}
 
 	private void contributeToActionBars()
@@ -290,7 +426,7 @@ public class LigeiroView extends ViewPart
 		{
 			public void run()
 			{
-				ISelection selection = viewer.getSelection();
+				ISelection selection = dfViewer.getSelection();
 				Object obj = ((IStructuredSelection) selection)
 						.getFirstElement();
 				showMessage("Double-click detected on " + obj.toString());
@@ -300,7 +436,7 @@ public class LigeiroView extends ViewPart
 
 	private void hookDoubleClickAction()
 	{
-		viewer.addDoubleClickListener(new IDoubleClickListener()
+		dfViewer.addDoubleClickListener(new IDoubleClickListener()
 		{
 			public void doubleClick(DoubleClickEvent event)
 			{
@@ -311,7 +447,7 @@ public class LigeiroView extends ViewPart
 
 	private void showMessage(String message)
 	{
-		MessageDialog.openInformation(viewer.getControl().getShell(),
+		MessageDialog.openInformation(dfViewer.getControl().getShell(),
 				"Ligeiro View", message);
 	}
 
@@ -320,6 +456,6 @@ public class LigeiroView extends ViewPart
 	 */
 	public void setFocus()
 	{
-		viewer.getControl().setFocus();
+		dfViewer.getControl().setFocus();
 	}
 }

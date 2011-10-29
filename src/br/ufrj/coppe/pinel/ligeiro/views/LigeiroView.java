@@ -19,14 +19,18 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -76,6 +80,7 @@ public class LigeiroView extends ViewPart
 	}
 
 	private FormToolkit toolkit;
+	private ScrolledForm form;
 
 	/**
 	 * @see org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
@@ -83,7 +88,7 @@ public class LigeiroView extends ViewPart
 	public void createPartControl(Composite parent)
 	{
 		toolkit = new FormToolkit(parent.getDisplay());
-		ScrolledForm form = toolkit.createScrolledForm(parent);
+		form = toolkit.createScrolledForm(parent);
 		form.setText(Messages.getString("LigeiroView.title"));
 
 		GridLayout layout = new GridLayout(2, false);
@@ -139,10 +144,10 @@ public class LigeiroView extends ViewPart
 
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
-		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.statistic.button.add.label"), SWT.PUSH);
+		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.statistic.add.button.label"), SWT.PUSH);
 		button.setLayoutData(gd);
 
-		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.statistic.button.remove.label"), SWT.PUSH);
+		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.statistic.remove.button.label"), SWT.PUSH);
 		button.setLayoutData(gd);
 
 		statisticSection.setClient(statisticComposite);
@@ -174,10 +179,10 @@ public class LigeiroView extends ViewPart
 
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
-		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.dependency.button.add.label"), SWT.PUSH);
+		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.dependency.add.button.label"), SWT.PUSH);
 		button.setLayoutData(gd);
 
-		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.dependency.button.remove.label"), SWT.PUSH);
+		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.dependency.remove.button.label"), SWT.PUSH);
 		button.setLayoutData(gd);
 
 		dependencySection.setClient(dependencyComposite);
@@ -195,16 +200,45 @@ public class LigeiroView extends ViewPart
 		controlSection.setLayoutData(gridData);
 
 		Composite controlComposite = toolkit.createComposite(controlSection, SWT.WRAP);
-		GridLayout layout = new GridLayout(2, false);
+		GridLayout layout = new GridLayout(3, false);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		controlComposite.setLayout(layout);
 
-		Label configurationLabel = new Label(controlComposite, SWT.NONE);
-		configurationLabel.setText(Messages.getString("LigeiroView.control.configuration.file.label"));
-		configurationLabel.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		Label configurationFileLabel = new Label(controlComposite, SWT.NONE);
+		configurationFileLabel.setText(Messages.getString("LigeiroView.control.configuration.file.label"));
+		configurationFileLabel.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
 
-		// TODO: add file browser
+		Text configurationFileText = new Text(controlComposite, SWT.BORDER);
+		configurationFileText.setEditable(false);
+		configurationFileText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+
+		Button configurationFileButton = toolkit.createButton(controlComposite, Messages.getString("LigeiroView.control.configuration.file.button.label"), SWT.PUSH);
+		configurationFileButton.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
+
+		configurationFileButton.addSelectionListener(
+				new SelectionListener() {
+					@Override
+					public void widgetDefaultSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void widgetSelected(SelectionEvent event)
+					{
+						FileDialog fd = new FileDialog(form.getShell(), SWT.OPEN);
+						fd.setText(Messages.getString("LigeiroView.control.configuration.file.dialog.title"));
+						//fd.setFilterPath("C:/");
+						String[] filterExt = {"*.xml"};
+						fd.setFilterExtensions(filterExt);
+						String selected = fd.open();
+						System.out.println(selected);
+					}
+				}
+		);
+		
 
 		controlSection.setClient(controlComposite);
 	}

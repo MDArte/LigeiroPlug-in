@@ -230,7 +230,6 @@ public class LigeiroView extends ViewPart
 					{
 						FileDialog fd = new FileDialog(form.getShell(), SWT.OPEN);
 						fd.setText(Messages.getString("LigeiroView.control.configuration.file.dialog.title"));
-						//fd.setFilterPath("C:/");
 						String[] filterExt = {"*.xml"};
 						fd.setFilterExtensions(filterExt);
 						String selected = fd.open();
@@ -251,7 +250,7 @@ public class LigeiroView extends ViewPart
 		gridData.grabExcessHorizontalSpace = true;
 
 		Section resultSection = toolkit.createSection(parent, Section.TITLE_BAR);
-		resultSection.setText(Messages.getString("LigeiroView.result.section.title"));
+		resultSection.setText(Messages.getString("LigeiroView.results.section.title"));
 		resultSection.setLayoutData(gridData);
 
 		Composite resultComposite = toolkit.createComposite(resultSection, SWT.WRAP);
@@ -290,9 +289,9 @@ public class LigeiroView extends ViewPart
 		// First column is for the element
 
 		if (isDataFunction)
-			message = Messages.getString("LigeiroView.result.table.data.function");
+			message = Messages.getString("LigeiroView.results.table.data.function");
 		else
-			message = Messages.getString("LigeiroView.result.table.transaction.function");
+			message = Messages.getString("LigeiroView.results.table.transaction.function");
 
 		TableViewerColumn col = createTableViewerColumn(viewer, message, bounds[0], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -306,9 +305,9 @@ public class LigeiroView extends ViewPart
 		// Second column is for the RET/FRT
 
 		if (isDataFunction)
-			message = Messages.getString("LigeiroView.result.table.ret");
+			message = Messages.getString("LigeiroView.results.table.ret");
 		else
-			message = Messages.getString("LigeiroView.result.table.ftr");
+			message = Messages.getString("LigeiroView.results.table.ftr");
 
 		col = createTableViewerColumn(viewer, message, bounds[1], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -321,7 +320,7 @@ public class LigeiroView extends ViewPart
 
 		// Third column is for the DET
 
-		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.result.table.det"), bounds[2], 0);
+		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.det"), bounds[2], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -332,7 +331,7 @@ public class LigeiroView extends ViewPart
 
 		// Fourth column is for the complexity
 
-		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.result.table.complexity"), bounds[3], 0);
+		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity"), bounds[3], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -343,7 +342,7 @@ public class LigeiroView extends ViewPart
 
 		// Fifth column is for the complexity value
 
-		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.result.table.complexity.value"), bounds[4], 0);
+		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity.value"), bounds[4], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {

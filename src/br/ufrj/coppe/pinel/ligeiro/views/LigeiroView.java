@@ -19,6 +19,12 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.DropTargetListener;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -40,29 +46,22 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.part.ViewPart;
 
+import br.ufrj.coppe.pinel.ligeiro.common.Util;
 import br.ufrj.coppe.pinel.ligeiro.data.Result;
 
 /**
- * This sample class demonstrates how to plug-in a new workbench view. The view
- * shows data obtained from the model. The sample creates a dummy model on the
- * fly, but a real implementation would connect to the model available either in
- * this or another plug-in (e.g. the workspace). The view is connected to the
- * model using a content provider.
- * <p>
- * The view uses a label provider to define how model objects should be
- * presented in the view. Each view can present the same model objects using
- * different labels and icons, if needed. Alternatively, a single label provider
- * can be shared between views in order to ensure that objects of the same type
- * are presented in the same way everywhere.
- * <p>
+ * @author Roque Pinel
+ *
  */
-
 public class LigeiroView extends ViewPart
 {
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "br.ufrj.coppe.pinel.ligeiro.views.LigeiroView";
+
+	private Table statisticTable;
+	private Table dependencyTable;
 
 	private TableViewer dfViewer;
 	private TableViewer tfViewer;
@@ -90,12 +89,6 @@ public class LigeiroView extends ViewPart
 		toolkit = new FormToolkit(parent.getDisplay());
 		form = toolkit.createScrolledForm(parent);
 		form.setText(Messages.getString("LigeiroView.title"));
-
-//		GridData gd = new GridData();
-//		gd.horizontalAlignment = GridData.HORIZONTAL_ALIGN_FILL;
-//		gd.widthHint = 200;
-//		gd.heightHint = 100;
-//		form.setLayoutData(gd);
 
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 2;
@@ -137,14 +130,21 @@ public class LigeiroView extends ViewPart
 		filesComposite.setLayout(layout);
 
 		// Statistic
+		createFilesSectionStatistic(filesComposite);
 
-		Composite statisticComposite = toolkit.createComposite(filesComposite, SWT.WRAP);
-		layout = new GridLayout(2, false);
+		// Dependency
+		createFilesSectionDependency(filesComposite);
+	}
+
+	private void createFilesSectionStatistic(Composite parent)
+	{
+		Composite statisticComposite = toolkit.createComposite(parent, SWT.WRAP);
+		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		statisticComposite.setLayout(layout);
 
-		gd = new GridData();
+		GridData gd = new GridData();
 		gd.horizontalAlignment = GridData.FILL;
 		gd.horizontalSpan = 2;
 		gd.grabExcessHorizontalSpace = true;
@@ -153,12 +153,61 @@ public class LigeiroView extends ViewPart
 		tableLabel.setText(Messages.getString("LigeiroView.files.statistic.table.label"));
 		tableLabel.setLayoutData(gd);
 
-		Table table = toolkit.createTable(statisticComposite, SWT.NULL);
+		statisticTable = toolkit.createTable(statisticComposite, SWT.MULTI);
 		gd = new GridData(GridData.FILL_BOTH);
 		gd.heightHint = 200;
 		gd.widthHint = 300;
-		table.setLayoutData(gd);
+		statisticTable.setLayoutData(gd);
+
 		toolkit.paintBordersFor(statisticComposite);
+
+		DropTarget dropTarget = new DropTarget(statisticTable, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
+		final FileTransfer fileTransfer = FileTransfer.getInstance();
+		dropTarget.setTransfer(new Transfer[] {fileTransfer});
+		dropTarget.addDropListener(new DropTargetListener() {
+			@Override
+			public void drop(DropTargetEvent event)
+			{
+				if (fileTransfer.isSupportedType(event.currentDataType))
+				{
+					String[] files = (String[])event.data;
+					for (int i = 0; i < files.length; i++)
+					{
+						Util.addInputFile(statisticTable, files[i]);
+					}
+				}
+			}
+
+			@Override
+			public void dragEnter(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dragLeave(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dragOperationChanged(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dragOver(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dropAccept(DropTargetEvent event)
+			{
+				// empty
+			}
+		});
 
 		Composite buttonComposite = toolkit.createComposite(statisticComposite, SWT.WRAP);
 		layout = new GridLayout(1, true);
@@ -169,70 +218,120 @@ public class LigeiroView extends ViewPart
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
 		// add
-		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.add.button.label"), SWT.PUSH);
-		button.setLayoutData(gd);
-		button.addSelectionListener(
-				new SelectionListener()
-				{
-					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
-					{
-						// TODO Auto-generated method stub
-					}
-
-					@Override
-					public void widgetSelected(SelectionEvent event)
-					{
-						// TODO Auto-generated method stub
-					}
-				}
-		);
+//		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.add.button.label"), SWT.PUSH);
+//		button.setLayoutData(gd);
+//		button.addSelectionListener(
+//				new SelectionListener()
+//				{
+//					@Override
+//					public void widgetSelected(SelectionEvent event)
+//					{
+//						// TODO Auto-generated method stub
+//					}
+//
+//					@Override
+//					public void widgetDefaultSelected(SelectionEvent event)
+//					{
+//						// empty
+//					}
+//				}
+//		);
 
 		// remove
-		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.remove.button.label"), SWT.PUSH);
+		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.remove.button.label"), SWT.PUSH);
 		button.setLayoutData(gd);
 		button.addSelectionListener(
 				new SelectionListener()
 				{
 					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
+					public void widgetSelected(SelectionEvent event)
 					{
-						// TODO Auto-generated method stub
+						Util.removeInputFiles(statisticTable, statisticTable.getSelection());
 					}
 
 					@Override
-					public void widgetSelected(SelectionEvent event)
+					public void widgetDefaultSelected(SelectionEvent event)
 					{
-						// TODO Auto-generated method stub
+						// empty
 					}
 				}
 		);
+	}
 
-		// Dependency
-
-		Composite dependencyComposite = toolkit.createComposite(filesComposite, SWT.WRAP);
-		layout = new GridLayout(2, false);
+	private void createFilesSectionDependency(Composite parent)
+	{
+		Composite dependencyComposite = toolkit.createComposite(parent, SWT.WRAP);
+		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		dependencyComposite.setLayout(layout);
 
-		gd = new GridData();
+		GridData gd = new GridData();
 		gd.horizontalAlignment = GridData.FILL;
 		gd.horizontalSpan = 2;
 		gd.grabExcessHorizontalSpace = true;
 
-		tableLabel = new Label(dependencyComposite, SWT.NONE);
+		Label tableLabel = new Label(dependencyComposite, SWT.NONE);
 		tableLabel.setText(Messages.getString("LigeiroView.files.dependency.table.label"));
 		tableLabel.setLayoutData(gd);
 
-		table = toolkit.createTable(dependencyComposite, SWT.NULL);
+		dependencyTable = toolkit.createTable(dependencyComposite, SWT.MULTI);
 		gd = new GridData(GridData.FILL_BOTH);
 		gd.heightHint = 200;
 		gd.widthHint = 300;
-		table.setLayoutData(gd);
+		dependencyTable.setLayoutData(gd);
+
 		toolkit.paintBordersFor(dependencyComposite);
 
-		buttonComposite = toolkit.createComposite(dependencyComposite, SWT.WRAP);
+		DropTarget dropTarget = new DropTarget(dependencyTable, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
+		final FileTransfer fileTransfer = FileTransfer.getInstance();
+		dropTarget.setTransfer(new Transfer[] {fileTransfer});
+		dropTarget.addDropListener(new DropTargetListener() {
+			@Override
+			public void drop(DropTargetEvent event)
+			{
+				if (fileTransfer.isSupportedType(event.currentDataType))
+				{
+					String[] files = (String[])event.data;
+					for (int i = 0; i < files.length; i++)
+					{
+						Util.addInputFile(dependencyTable, files[i]);
+					}
+				}
+			}
+
+			@Override
+			public void dragEnter(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dragLeave(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dragOperationChanged(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dragOver(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dropAccept(DropTargetEvent event)
+			{
+				// empty
+			}
+		});
+
+		Composite buttonComposite = toolkit.createComposite(dependencyComposite, SWT.WRAP);
 		layout = new GridLayout(1, true);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
@@ -241,41 +340,41 @@ public class LigeiroView extends ViewPart
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
 		// add
-		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.add.button.label"), SWT.PUSH);
-		button.setLayoutData(gd);
-		button.addSelectionListener(
-				new SelectionListener()
-				{
-					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
-					{
-						// TODO Auto-generated method stub
-					}
-
-					@Override
-					public void widgetSelected(SelectionEvent event)
-					{
-						// TODO Auto-generated method stub
-					}
-				}
-		);
+//		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.add.button.label"), SWT.PUSH);
+//		button.setLayoutData(gd);
+//		button.addSelectionListener(
+//				new SelectionListener()
+//				{
+//					@Override
+//					public void widgetSelected(SelectionEvent event)
+//					{
+//						// TODO Auto-generated method stub
+//					}
+//
+//					@Override
+//					public void widgetDefaultSelected(SelectionEvent event)
+//					{
+//						// empty
+//					}
+//				}
+//		);
 
 		// remove
-		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.remove.button.label"), SWT.PUSH);
+		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.remove.button.label"), SWT.PUSH);
 		button.setLayoutData(gd);
 		button.addSelectionListener(
 				new SelectionListener()
 				{
 					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
+					public void widgetSelected(SelectionEvent event)
 					{
-						// TODO Auto-generated method stub
+						Util.removeInputFiles(dependencyTable, dependencyTable.getSelection());
 					}
 
 					@Override
-					public void widgetSelected(SelectionEvent event)
+					public void widgetDefaultSelected(SelectionEvent event)
 					{
-						// TODO Auto-generated method stub
+						// empty
 					}
 				}
 		);
@@ -313,12 +412,6 @@ public class LigeiroView extends ViewPart
 				new SelectionListener()
 				{
 					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
-					{
-						// TODO Auto-generated method stub
-					}
-
-					@Override
 					public void widgetSelected(SelectionEvent event)
 					{
 						FileDialog fd = new FileDialog(form.getShell(), SWT.OPEN);
@@ -327,6 +420,12 @@ public class LigeiroView extends ViewPart
 						fd.setFilterExtensions(filterExt);
 						String selected = fd.open();
 						System.out.println(selected);
+					}
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent event)
+					{
+						// empty
 					}
 				}
 		);
@@ -337,15 +436,15 @@ public class LigeiroView extends ViewPart
 				new SelectionListener()
 				{
 					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
+					public void widgetSelected(SelectionEvent event)
 					{
 						// TODO Auto-generated method stub
 					}
 
 					@Override
-					public void widgetSelected(SelectionEvent event)
+					public void widgetDefaultSelected(SelectionEvent event)
 					{
-						// TODO Auto-generated method stub
+						// empty
 					}
 				}
 		);
@@ -371,7 +470,7 @@ public class LigeiroView extends ViewPart
 
 		// Data Function
 
-		dfViewer = new TableViewer(resultComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		dfViewer = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		createColumns(resultComposite, dfViewer, true);
 
 		Table table = dfViewer.getTable();
@@ -387,7 +486,7 @@ public class LigeiroView extends ViewPart
 
 		// Transaction Function
 
-		tfViewer = new TableViewer(resultComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		tfViewer = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		createColumns(resultComposite, tfViewer, false);
 
 		table = tfViewer.getTable();

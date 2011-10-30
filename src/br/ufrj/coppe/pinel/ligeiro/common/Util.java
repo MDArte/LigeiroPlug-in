@@ -1,0 +1,58 @@
+package br.ufrj.coppe.pinel.ligeiro.common;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+
+import br.ufrj.coppe.pinel.ligeiro.data.InputFile;
+
+/**
+ * @author Roque Pinel
+ *
+ */
+public class Util
+{
+	public static int NOT_FOUND = -1;
+
+	public static boolean addInputFile(Table table, String path)
+	{
+		InputFile inputFile = new InputFile(path);
+
+		if (Util.containsInputFile(table, inputFile) == NOT_FOUND)
+		{
+			TableItem item = new TableItem(table, SWT.NONE);
+			item.setText(inputFile.toString());
+			item.setData(inputFile);
+			return true;
+		}
+
+		return false;
+	}
+
+	public static void removeInputFiles(Table table, TableItem[] items)
+	{
+		for (TableItem item : items)
+		{
+			int i = containsInputFile(table, item.getData());
+
+			if (i != NOT_FOUND)
+			{
+				table.remove(i);
+			}
+		}
+	}
+
+	public static int containsInputFile(Table table, Object object)
+	{
+		TableItem[] items = table.getItems();
+		for (int i = 0; i < items.length; i++)
+		{
+			if (items[i].getData().equals(object))
+			{
+				return i;
+			}
+		}
+
+		return NOT_FOUND;
+	}
+}

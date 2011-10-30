@@ -19,14 +19,6 @@ public class ResultsTableProvider
 	public ResultsTableProvider()
 	{
 		results = new ArrayList<Result>();
-
-		Result result = new Result();
-		result.setElement("ReadStudent");
-		result.setRet_ftr(1);
-		result.setDet(2);
-		result.setComplexity("Low");
-		result.setComplexityValue(4);
-		results.add(result);
 	}
 
 	/**
@@ -34,7 +26,6 @@ public class ResultsTableProvider
 	 */
 	public List<Result> getResults()
 	{
-		System.out.println("FOCA");
 		return results;
 	}
 }

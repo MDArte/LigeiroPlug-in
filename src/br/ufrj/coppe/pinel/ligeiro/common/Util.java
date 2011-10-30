@@ -1,7 +1,10 @@
 package br.ufrj.coppe.pinel.ligeiro.common;
 
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import br.ufrj.coppe.pinel.ligeiro.data.InputFile;
@@ -54,5 +57,17 @@ public class Util
 		}
 
 		return NOT_FOUND;
+	}
+
+	public static TableViewerColumn createTableViewerColumn(final TableViewer viewer, String title)
+	{
+		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
+		final TableColumn column = viewerColumn.getColumn();
+		column.setText(title);
+		// trying to keep the column with a good width
+		column.setWidth(title.length() * 6 + 50);
+		column.setResizable(true);
+		column.setMoveable(true);
+		return viewerColumn;
 	}
 }

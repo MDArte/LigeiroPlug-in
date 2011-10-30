@@ -1,8 +1,5 @@
 package br.ufrj.coppe.pinel.ligeiro.views;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -25,7 +22,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
@@ -38,6 +34,7 @@ import org.eclipse.ui.part.ViewPart;
 import br.ufrj.coppe.pinel.ligeiro.Activator;
 import br.ufrj.coppe.pinel.ligeiro.common.Util;
 import br.ufrj.coppe.pinel.ligeiro.data.Result;
+import br.ufrj.coppe.pinel.ligeiro.provider.ResultsTableProvider;
 
 /**
  * @author Roque Pinel
@@ -53,8 +50,11 @@ public class LigeiroView extends ViewPart
 	private Table statisticTable;
 	private Table dependencyTable;
 
-	private TableViewer dfViewer;
-	private TableViewer tfViewer;
+	private TableViewer dfTable;
+	private ResultsTableProvider dfTableProvider;
+
+	private TableViewer tfTable;
+	private ResultsTableProvider tfTableProvider;
 
 	private Action startFPAAction;
 
@@ -64,6 +64,9 @@ public class LigeiroView extends ViewPart
 	public LigeiroView()
 	{
 		super();
+
+		dfTableProvider = new ResultsTableProvider();
+		tfTableProvider = new ResultsTableProvider();
 	}
 
 	private FormToolkit toolkit;
@@ -442,10 +445,10 @@ public class LigeiroView extends ViewPart
 
 		// Data Function
 
-		dfViewer = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		createColumns(resultComposite, dfViewer, true);
+		dfTable = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		createResultColumns(resultComposite, dfTable, true);
 
-		Table table = dfViewer.getTable();
+		Table table = dfTable.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
@@ -453,15 +456,15 @@ public class LigeiroView extends ViewPart
 		gd.heightHint = 300;
 		table.setLayoutData(gd);
 
-		dfViewer.setContentProvider(new ArrayContentProvider());
-		dfViewer.setInput(ModelProvider.INSTANCE.getResults());
+		dfTable.setContentProvider(new ArrayContentProvider());
+		dfTable.setInput(dfTableProvider.getResults());
 
 		// Transaction Function
 
-		tfViewer = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		createColumns(resultComposite, tfViewer, false);
+		tfTable = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		createResultColumns(resultComposite, tfTable, false);
 
-		table = tfViewer.getTable();
+		table = tfTable.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
 
@@ -469,17 +472,13 @@ public class LigeiroView extends ViewPart
 		gd.heightHint = 300;
 		table.setLayoutData(gd);
 
-		tfViewer.setContentProvider(new ArrayContentProvider());
-		tfViewer.setInput(ModelProvider.INSTANCE.getResults());
-
-		//getSite().setSelectionProvider(dfViewer);
+		tfTable.setContentProvider(new ArrayContentProvider());
+		tfTable.setInput(tfTableProvider.getResults());
 	}
 
-	// This will create the columns for the table
-	private void createColumns(final Composite parent, final TableViewer viewer, final boolean isDataFunction)
+	private void createResultColumns(final Composite parent, final TableViewer viewer, final boolean isDataFunction)
 	{
 		String message;
-		int[] bounds = {100, 100, 100, 100, 100};
 
 		// First column is for the element
 
@@ -488,7 +487,7 @@ public class LigeiroView extends ViewPart
 		else
 			message = Messages.getString("LigeiroView.results.table.transaction.function");
 
-		TableViewerColumn col = createTableViewerColumn(viewer, message, bounds[0], 0);
+		TableViewerColumn col = Util.createTableViewerColumn(viewer, message);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -504,7 +503,7 @@ public class LigeiroView extends ViewPart
 		else
 			message = Messages.getString("LigeiroView.results.table.ftr");
 
-		col = createTableViewerColumn(viewer, message, bounds[1], 0);
+		col = Util.createTableViewerColumn(viewer, message);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -515,7 +514,7 @@ public class LigeiroView extends ViewPart
 
 		// Third column is for the DET
 
-		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.det"), bounds[2], 0);
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.det"));
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -526,7 +525,7 @@ public class LigeiroView extends ViewPart
 
 		// Fourth column is for the complexity
 
-		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity"), bounds[3], 0);
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity"));
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -537,7 +536,7 @@ public class LigeiroView extends ViewPart
 
 		// Fifth column is for the complexity value
 
-		col = createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity.value"), bounds[4], 0);
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity.value"));
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -545,40 +544,6 @@ public class LigeiroView extends ViewPart
 				return Integer.toString(p.getComplexityValue());
 			}
 		});
-	}
-
-	private TableViewerColumn createTableViewerColumn(final TableViewer viewer, String title, int bound, final int colNumber)
-	{
-		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
-		final TableColumn column = viewerColumn.getColumn();
-		column.setText(title);
-		column.setWidth(bound);
-		column.setResizable(true);
-		column.setMoveable(true);
-		return viewerColumn;
-	}
-
-	private enum ModelProvider {
-		INSTANCE;
-
-		private List<Result> results;
-
-		private ModelProvider() {
-			results = new ArrayList<Result>();
-
-			Result result = new Result();
-			result.setElement("ReadStudent");
-			result.setRet_ftr(1);
-			result.setDet(2);
-			result.setComplexity("Low");
-			result.setComplexityValue(4);
-			results.add(result);
-		}
-
-		public List<Result> getResults() {
-			return results;
-		}
-
 	}
 
 	private void appendActions()
@@ -611,6 +576,6 @@ public class LigeiroView extends ViewPart
 	 */
 	public void setFocus()
 	{
-		dfViewer.getControl().setFocus();
+		dfTable.getControl().setFocus();
 	}
 }

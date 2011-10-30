@@ -10,7 +10,7 @@
       </category>
       <view
             name="Ligeiro"
-            icon="icons/sample.gif"
+            icon="icons/ligeiro.gif"
             category="LigeiroPlug-in"
             class="br.ufrj.coppe.pinel.ligeiro.views.LigeiroView"
             id="br.ufrj.coppe.pinel.ligeiro.views.LigeiroView">

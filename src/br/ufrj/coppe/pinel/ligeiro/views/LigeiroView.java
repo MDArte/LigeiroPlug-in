@@ -4,18 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
@@ -33,19 +24,18 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.part.ViewPart;
 
+import br.ufrj.coppe.pinel.ligeiro.Activator;
 import br.ufrj.coppe.pinel.ligeiro.common.Util;
 import br.ufrj.coppe.pinel.ligeiro.data.Result;
 
@@ -66,9 +56,7 @@ public class LigeiroView extends ViewPart
 	private TableViewer dfViewer;
 	private TableViewer tfViewer;
 
-	private Action action1;
-	private Action action2;
-	private Action doubleClickAction;
+	private Action startFPAAction;
 
 	/**
 	 * The constructor.
@@ -101,13 +89,7 @@ public class LigeiroView extends ViewPart
 
 		createResultSection(form.getBody());
 
-//		// Create the help context id for the viewer's control
-//		PlatformUI.getWorkbench().getHelpSystem()
-//				.setHelp(viewer.getControl(), "LigeiroPlug-in.viewer");
-//		makeActions();
-//		hookContextMenu();
-//		hookDoubleClickAction();
-//		contributeToActionBars();
+		appendActions();
 
 		form.reflow(true);
 	}
@@ -164,7 +146,8 @@ public class LigeiroView extends ViewPart
 		DropTarget dropTarget = new DropTarget(statisticTable, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
 		final FileTransfer fileTransfer = FileTransfer.getInstance();
 		dropTarget.setTransfer(new Transfer[] {fileTransfer});
-		dropTarget.addDropListener(new DropTargetListener() {
+		dropTarget.addDropListener(new DropTargetListener()
+		{
 			@Override
 			public void drop(DropTargetEvent event)
 			{
@@ -218,27 +201,31 @@ public class LigeiroView extends ViewPart
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
 		// add
-//		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.add.button.label"), SWT.PUSH);
-//		button.setLayoutData(gd);
-//		button.addSelectionListener(
-//				new SelectionListener()
-//				{
-//					@Override
-//					public void widgetSelected(SelectionEvent event)
-//					{
-//						// TODO Auto-generated method stub
-//					}
-//
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent event)
-//					{
-//						// empty
-//					}
-//				}
-//		);
+		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.add.button.label"), SWT.PUSH);
+		button.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ADD));
+		button.setToolTipText(Messages.getString("LigeiroView.files.statistic.add.button.tip"));
+		button.setLayoutData(gd);
+		button.addSelectionListener(
+				new SelectionListener()
+				{
+					@Override
+					public void widgetSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent event)
+					{
+						// empty
+					}
+				}
+		);
 
 		// remove
-		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.remove.button.label"), SWT.PUSH);
+		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.remove.button.label"), SWT.PUSH);
+		button.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_REMOVE));
+		button.setToolTipText(Messages.getString("LigeiroView.files.statistic.remove.button.tip"));
 		button.setLayoutData(gd);
 		button.addSelectionListener(
 				new SelectionListener()
@@ -340,27 +327,31 @@ public class LigeiroView extends ViewPart
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
 		// add
-//		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.add.button.label"), SWT.PUSH);
-//		button.setLayoutData(gd);
-//		button.addSelectionListener(
-//				new SelectionListener()
-//				{
-//					@Override
-//					public void widgetSelected(SelectionEvent event)
-//					{
-//						// TODO Auto-generated method stub
-//					}
-//
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent event)
-//					{
-//						// empty
-//					}
-//				}
-//		);
+		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.add.button.label"), SWT.PUSH);
+		button.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ADD));
+		button.setToolTipText(Messages.getString("LigeiroView.files.dependency.add.button.tip"));
+		button.setLayoutData(gd);
+		button.addSelectionListener(
+				new SelectionListener()
+				{
+					@Override
+					public void widgetSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
+
+					@Override
+					public void widgetDefaultSelected(SelectionEvent event)
+					{
+						// empty
+					}
+				}
+		);
 
 		// remove
-		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.remove.button.label"), SWT.PUSH);
+		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.remove.button.label"), SWT.PUSH);
+		button.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_REMOVE));
+		button.setToolTipText(Messages.getString("LigeiroView.files.dependency.remove.button.tip"));
 		button.setLayoutData(gd);
 		button.addSelectionListener(
 				new SelectionListener()
@@ -420,25 +411,6 @@ public class LigeiroView extends ViewPart
 						fd.setFilterExtensions(filterExt);
 						String selected = fd.open();
 						System.out.println(selected);
-					}
-
-					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
-					{
-						// empty
-					}
-				}
-		);
-
-		Button fpaButton = toolkit.createButton(controlComposite, Messages.getString("LigeiroView.control.fpa.button.label"), SWT.PUSH);
-		fpaButton.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
-		fpaButton.addSelectionListener(
-				new SelectionListener()
-				{
-					@Override
-					public void widgetSelected(SelectionEvent event)
-					{
-						// TODO Auto-generated method stub
 					}
 
 					@Override
@@ -609,102 +581,29 @@ public class LigeiroView extends ViewPart
 
 	}
 
-	private void hookContextMenu()
+	private void appendActions()
 	{
-		MenuManager menuMgr = new MenuManager("#PopupMenu");
-		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(new IMenuListener()
+		startFPAAction = new Action()
 		{
-			public void menuAboutToShow(IMenuManager manager)
+			public void run()
 			{
-				LigeiroView.this.fillContextMenu(manager);
+				showMessage("Start FPA executed");
 			}
-		});
-		Menu menu = menuMgr.createContextMenu(dfViewer.getControl());
-		dfViewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, dfViewer);
-	}
+		};
 
-	private void contributeToActionBars()
-	{
+		startFPAAction.setText(Messages.getString("LigeiroView.action.start.fpa.label"));
+		startFPAAction.setToolTipText(Messages.getString("LigeiroView.action.start.fpa.tip"));
+
+		startFPAAction.setImageDescriptor(Activator.getImageDescriptor("icons/run.gif"));
+
 		IActionBars bars = getViewSite().getActionBars();
-		fillLocalPullDown(bars.getMenuManager());
-		fillLocalToolBar(bars.getToolBarManager());
-	}
-
-	private void fillLocalPullDown(IMenuManager manager)
-	{
-		manager.add(action1);
-		manager.add(new Separator());
-		manager.add(action2);
-	}
-
-	private void fillContextMenu(IMenuManager manager)
-	{
-		manager.add(action1);
-		manager.add(action2);
-		// Other plug-ins can contribute there actions here
-		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-	}
-
-	private void fillLocalToolBar(IToolBarManager manager)
-	{
-		manager.add(action1);
-		manager.add(action2);
-	}
-
-	private void makeActions()
-	{
-		action1 = new Action()
-		{
-			public void run()
-			{
-				showMessage("Action 1 executed");
-			}
-		};
-		action1.setText("Action 1");
-		action1.setToolTipText("Action 1 tooltip");
-		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
-				.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-
-		action2 = new Action()
-		{
-			public void run()
-			{
-				showMessage("Action 2 executed");
-			}
-		};
-		action2.setText("Action 2");
-		action2.setToolTipText("Action 2 tooltip");
-		action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
-				.getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		doubleClickAction = new Action()
-		{
-			public void run()
-			{
-				ISelection selection = dfViewer.getSelection();
-				Object obj = ((IStructuredSelection) selection)
-						.getFirstElement();
-				showMessage("Double-click detected on " + obj.toString());
-			}
-		};
-	}
-
-	private void hookDoubleClickAction()
-	{
-		dfViewer.addDoubleClickListener(new IDoubleClickListener()
-		{
-			public void doubleClick(DoubleClickEvent event)
-			{
-				doubleClickAction.run();
-			}
-		});
+		//bars.getMenuManager().add(startFPAAction);
+		bars.getToolBarManager().add(startFPAAction);
 	}
 
 	private void showMessage(String message)
 	{
-		MessageDialog.openInformation(dfViewer.getControl().getShell(),
-				"Ligeiro View", message);
+		MessageDialog.openInformation(form.getShell(), Messages.getString("LigeiroView.title"), message);
 	}
 
 	/**

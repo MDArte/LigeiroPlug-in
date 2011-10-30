@@ -91,20 +91,19 @@ public class LigeiroView extends ViewPart
 		form = toolkit.createScrolledForm(parent);
 		form.setText(Messages.getString("LigeiroView.title"));
 
-		GridLayout layout = new GridLayout(2, false);
+//		GridData gd = new GridData();
+//		gd.horizontalAlignment = GridData.HORIZONTAL_ALIGN_FILL;
+//		gd.widthHint = 200;
+//		gd.heightHint = 100;
+//		form.setLayoutData(gd);
+
+		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		form.getBody().setLayout(layout);
 
-		// Statistic Files
-		createStatisticSection(form.getBody());
+		createFilesSection(form.getBody());
 
-		// Dependency Files
-		createDependencySection(form.getBody());
-
-		form.getBody().setLayout(layout);
-
-		// Configuration File
 		createControlSection(form.getBody());
 
 		createResultSection(form.getBody());
@@ -116,21 +115,46 @@ public class LigeiroView extends ViewPart
 //		hookContextMenu();
 //		hookDoubleClickAction();
 //		contributeToActionBars();
+
+		form.reflow(true);
 	}
 
-	private void createStatisticSection(Composite parent)
+	private void createFilesSection(Composite parent)
 	{
-		Section statisticSection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
-		statisticSection.setText(Messages.getString("LigeiroView.statistic.section.title"));
+		GridData gd = new GridData();
+		gd.horizontalAlignment = GridData.FILL;
+		gd.grabExcessHorizontalSpace = true;
 
-		Composite statisticComposite = toolkit.createComposite(statisticSection, SWT.WRAP);
-		GridLayout layout = new GridLayout(2, false);
+		Section filesSection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
+		filesSection.setText(Messages.getString("LigeiroView.files.section.title"));
+		filesSection.setLayoutData(gd);
+
+		Composite filesComposite = toolkit.createComposite(filesSection, SWT.WRAP);
+		filesSection.setClient(filesComposite);
+		GridLayout layout = new GridLayout(2, true);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		filesComposite.setLayout(layout);
+
+		// Statistic
+
+		Composite statisticComposite = toolkit.createComposite(filesComposite, SWT.WRAP);
+		layout = new GridLayout(2, false);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		statisticComposite.setLayout(layout);
 
+		gd = new GridData();
+		gd.horizontalAlignment = GridData.FILL;
+		gd.horizontalSpan = 2;
+		gd.grabExcessHorizontalSpace = true;
+
+		Label tableLabel = new Label(statisticComposite, SWT.NONE);
+		tableLabel.setText(Messages.getString("LigeiroView.files.statistic.table.label"));
+		tableLabel.setLayoutData(gd);
+
 		Table table = toolkit.createTable(statisticComposite, SWT.NULL);
-		GridData gd = new GridData(GridData.FILL_BOTH);
+		gd = new GridData(GridData.FILL_BOTH);
 		gd.heightHint = 200;
 		gd.widthHint = 300;
 		table.setLayoutData(gd);
@@ -144,34 +168,71 @@ public class LigeiroView extends ViewPart
 
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
-		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.statistic.add.button.label"), SWT.PUSH);
+		// add
+		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.add.button.label"), SWT.PUSH);
 		button.setLayoutData(gd);
+		button.addSelectionListener(
+				new SelectionListener()
+				{
+					@Override
+					public void widgetDefaultSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
 
-		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.statistic.remove.button.label"), SWT.PUSH);
+					@Override
+					public void widgetSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
+				}
+		);
+
+		// remove
+		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.remove.button.label"), SWT.PUSH);
 		button.setLayoutData(gd);
+		button.addSelectionListener(
+				new SelectionListener()
+				{
+					@Override
+					public void widgetDefaultSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
 
-		statisticSection.setClient(statisticComposite);
-	}
+					@Override
+					public void widgetSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
+				}
+		);
 
-	private void createDependencySection(Composite parent)
-	{
-		Section dependencySection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE| Section.EXPANDED);
-		dependencySection.setText(Messages.getString("LigeiroView.dependency.section.title"));
+		// Dependency
 
-		Composite dependencyComposite = toolkit.createComposite(dependencySection, SWT.WRAP);
-		GridLayout layout = new GridLayout(2, false);
+		Composite dependencyComposite = toolkit.createComposite(filesComposite, SWT.WRAP);
+		layout = new GridLayout(2, false);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		dependencyComposite.setLayout(layout);
 
-		Table table = toolkit.createTable(dependencyComposite, SWT.NULL);
-		GridData gd = new GridData(GridData.FILL_BOTH);
+		gd = new GridData();
+		gd.horizontalAlignment = GridData.FILL;
+		gd.horizontalSpan = 2;
+		gd.grabExcessHorizontalSpace = true;
+
+		tableLabel = new Label(dependencyComposite, SWT.NONE);
+		tableLabel.setText(Messages.getString("LigeiroView.files.dependency.table.label"));
+		tableLabel.setLayoutData(gd);
+
+		table = toolkit.createTable(dependencyComposite, SWT.NULL);
+		gd = new GridData(GridData.FILL_BOTH);
 		gd.heightHint = 200;
 		gd.widthHint = 300;
 		table.setLayoutData(gd);
 		toolkit.paintBordersFor(dependencyComposite);
 
-		Composite buttonComposite = toolkit.createComposite(dependencyComposite, SWT.WRAP);
+		buttonComposite = toolkit.createComposite(dependencyComposite, SWT.WRAP);
 		layout = new GridLayout(1, true);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
@@ -179,27 +240,60 @@ public class LigeiroView extends ViewPart
 
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
-		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.dependency.add.button.label"), SWT.PUSH);
+		// add
+		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.add.button.label"), SWT.PUSH);
 		button.setLayoutData(gd);
+		button.addSelectionListener(
+				new SelectionListener()
+				{
+					@Override
+					public void widgetDefaultSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
 
-		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.dependency.remove.button.label"), SWT.PUSH);
+					@Override
+					public void widgetSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
+				}
+		);
+
+		// remove
+		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.remove.button.label"), SWT.PUSH);
 		button.setLayoutData(gd);
+		button.addSelectionListener(
+				new SelectionListener()
+				{
+					@Override
+					public void widgetDefaultSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
 
-		dependencySection.setClient(dependencyComposite);
+					@Override
+					public void widgetSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
+				}
+		);
 	}
 
 	private void createControlSection(Composite parent)
 	{
-		GridData gridData = new GridData();
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.horizontalSpan = 2;
-		gridData.grabExcessHorizontalSpace = true;
+		GridData gd = new GridData();
+		gd.horizontalAlignment = GridData.FILL;
+		gd.grabExcessHorizontalSpace = true;
 
 		Section controlSection = toolkit.createSection(parent, Section.TITLE_BAR);
 		controlSection.setText(Messages.getString("LigeiroView.control.section.title"));
-		controlSection.setLayoutData(gridData);
+		controlSection.setLayoutData(gd);
 
 		Composite controlComposite = toolkit.createComposite(controlSection, SWT.WRAP);
+		controlSection.setClient(controlComposite);
+
 		GridLayout layout = new GridLayout(3, false);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
@@ -215,14 +309,13 @@ public class LigeiroView extends ViewPart
 
 		Button configurationFileButton = toolkit.createButton(controlComposite, Messages.getString("LigeiroView.control.configuration.file.button.label"), SWT.PUSH);
 		configurationFileButton.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
-
 		configurationFileButton.addSelectionListener(
-				new SelectionListener() {
+				new SelectionListener()
+				{
 					@Override
 					public void widgetDefaultSelected(SelectionEvent event)
 					{
 						// TODO Auto-generated method stub
-						
 					}
 
 					@Override
@@ -237,47 +330,78 @@ public class LigeiroView extends ViewPart
 					}
 				}
 		);
-		
 
-		controlSection.setClient(controlComposite);
+		Button fpaButton = toolkit.createButton(controlComposite, Messages.getString("LigeiroView.control.fpa.button.label"), SWT.PUSH);
+		fpaButton.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
+		fpaButton.addSelectionListener(
+				new SelectionListener()
+				{
+					@Override
+					public void widgetDefaultSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
+
+					@Override
+					public void widgetSelected(SelectionEvent event)
+					{
+						// TODO Auto-generated method stub
+					}
+				}
+		);
 	}
 
 	private void createResultSection(Composite parent)
 	{
-		GridData gridData = new GridData();
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.horizontalSpan = 2;
-		gridData.grabExcessHorizontalSpace = true;
+		GridData gd = new GridData();
+		gd.horizontalAlignment = GridData.FILL;
+		gd.grabExcessHorizontalSpace = true;
 
 		Section resultSection = toolkit.createSection(parent, Section.TITLE_BAR);
 		resultSection.setText(Messages.getString("LigeiroView.results.section.title"));
-		resultSection.setLayoutData(gridData);
+		resultSection.setLayoutData(gd);
 
 		Composite resultComposite = toolkit.createComposite(resultSection, SWT.WRAP);
+		resultSection.setClient(resultComposite);
+
 		GridLayout layout = new GridLayout(2, true);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		resultComposite.setLayout(layout);
 
+		// Data Function
+
 		dfViewer = new TableViewer(resultComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		createColumns(resultComposite, dfViewer, true);
+
 		Table table = dfViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+
+		gd = new GridData(GridData.FILL_BOTH);
+		gd.heightHint = 300;
+		table.setLayoutData(gd);
+
 		dfViewer.setContentProvider(new ArrayContentProvider());
 		dfViewer.setInput(ModelProvider.INSTANCE.getResults());
 
+		// Transaction Function
+
 		tfViewer = new TableViewer(resultComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		createColumns(resultComposite, tfViewer, false);
+
 		table = tfViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
+
+		gd = new GridData(GridData.FILL_BOTH);
+		gd.heightHint = 300;
+		table.setLayoutData(gd);
+
 		tfViewer.setContentProvider(new ArrayContentProvider());
 		tfViewer.setInput(ModelProvider.INSTANCE.getResults());
 
 		//getSite().setSelectionProvider(dfViewer);
-
-		resultSection.setClient(resultComposite);
 	}
 
 	// This will create the columns for the table

@@ -11,6 +11,8 @@ public class Result
 {
 	private String element;
 
+	private String type;
+
 	private int det;
 
 	private int ret_ftr;
@@ -53,6 +55,22 @@ public class Result
 	public void setElement(String element)
 	{
 		propertyChangeSupport.firePropertyChange("element", this.element, this.element = element);
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType()
+	{
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(String type)
+	{
+		propertyChangeSupport.firePropertyChange("type", this.type, this.type = type);
 	}
 
 	/**

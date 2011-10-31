@@ -28,4 +28,20 @@ public class ResultsTableProvider
 	{
 		return results;
 	}
+
+	/**
+	 * @param result the result to be added
+	 */
+	public void addResult(Result result)
+	{
+		results.add(result);
+	}
+
+	/**
+	 * Clear the results.
+	 */
+	public void clear()
+	{
+		results.clear();
+	}
 }

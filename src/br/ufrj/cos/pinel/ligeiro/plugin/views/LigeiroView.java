@@ -43,6 +43,8 @@ import org.eclipse.ui.part.ViewPart;
 
 import br.ufrj.cos.pinel.ligeiro.Core;
 import br.ufrj.cos.pinel.ligeiro.common.FPAConfig;
+import br.ufrj.cos.pinel.ligeiro.data.FPAReport;
+import br.ufrj.cos.pinel.ligeiro.data.ReportResult;
 import br.ufrj.cos.pinel.ligeiro.plugin.Activator;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Util;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
@@ -447,9 +449,10 @@ public class LigeiroView extends ViewPart
 							showInformation(Messages.getString("LigeiroView.error.control.configuration.many.files"));
 							return;
 						}
-
-						if (verifyFileType(files[0]))
+						else if (files.length == 1 && verifyFileType(files[0]))
+						{
 							configurationFileText.setText(files[0]);
+						}
 					}
 				}
 				public void dragEnter(DropTargetEvent event) { }
@@ -475,10 +478,11 @@ public class LigeiroView extends ViewPart
 						if (paths.size() > 1)
 						{
 							showInformation(Messages.getString("LigeiroView.error.control.configuration.many.files"));
-							return;
 						}
-
-						configurationFileText.setText(paths.get(0));
+						else if (!paths.isEmpty())
+						{
+							configurationFileText.setText(paths.get(0));
+						}
 					}
 				}
 				public void widgetDefaultSelected(SelectionEvent event) { }
@@ -704,7 +708,35 @@ public class LigeiroView extends ViewPart
 
 			FPAConfig fpaConfig = core.readFPAConfiguration(configurationFileText.getText());
 
-			core.startFunctionPointAnalysis(fpaConfig);
+			FPAReport fpaReport = core.startFunctionPointAnalysis(fpaConfig);
+
+			dfTableProvider.clear();
+			for (ReportResult reportResult : fpaReport.getDFReport())
+			{
+				Result result = new Result();
+				result.setElement(reportResult.getElement());
+				result.setType(reportResult.getType());
+				result.setRet_ftr(reportResult.getRet_ftr());
+				result.setDet(reportResult.getDet());
+				result.setComplexity(reportResult.getComplexity());
+				result.setComplexityValue(reportResult.getComplexityValue());
+				dfTableProvider.addResult(result);
+			}
+			dfTable.refresh();
+
+			tfTableProvider.clear();
+			for (ReportResult reportResult : fpaReport.getTFReport())
+			{
+				Result result = new Result();
+				result.setElement(reportResult.getElement());
+				result.setType(reportResult.getType());
+				result.setRet_ftr(reportResult.getRet_ftr());
+				result.setDet(reportResult.getDet());
+				result.setComplexity(reportResult.getComplexity());
+				result.setComplexityValue(reportResult.getComplexityValue());
+				tfTableProvider.addResult(result);
+			}
+			tfTable.refresh();
 		}
 		catch (ReadXMLException e)
 		{

@@ -19,13 +19,12 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -36,7 +35,10 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.ImageHyperlink;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
@@ -525,6 +527,31 @@ public class LigeiroView extends ViewPart
 		resultSection.setText(Messages.getString("LigeiroView.results.section.title"));
 		resultSection.setLayoutData(gd);
 
+		Composite toolbarComposite = toolkit.createComposite(resultSection, SWT.WRAP);
+		RowLayout rowlayout = new RowLayout(SWT.HORIZONTAL);
+		rowlayout.marginLeft = 0;
+		rowlayout.marginRight = 0;
+		rowlayout.spacing = 0;
+		rowlayout.marginTop = 0;
+		rowlayout.marginBottom = 0;
+		toolbarComposite.setLayout(rowlayout);
+		resultSection.setTextClient(toolbarComposite);
+		ImageHyperlink imageHyperLink = new ImageHyperlink(toolbarComposite, SWT.LEFT);
+		imageHyperLink.setBackgroundImage(resultSection.getBackgroundImage());
+		imageHyperLink.setToolTipText(Messages.getString("LigeiroView.results.toolbar.clear.tip"));
+		imageHyperLink.setImage(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_TRASH).createImage());
+		imageHyperLink.addHyperlinkListener(new HyperlinkAdapter()
+		{
+			public void linkActivated(HyperlinkEvent e)
+			{
+				dfTableProvider.clear();
+				dfTable.refresh();
+
+				tfTableProvider.clear();
+				tfTable.refresh();
+			}
+		});
+
 		Composite resultComposite = toolkit.createComposite(resultSection, SWT.WRAP);
 		resultSection.setClient(resultComposite);
 
@@ -548,6 +575,7 @@ public class LigeiroView extends ViewPart
 
 		dfTable.setContentProvider(new ArrayContentProvider());
 		dfTable.setInput(dfTableProvider.getResults());
+		dfTable.getTable().getHorizontalBar().setEnabled(true);
 
 		// Transaction Function
 
@@ -564,6 +592,7 @@ public class LigeiroView extends ViewPart
 
 		tfTable.setContentProvider(new ArrayContentProvider());
 		tfTable.setInput(tfTableProvider.getResults());
+		tfTable.getTable().getHorizontalBar().setEnabled(true);
 	}
 
 	private void createResultColumns(final Composite parent, final TableViewer viewer, final boolean isDataFunction)
@@ -768,7 +797,6 @@ public class LigeiroView extends ViewPart
 				result.setComplexityValue(reportResult.getComplexityValue());
 				dfTableProvider.addResult(result);
 			}
-			dfTable.getTable().getHorizontalBar().setEnabled(true);
 			dfTable.refresh();
 
 			tfTableProvider.clear();
@@ -783,7 +811,6 @@ public class LigeiroView extends ViewPart
 				result.setComplexityValue(reportResult.getComplexityValue());
 				tfTableProvider.addResult(result);
 			}
-			tfTable.getTable().getHorizontalBar().setEnabled(true);
 			tfTable.refresh();
 		}
 		catch (ReadXMLException e)

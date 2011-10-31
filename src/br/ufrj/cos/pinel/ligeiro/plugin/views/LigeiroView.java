@@ -451,7 +451,7 @@ public class LigeiroView extends ViewPart
 		configurationFileLabel.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
 
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		gd.widthHint = 500;
+		gd.widthHint = 400;
 
 		configurationFileText = new Text(controlComposite, SWT.BORDER);
 		configurationFileText.setEditable(false);
@@ -600,8 +600,6 @@ public class LigeiroView extends ViewPart
 	{
 		String message;
 
-		// First column is for the element
-
 		if (isDataFunction)
 			message = Messages.getString("LigeiroView.results.table.data.function");
 		else
@@ -616,7 +614,14 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		// Second column is for the RET/FRT
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.type"));
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				Result p = (Result) element;
+				return p.getType();
+			}
+		});
 
 		if (isDataFunction)
 			message = Messages.getString("LigeiroView.results.table.ret");
@@ -632,8 +637,6 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		// Third column is for the DET
-
 		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.det"));
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -643,8 +646,6 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		// Fourth column is for the complexity
-
 		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity"));
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -653,8 +654,6 @@ public class LigeiroView extends ViewPart
 				return p.getComplexity();
 			}
 		});
-
-		// Fifth column is for the complexity value
 
 		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity.value"));
 		col.setLabelProvider(new ColumnLabelProvider() {

@@ -21,6 +21,7 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -422,6 +423,7 @@ public class LigeiroView extends ViewPart
 		configurationFileText = new Text(controlComposite, SWT.BORDER);
 		configurationFileText.setEditable(false);
 		configurationFileText.setLayoutData(gd);
+		configurationFileText.setBackground(new Color(form.getShell().getDisplay(), 235, 235, 235));
 
 		DropTarget dropTarget = new DropTarget(configurationFileText, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
 		final FileTransfer fileTransfer = FileTransfer.getInstance();
@@ -437,7 +439,7 @@ public class LigeiroView extends ViewPart
 	
 						if (files.length > 1)
 						{
-							showInformation(Messages.getString("LigeiroView.error.control.configuration.file.drop"));
+							showInformation(Messages.getString("LigeiroView.error.control.configuration.many.files"));
 							return;
 						}
 
@@ -454,21 +456,25 @@ public class LigeiroView extends ViewPart
 		);
 
 		Button configurationFileButton = toolkit.createButton(controlComposite, Messages.getString("LigeiroView.control.configuration.file.button.label"), SWT.PUSH);
-//		configurationFileButton.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
 		configurationFileButton.addSelectionListener(
 			new SelectionListener()
 			{
 				public void widgetSelected(SelectionEvent event)
 				{
-//						FileDialog fd = new FileDialog(form.getShell(), SWT.OPEN);
-//						fd.setText(Messages.getString("LigeiroView.control.configuration.file.dialog.title"));
-//						String[] filterExt = {"*.xml"};
-//						fd.setFilterExtensions(filterExt);
-//						String selected = fd.open();
-//						System.out.println(selected);
-//						ResourceListSelectionDialog dialog = new ResourceListSelectionDialog(window.getShell(), resourcesArray);
-//						dialog.setTitle("Resource Selection");
-//						dialog.open();
+					List<String> paths = createFileCheckedTreeSelectionDialog(
+							Messages.getString("LigeiroView.control.configuration.add.dialog.title"),
+							Messages.getString("LigeiroView.control.configuration.add.dialog.message"));
+
+					if (paths != null)
+					{
+						if (paths.size() > 1)
+						{
+							showInformation(Messages.getString("LigeiroView.error.control.configuration.many.files"));
+							return;
+						}
+
+						configurationFileText.setText(paths.get(0));
+					}
 				}
 				public void widgetDefaultSelected(SelectionEvent event) { }
 			}

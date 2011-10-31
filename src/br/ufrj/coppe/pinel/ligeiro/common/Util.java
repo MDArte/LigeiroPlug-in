@@ -32,8 +32,10 @@ public class Util
 		return false;
 	}
 
-	public static void removeInputFiles(Table table, TableItem[] items)
+	public static boolean removeInputFiles(Table table, TableItem[] items)
 	{
+		boolean anyRemoved = false;
+
 		for (TableItem item : items)
 		{
 			int i = containsInputFile(table, item.getData());
@@ -41,8 +43,11 @@ public class Util
 			if (i != NOT_FOUND)
 			{
 				table.remove(i);
+				anyRemoved = true;
 			}
 		}
+
+		return anyRemoved;
 	}
 
 	public static int containsInputFile(Table table, Object object)

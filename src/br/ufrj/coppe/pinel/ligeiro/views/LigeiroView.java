@@ -1,11 +1,16 @@
 package br.ufrj.coppe.pinel.ligeiro.views;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
@@ -19,16 +24,18 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
+import org.eclipse.ui.model.BaseWorkbenchContentProvider;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.ViewPart;
 
 import br.ufrj.coppe.pinel.ligeiro.Activator;
@@ -46,6 +53,9 @@ public class LigeiroView extends ViewPart
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "br.ufrj.coppe.pinel.ligeiro.views.LigeiroView";
+
+	private FormToolkit toolkit;
+	private ScrolledForm form;
 
 	private Table statisticTable;
 	private Button statisticAddButton;
@@ -84,9 +94,6 @@ public class LigeiroView extends ViewPart
 		dfTableProvider.getResults().add(result);
 	}
 
-	private FormToolkit toolkit;
-	private ScrolledForm form;
-
 	/**
 	 * @see org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
 	 */
@@ -110,6 +117,14 @@ public class LigeiroView extends ViewPart
 		appendActions();
 
 		form.reflow(true);
+	}
+
+	/**
+	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
+	 */
+	public void setFocus()
+	{
+		dfTable.getControl().setFocus();
 	}
 
 	private void createFilesSection(Composite parent)
@@ -164,54 +179,31 @@ public class LigeiroView extends ViewPart
 		DropTarget dropTarget = new DropTarget(statisticTable, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
 		final FileTransfer fileTransfer = FileTransfer.getInstance();
 		dropTarget.setTransfer(new Transfer[] {fileTransfer});
-		dropTarget.addDropListener(new DropTargetListener()
-		{
-			@Override
-			public void drop(DropTargetEvent event)
+		dropTarget.addDropListener(
+			new DropTargetListener()
 			{
-				if (fileTransfer.isSupportedType(event.currentDataType))
+				public void drop(DropTargetEvent event)
 				{
-					String[] files = (String[]) event.data;
-					for (int i = 0; i < files.length; i++)
+					if (fileTransfer.isSupportedType(event.currentDataType))
 					{
-						if (Util.addInputFile(statisticTable, files[i]) && !statisticRemoveButton.isEnabled())
+						String[] files = (String[]) event.data;
+						for (int i = 0; i < files.length; i++)
 						{
-							statisticRemoveButton.setEnabled(true);
+							if (Util.addInputFile(statisticTable, files[i])
+								&& !statisticRemoveButton.isEnabled())
+							{
+								statisticRemoveButton.setEnabled(true);
+							}
 						}
 					}
 				}
+				public void dragEnter(DropTargetEvent event) { }
+				public void dragLeave(DropTargetEvent event) { }
+				public void dragOperationChanged(DropTargetEvent event) { }
+				public void dragOver(DropTargetEvent event) { }
+				public void dropAccept(DropTargetEvent event) { }
 			}
-
-			@Override
-			public void dragEnter(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dragLeave(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dragOperationChanged(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dragOver(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dropAccept(DropTargetEvent event)
-			{
-				// empty
-			}
-		});
+		);
 
 		Composite buttonComposite = toolkit.createComposite(statisticComposite, SWT.WRAP);
 		layout = new GridLayout(1, true);
@@ -225,23 +217,30 @@ public class LigeiroView extends ViewPart
 		statisticAddButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.add.button.label"), SWT.PUSH);
 		statisticAddButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ADD));
 		statisticAddButton.setToolTipText(Messages.getString("LigeiroView.files.statistic.add.button.tip"));
-		statisticAddButton.setEnabled(false);
 		statisticAddButton.setLayoutData(gd);
 		statisticAddButton.addSelectionListener(
-				new SelectionListener()
+			new SelectionListener()
+			{
+				public void widgetSelected(SelectionEvent event)
 				{
-					@Override
-					public void widgetSelected(SelectionEvent event)
-					{
-						// TODO Auto-generated method stub
-					}
+					List<String> paths = createFileCheckedTreeSelectionDialog(
+							Messages.getString("LigeiroView.files.statistic.add.dialog.title"),
+							Messages.getString("LigeiroView.files.add.dialog.message"));
 
-					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
+					if (paths != null)
 					{
-						// empty
+						for (String path : paths)
+						{
+							if (Util.addInputFile(statisticTable, path)
+								&& !statisticRemoveButton.isEnabled())
+							{
+								statisticRemoveButton.setEnabled(true);
+							}
+						}
 					}
 				}
+				public void widgetDefaultSelected(SelectionEvent event) { }
+			}
 		);
 
 		// remove
@@ -251,23 +250,18 @@ public class LigeiroView extends ViewPart
 		statisticRemoveButton.setEnabled(false);
 		statisticRemoveButton.setLayoutData(gd);
 		statisticRemoveButton.addSelectionListener(
-				new SelectionListener()
+			new SelectionListener()
+			{
+				public void widgetSelected(SelectionEvent event)
 				{
-					@Override
-					public void widgetSelected(SelectionEvent event)
+					if (Util.removeInputFiles(statisticTable, statisticTable.getSelection())
+						&& statisticTable.getItemCount() == 0)
 					{
-						if (Util.removeInputFiles(statisticTable, statisticTable.getSelection()) && statisticTable.getItemCount() == 0)
-						{
-							statisticRemoveButton.setEnabled(false);
-						}
-					}
-
-					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
-					{
-						// empty
+						statisticRemoveButton.setEnabled(false);
 					}
 				}
+				public void widgetDefaultSelected(SelectionEvent event) { }
+			}
 		);
 	}
 
@@ -299,53 +293,31 @@ public class LigeiroView extends ViewPart
 		DropTarget dropTarget = new DropTarget(dependencyTable, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
 		final FileTransfer fileTransfer = FileTransfer.getInstance();
 		dropTarget.setTransfer(new Transfer[] {fileTransfer});
-		dropTarget.addDropListener(new DropTargetListener() {
-			@Override
-			public void drop(DropTargetEvent event)
+		dropTarget.addDropListener(
+			new DropTargetListener()
 			{
-				if (fileTransfer.isSupportedType(event.currentDataType))
+				public void drop(DropTargetEvent event)
 				{
-					String[] files = (String[]) event.data;
-					for (int i = 0; i < files.length; i++)
+					if (fileTransfer.isSupportedType(event.currentDataType))
 					{
-						if (Util.addInputFile(dependencyTable, files[i]) && !dependencyRemoveButton.isEnabled())
+						String[] files = (String[]) event.data;
+						for (int i = 0; i < files.length; i++)
 						{
-							dependencyRemoveButton.setEnabled(true);
+							if (Util.addInputFile(dependencyTable, files[i])
+								&& !dependencyRemoveButton.isEnabled())
+							{
+								dependencyRemoveButton.setEnabled(true);
+							}
 						}
 					}
 				}
+				public void dragEnter(DropTargetEvent event) { }
+				public void dragLeave(DropTargetEvent event) { }
+				public void dragOperationChanged(DropTargetEvent event) { }
+				public void dragOver(DropTargetEvent event) { }
+				public void dropAccept(DropTargetEvent event) { }
 			}
-
-			@Override
-			public void dragEnter(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dragLeave(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dragOperationChanged(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dragOver(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dropAccept(DropTargetEvent event)
-			{
-				// empty
-			}
-		});
+		);
 
 		Composite buttonComposite = toolkit.createComposite(dependencyComposite, SWT.WRAP);
 		layout = new GridLayout(1, true);
@@ -359,23 +331,30 @@ public class LigeiroView extends ViewPart
 		dependencyAddButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.add.button.label"), SWT.PUSH);
 		dependencyAddButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ADD));
 		dependencyAddButton.setToolTipText(Messages.getString("LigeiroView.files.dependency.add.button.tip"));
-		dependencyAddButton.setEnabled(false);
 		dependencyAddButton.setLayoutData(gd);
 		dependencyAddButton.addSelectionListener(
-				new SelectionListener()
+			new SelectionListener()
+			{
+				public void widgetSelected(SelectionEvent event)
 				{
-					@Override
-					public void widgetSelected(SelectionEvent event)
-					{
-						// TODO Auto-generated method stub
-					}
+					List<String> paths = createFileCheckedTreeSelectionDialog(
+							Messages.getString("LigeiroView.files.dependency.add.dialog.title"),
+							Messages.getString("LigeiroView.files.add.dialog.message"));
 
-					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
+					if (paths != null)
 					{
-						// empty
+						for (String path : paths)
+						{
+							if (Util.addInputFile(dependencyTable, path)
+								&& !dependencyRemoveButton.isEnabled())
+							{
+								dependencyRemoveButton.setEnabled(true);
+							}
+						}
 					}
 				}
+				public void widgetDefaultSelected(SelectionEvent event) { }
+			}
 		);
 
 		// remove
@@ -385,23 +364,18 @@ public class LigeiroView extends ViewPart
 		dependencyRemoveButton.setEnabled(false);
 		dependencyRemoveButton.setLayoutData(gd);
 		dependencyRemoveButton.addSelectionListener(
-				new SelectionListener()
+			new SelectionListener()
+			{
+				public void widgetSelected(SelectionEvent event)
 				{
-					@Override
-					public void widgetSelected(SelectionEvent event)
+					if (Util.removeInputFiles(dependencyTable, dependencyTable.getSelection())
+						&& dependencyTable.getItemCount() == 0)
 					{
-						if (Util.removeInputFiles(dependencyTable, dependencyTable.getSelection()) && dependencyTable.getItemCount() == 0)
-						{
-							dependencyRemoveButton.setEnabled(false);
-						}
-					}
-
-					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
-					{
-						// empty
+						dependencyRemoveButton.setEnabled(false);
 					}
 				}
+				public void widgetDefaultSelected(SelectionEvent event){ }
+			}
 		);
 	}
 
@@ -437,80 +411,54 @@ public class LigeiroView extends ViewPart
 		DropTarget dropTarget = new DropTarget(configurationFileText, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
 		final FileTransfer fileTransfer = FileTransfer.getInstance();
 		dropTarget.setTransfer(new Transfer[] {fileTransfer});
-		dropTarget.addDropListener(new DropTargetListener() {
-			@Override
-			public void drop(DropTargetEvent event)
+		dropTarget.addDropListener(
+			new DropTargetListener()
 			{
-				if (fileTransfer.isSupportedType(event.currentDataType))
+				public void drop(DropTargetEvent event)
 				{
-					String[] files = (String[]) event.data;
-
-					if (files.length > 1)
+					if (fileTransfer.isSupportedType(event.currentDataType))
 					{
-						showInformation(Messages.getString("LigeiroView.error.control.configuration.file.drop"));
-						return;
-					}
-
-					for (int i = 0; i < files.length; i++)
-					{
-						configurationFileText.setText(files[i]);
+						String[] files = (String[]) event.data;
+	
+						if (files.length > 1)
+						{
+							showInformation(Messages.getString("LigeiroView.error.control.configuration.file.drop"));
+							return;
+						}
+	
+						for (int i = 0; i < files.length; i++)
+						{
+							configurationFileText.setText(files[i]);
+						}
 					}
 				}
+				public void dragEnter(DropTargetEvent event) { }
+				public void dragLeave(DropTargetEvent event) { }
+				public void dragOperationChanged(DropTargetEvent event) { }
+				public void dragOver(DropTargetEvent event) { }
+				public void dropAccept(DropTargetEvent event) { }
 			}
-
-			@Override
-			public void dragEnter(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dragLeave(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dragOperationChanged(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dragOver(DropTargetEvent event)
-			{
-				// empty
-			}
-
-			@Override
-			public void dropAccept(DropTargetEvent event)
-			{
-				// empty
-			}
-		});
+		);
 
 		Button configurationFileButton = toolkit.createButton(controlComposite, Messages.getString("LigeiroView.control.configuration.file.button.label"), SWT.PUSH);
 //		configurationFileButton.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
 		configurationFileButton.addSelectionListener(
-				new SelectionListener()
+			new SelectionListener()
+			{
+				public void widgetSelected(SelectionEvent event)
 				{
-					@Override
-					public void widgetSelected(SelectionEvent event)
-					{
-						FileDialog fd = new FileDialog(form.getShell(), SWT.OPEN);
-						fd.setText(Messages.getString("LigeiroView.control.configuration.file.dialog.title"));
-						String[] filterExt = {"*.xml"};
-						fd.setFilterExtensions(filterExt);
-						String selected = fd.open();
-						System.out.println(selected);
-					}
-
-					@Override
-					public void widgetDefaultSelected(SelectionEvent event)
-					{
-						// empty
-					}
+//						FileDialog fd = new FileDialog(form.getShell(), SWT.OPEN);
+//						fd.setText(Messages.getString("LigeiroView.control.configuration.file.dialog.title"));
+//						String[] filterExt = {"*.xml"};
+//						fd.setFilterExtensions(filterExt);
+//						String selected = fd.open();
+//						System.out.println(selected);
+//						ResourceListSelectionDialog dialog = new ResourceListSelectionDialog(window.getShell(), resourcesArray);
+//						dialog.setTitle("Resource Selection");
+//						dialog.open();
 				}
+				public void widgetDefaultSelected(SelectionEvent event) { }
+			}
 		);
 	}
 
@@ -660,11 +608,37 @@ public class LigeiroView extends ViewPart
 		MessageDialog.openInformation(form.getShell(), Messages.getString("LigeiroView.title"), message);
 	}
 
-	/**
-	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
-	 */
-	public void setFocus()
+	private List<String> createFileCheckedTreeSelectionDialog(String title, String message)
 	{
-		dfTable.getControl().setFocus();
+		CheckedTreeSelectionDialog dialog = new CheckedTreeSelectionDialog(form.getShell(),
+				new WorkbenchLabelProvider(), new BaseWorkbenchContentProvider());
+		dialog.setTitle(title);
+		dialog.setMessage(message);
+		dialog.setInput(ResourcesPlugin.getWorkspace().getRoot());
+		int status = dialog.open();
+
+		List<String> paths = new ArrayList<String>();
+
+		if (status == Window.OK && dialog.getResult() != null)
+		{
+			Object[] results = dialog.getResult();
+
+			for (int i = 0; i < results.length; i++)
+			{
+				// get only files
+				if (results[i] instanceof org.eclipse.core.resources.IFile)
+				{
+					org.eclipse.core.resources.IFile file = (org.eclipse.core.resources.IFile) results[i];
+					paths.add(file.getLocationURI().getPath());
+				}
+				else
+				{
+					showInformation(Messages.getString("LigeiroView.error.files.type.not.file"));
+					return null;
+				}
+			}
+		}
+
+		return paths;
 	}
 }

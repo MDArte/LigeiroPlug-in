@@ -1,5 +1,6 @@
 package br.ufrj.coppe.pinel.ligeiro.views;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -187,6 +188,13 @@ public class LigeiroView extends ViewPart
 					if (fileTransfer.isSupportedType(event.currentDataType))
 					{
 						String[] files = (String[]) event.data;
+
+						for (int i = 0; i < files.length; i++)
+						{
+							if (!verifyFileType(files[i]))
+								return;
+						}
+
 						for (int i = 0; i < files.length; i++)
 						{
 							if (Util.addInputFile(statisticTable, files[i])
@@ -301,6 +309,13 @@ public class LigeiroView extends ViewPart
 					if (fileTransfer.isSupportedType(event.currentDataType))
 					{
 						String[] files = (String[]) event.data;
+
+						for (int i = 0; i < files.length; i++)
+						{
+							if (!verifyFileType(files[i]))
+								return;
+						}
+
 						for (int i = 0; i < files.length; i++)
 						{
 							if (Util.addInputFile(dependencyTable, files[i])
@@ -425,11 +440,9 @@ public class LigeiroView extends ViewPart
 							showInformation(Messages.getString("LigeiroView.error.control.configuration.file.drop"));
 							return;
 						}
-	
-						for (int i = 0; i < files.length; i++)
-						{
-							configurationFileText.setText(files[i]);
-						}
+
+						if (verifyFileType(files[0]))
+							configurationFileText.setText(files[0]);
 					}
 				}
 				public void dragEnter(DropTargetEvent event) { }
@@ -640,5 +653,17 @@ public class LigeiroView extends ViewPart
 		}
 
 		return paths;
+	}
+
+	private boolean verifyFileType(String path)
+	{
+		File file = new File(path);
+
+		if (file.isFile())
+			return true;
+
+		showInformation(Messages.getString("LigeiroView.error.files.type.not.file"));
+
+		return false;
 	}
 }

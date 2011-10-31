@@ -88,8 +88,11 @@ public class LigeiroView extends ViewPart
 
 	private Text configurationFileText;
 
-	private Text dfTotalText;
-	private Text tfTotalText;
+	private Text unadjustedDFTotalText;
+	private Text unadjustedTFTotalText;
+	private Text unadjustedFPATotalText;
+	private Text vafText;
+	private Text adjustedFPATotalText;
 
 	/**
 	 * The constructor.
@@ -550,11 +553,15 @@ public class LigeiroView extends ViewPart
 			{
 				dfTableProvider.clear();
 				dfTable.refresh();
-				dfTotalText.setText("");
+				unadjustedDFTotalText.setText("");
 
 				tfTableProvider.clear();
 				tfTable.refresh();
-				tfTotalText.setText("");
+				unadjustedTFTotalText.setText("");
+
+				unadjustedFPATotalText.setText("");
+				vafText.setText("");
+				adjustedFPATotalText.setText("");
 			}
 		});
 
@@ -602,30 +609,85 @@ public class LigeiroView extends ViewPart
 
 		// additional information
 
-		Composite groupComposite = toolkit.createComposite(resultComposite, SWT.WRAP);
+		Color mathOperationColor = new Color(form.getShell().getDisplay(), 238, 44, 44);
+
+		Composite allComposite = toolkit.createComposite(resultComposite, SWT.WRAP);
+		layout = new GridLayout(9, false);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		allComposite.setLayout(layout);
+		gd = new GridData();
+		gd.horizontalAlignment = GridData.FILL;
+		gd.horizontalSpan = 2;
+		gd.grabExcessHorizontalSpace = true;
+		allComposite.setLayoutData(gd);
+
+		Composite groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		layout = new GridLayout(2, false);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		groupComposite.setLayout(layout);
-
 		Label label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.data.function.total.label"));
+		unadjustedDFTotalText = new Text(groupComposite, SWT.BORDER);
+		unadjustedDFTotalText.setEnabled(false);
+		unadjustedDFTotalText.setSize(20, 50);
 
-		dfTotalText = new Text(groupComposite, SWT.BORDER);
-		dfTotalText.setEnabled(false);
-		dfTotalText.setBackground(new Color(form.getShell().getDisplay(), 235, 235, 235));
-		dfTotalText.setSize(20, 50);
-
-		groupComposite = toolkit.createComposite(resultComposite, SWT.WRAP);
+		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
+		label = new Label(groupComposite, SWT.NONE);
+		label.setText(Messages.getString("LigeiroView.results.plus"));
+		label.setForeground(mathOperationColor);
 
+		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
+		groupComposite.setLayout(layout);
 		label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.transaction.function.total.label"));
+		unadjustedTFTotalText = new Text(groupComposite, SWT.BORDER);
+		unadjustedTFTotalText.setEnabled(false);
+		unadjustedTFTotalText.setSize(20, 50);
 
-		tfTotalText = new Text(groupComposite, SWT.BORDER);
-		tfTotalText.setEnabled(false);
-		tfTotalText.setBackground(new Color(form.getShell().getDisplay(), 235, 235, 235));
-		tfTotalText.setSize(20, 50);
+		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
+		groupComposite.setLayout(layout);
+		label = new Label(groupComposite, SWT.NONE);
+		label.setText(Messages.getString("LigeiroView.results.equals"));
+		label.setForeground(mathOperationColor);
+
+		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
+		groupComposite.setLayout(layout);
+		label = new Label(groupComposite, SWT.NONE);
+		label.setText(Messages.getString("LigeiroView.results.unadjusted.fpa.total.label"));
+		unadjustedFPATotalText = new Text(groupComposite, SWT.BORDER);
+		unadjustedFPATotalText.setEnabled(false);
+		unadjustedFPATotalText.setSize(20, 50);
+
+		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
+		groupComposite.setLayout(layout);
+		label = new Label(groupComposite, SWT.NONE);
+		label.setText(Messages.getString("LigeiroView.results.times"));
+		label.setForeground(mathOperationColor);
+
+		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
+		groupComposite.setLayout(layout);
+		label = new Label(groupComposite, SWT.NONE);
+		label.setText(Messages.getString("LigeiroView.results.vaf.label"));
+		vafText = new Text(groupComposite, SWT.BORDER);
+		vafText.setEnabled(false);
+		vafText.setSize(20, 50);
+
+		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
+		groupComposite.setLayout(layout);
+		label = new Label(groupComposite, SWT.NONE);
+		label.setText(Messages.getString("LigeiroView.results.equals"));
+		label.setForeground(mathOperationColor);
+
+		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
+		groupComposite.setLayout(layout);
+		label = new Label(groupComposite, SWT.NONE);
+		label.setText(Messages.getString("LigeiroView.results.adjusted.fpa.total.label"));
+		adjustedFPATotalText = new Text(groupComposite, SWT.BORDER);
+		adjustedFPATotalText.setEnabled(false);
+		adjustedFPATotalText.setSize(20, 50);
 	}
 
 	private void createResultColumns(final Composite parent, final TableViewer viewer, final boolean isDataFunction)
@@ -833,7 +895,7 @@ public class LigeiroView extends ViewPart
 			}
 			dfTable.refresh();
 
-			dfTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
+			unadjustedDFTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
 
 			tfTableProvider.clear();
 			for (ReportResult reportResult : fpaReport.getTFReport())
@@ -849,7 +911,13 @@ public class LigeiroView extends ViewPart
 			}
 			tfTable.refresh();
 
-			tfTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
+			unadjustedTFTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
+
+			unadjustedFPATotalText.setText(Integer.toString(fpaReport.getReportTotal()));
+
+			vafText.setText(Double.toString(fpaConfig.getVaf()));
+
+			adjustedFPATotalText.setText(Double.toString(fpaReport.getAdjustedReportTotal(fpaConfig.getVaf())));
 		}
 		catch (ReadXMLException e)
 		{

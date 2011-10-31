@@ -48,7 +48,12 @@ public class LigeiroView extends ViewPart
 	public static final String ID = "br.ufrj.coppe.pinel.ligeiro.views.LigeiroView";
 
 	private Table statisticTable;
+	private Button statisticAddButton;
+	private Button statisticRemoveButton;
+
 	private Table dependencyTable;
+	private Button dependencyAddButton;
+	private Button dependencyRemoveButton;
 
 	private TableViewer dfTable;
 	private ResultsTableProvider dfTableProvider;
@@ -57,6 +62,8 @@ public class LigeiroView extends ViewPart
 	private ResultsTableProvider tfTableProvider;
 
 	private Action startFPAAction;
+
+	private Text configurationFileText;
 
 	/**
 	 * The constructor.
@@ -67,6 +74,14 @@ public class LigeiroView extends ViewPart
 
 		dfTableProvider = new ResultsTableProvider();
 		tfTableProvider = new ResultsTableProvider();
+
+		Result result = new Result();
+		result.setElement("ReadStudent");
+		result.setRet_ftr(1);
+		result.setDet(2);
+		result.setComplexity("Low");
+		result.setComplexityValue(4);
+		dfTableProvider.getResults().add(result);
 	}
 
 	private FormToolkit toolkit;
@@ -156,10 +171,13 @@ public class LigeiroView extends ViewPart
 			{
 				if (fileTransfer.isSupportedType(event.currentDataType))
 				{
-					String[] files = (String[])event.data;
+					String[] files = (String[]) event.data;
 					for (int i = 0; i < files.length; i++)
 					{
-						Util.addInputFile(statisticTable, files[i]);
+						if (Util.addInputFile(statisticTable, files[i]) && !statisticRemoveButton.isEnabled())
+						{
+							statisticRemoveButton.setEnabled(true);
+						}
 					}
 				}
 			}
@@ -204,11 +222,12 @@ public class LigeiroView extends ViewPart
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
 		// add
-		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.add.button.label"), SWT.PUSH);
-		button.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ADD));
-		button.setToolTipText(Messages.getString("LigeiroView.files.statistic.add.button.tip"));
-		button.setLayoutData(gd);
-		button.addSelectionListener(
+		statisticAddButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.add.button.label"), SWT.PUSH);
+		statisticAddButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ADD));
+		statisticAddButton.setToolTipText(Messages.getString("LigeiroView.files.statistic.add.button.tip"));
+		statisticAddButton.setEnabled(false);
+		statisticAddButton.setLayoutData(gd);
+		statisticAddButton.addSelectionListener(
 				new SelectionListener()
 				{
 					@Override
@@ -226,17 +245,21 @@ public class LigeiroView extends ViewPart
 		);
 
 		// remove
-		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.remove.button.label"), SWT.PUSH);
-		button.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_REMOVE));
-		button.setToolTipText(Messages.getString("LigeiroView.files.statistic.remove.button.tip"));
-		button.setLayoutData(gd);
-		button.addSelectionListener(
+		statisticRemoveButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.remove.button.label"), SWT.PUSH);
+		statisticRemoveButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_REMOVE));
+		statisticRemoveButton.setToolTipText(Messages.getString("LigeiroView.files.statistic.remove.button.tip"));
+		statisticRemoveButton.setEnabled(false);
+		statisticRemoveButton.setLayoutData(gd);
+		statisticRemoveButton.addSelectionListener(
 				new SelectionListener()
 				{
 					@Override
 					public void widgetSelected(SelectionEvent event)
 					{
-						Util.removeInputFiles(statisticTable, statisticTable.getSelection());
+						if (Util.removeInputFiles(statisticTable, statisticTable.getSelection()) && statisticTable.getItemCount() == 0)
+						{
+							statisticRemoveButton.setEnabled(false);
+						}
 					}
 
 					@Override
@@ -282,10 +305,13 @@ public class LigeiroView extends ViewPart
 			{
 				if (fileTransfer.isSupportedType(event.currentDataType))
 				{
-					String[] files = (String[])event.data;
+					String[] files = (String[]) event.data;
 					for (int i = 0; i < files.length; i++)
 					{
-						Util.addInputFile(dependencyTable, files[i]);
+						if (Util.addInputFile(dependencyTable, files[i]) && !dependencyRemoveButton.isEnabled())
+						{
+							dependencyRemoveButton.setEnabled(true);
+						}
 					}
 				}
 			}
@@ -330,11 +356,12 @@ public class LigeiroView extends ViewPart
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
 		// add
-		Button button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.add.button.label"), SWT.PUSH);
-		button.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ADD));
-		button.setToolTipText(Messages.getString("LigeiroView.files.dependency.add.button.tip"));
-		button.setLayoutData(gd);
-		button.addSelectionListener(
+		dependencyAddButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.add.button.label"), SWT.PUSH);
+		dependencyAddButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ADD));
+		dependencyAddButton.setToolTipText(Messages.getString("LigeiroView.files.dependency.add.button.tip"));
+		dependencyAddButton.setEnabled(false);
+		dependencyAddButton.setLayoutData(gd);
+		dependencyAddButton.addSelectionListener(
 				new SelectionListener()
 				{
 					@Override
@@ -352,17 +379,21 @@ public class LigeiroView extends ViewPart
 		);
 
 		// remove
-		button = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.remove.button.label"), SWT.PUSH);
-		button.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_REMOVE));
-		button.setToolTipText(Messages.getString("LigeiroView.files.dependency.remove.button.tip"));
-		button.setLayoutData(gd);
-		button.addSelectionListener(
+		dependencyRemoveButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.remove.button.label"), SWT.PUSH);
+		dependencyRemoveButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_REMOVE));
+		dependencyRemoveButton.setToolTipText(Messages.getString("LigeiroView.files.dependency.remove.button.tip"));
+		dependencyRemoveButton.setEnabled(false);
+		dependencyRemoveButton.setLayoutData(gd);
+		dependencyRemoveButton.addSelectionListener(
 				new SelectionListener()
 				{
 					@Override
 					public void widgetSelected(SelectionEvent event)
 					{
-						Util.removeInputFiles(dependencyTable, dependencyTable.getSelection());
+						if (Util.removeInputFiles(dependencyTable, dependencyTable.getSelection()) && dependencyTable.getItemCount() == 0)
+						{
+							dependencyRemoveButton.setEnabled(false);
+						}
 					}
 
 					@Override
@@ -396,12 +427,70 @@ public class LigeiroView extends ViewPart
 		configurationFileLabel.setText(Messages.getString("LigeiroView.control.configuration.file.label"));
 		configurationFileLabel.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
 
-		Text configurationFileText = new Text(controlComposite, SWT.BORDER);
+		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		gd.widthHint = 500;
+
+		configurationFileText = new Text(controlComposite, SWT.BORDER);
 		configurationFileText.setEditable(false);
-		configurationFileText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
+		configurationFileText.setLayoutData(gd);
+
+		DropTarget dropTarget = new DropTarget(configurationFileText, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
+		final FileTransfer fileTransfer = FileTransfer.getInstance();
+		dropTarget.setTransfer(new Transfer[] {fileTransfer});
+		dropTarget.addDropListener(new DropTargetListener() {
+			@Override
+			public void drop(DropTargetEvent event)
+			{
+				if (fileTransfer.isSupportedType(event.currentDataType))
+				{
+					String[] files = (String[]) event.data;
+
+					if (files.length > 1)
+					{
+						showInformation(Messages.getString("LigeiroView.error.control.configuration.file.drop"));
+						return;
+					}
+
+					for (int i = 0; i < files.length; i++)
+					{
+						configurationFileText.setText(files[i]);
+					}
+				}
+			}
+
+			@Override
+			public void dragEnter(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dragLeave(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dragOperationChanged(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dragOver(DropTargetEvent event)
+			{
+				// empty
+			}
+
+			@Override
+			public void dropAccept(DropTargetEvent event)
+			{
+				// empty
+			}
+		});
 
 		Button configurationFileButton = toolkit.createButton(controlComposite, Messages.getString("LigeiroView.control.configuration.file.button.label"), SWT.PUSH);
-		configurationFileButton.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
+//		configurationFileButton.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
 		configurationFileButton.addSelectionListener(
 				new SelectionListener()
 				{
@@ -552,7 +641,7 @@ public class LigeiroView extends ViewPart
 		{
 			public void run()
 			{
-				showMessage("Start FPA executed");
+				showInformation("Start FPA executed");
 			}
 		};
 
@@ -566,7 +655,7 @@ public class LigeiroView extends ViewPart
 		bars.getToolBarManager().add(startFPAAction);
 	}
 
-	private void showMessage(String message)
+	private void showInformation(String message)
 	{
 		MessageDialog.openInformation(form.getShell(), Messages.getString("LigeiroView.title"), message);
 	}

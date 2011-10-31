@@ -480,7 +480,7 @@ public class LigeiroView extends ViewPart
 	
 						if (files.length > 1)
 						{
-							showInformation(Messages.getString("LigeiroView.error.control.configuration.many.files"));
+							showInformation(Messages.getString("LigeiroView.error.many.configuration.files"));
 							return;
 						}
 						else if (files.length == 1 && verifyFileType(files[0]))
@@ -515,7 +515,7 @@ public class LigeiroView extends ViewPart
 					{
 						if (paths.size() > 1)
 						{
-							showInformation(Messages.getString("LigeiroView.error.control.configuration.many.files"));
+							showInformation(Messages.getString("LigeiroView.error.many.configuration.files"));
 						}
 						else if (!paths.isEmpty())
 						{
@@ -853,7 +853,7 @@ public class LigeiroView extends ViewPart
 				}
 				else
 				{
-					showInformation(Messages.getString("LigeiroView.error.files.type.not.file"));
+					showInformation(Messages.getString("LigeiroView.error.type.not.file"));
 					return null;
 				}
 			}
@@ -869,7 +869,7 @@ public class LigeiroView extends ViewPart
 		if (file.isFile())
 			return true;
 
-		showInformation(Messages.getString("LigeiroView.error.files.type.not.file"));
+		showInformation(Messages.getString("LigeiroView.error.type.not.file"));
 
 		return false;
 	}
@@ -888,15 +888,15 @@ public class LigeiroView extends ViewPart
 
 		if (statisticTable.getItemCount() == 0)
 		{
-			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.files.no.statistic.file"));
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.statistic.file"));
 		}
 		if (dependencyTable.getItemCount() == 0)
 		{
-			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.files.no.dependency.file"));
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.dependency.file"));
 		}
 		if (configurationFileText.getText().isEmpty())
 		{
-			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.control.no.configuration.file"));
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.configuration.file"));
 		}
 
 		boolean hasBrokenItem = false;
@@ -915,7 +915,7 @@ public class LigeiroView extends ViewPart
 					if (!hasBrokenItem)
 					{
 						hasBrokenItem = true;
-						Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.files.statistic.file.load"));
+						Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.load.statistic.file"));
 					}
 
 					items[i].setForeground(brokeItemColor);
@@ -939,7 +939,7 @@ public class LigeiroView extends ViewPart
 					if (!hasBrokenItem)
 					{
 						hasBrokenItem = true;
-						Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.files.dependency.file.load"));
+						Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.load.dependency.file"));
 					}
 
 					items[i].setForeground(brokeItemColor);
@@ -959,7 +959,7 @@ public class LigeiroView extends ViewPart
 		}
 		catch (ReadXMLException e)
 		{
-			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.control.configuration.file.load"));
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.load.configuration.file"));
 			configurationFileText.setForeground(brokeItemColor);
 		}
 

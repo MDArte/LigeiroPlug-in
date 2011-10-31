@@ -51,6 +51,7 @@ import br.ufrj.cos.pinel.ligeiro.common.FPAConfig;
 import br.ufrj.cos.pinel.ligeiro.data.FPAReport;
 import br.ufrj.cos.pinel.ligeiro.data.ReportResult;
 import br.ufrj.cos.pinel.ligeiro.plugin.LigeiroPlugin;
+import br.ufrj.cos.pinel.ligeiro.plugin.common.Constants;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.LigeiroPreferences;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Util;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
@@ -462,7 +463,8 @@ public class LigeiroView extends ViewPart
 		configurationFileText = new Text(controlComposite, SWT.BORDER);
 		configurationFileText.setEditable(false);
 		configurationFileText.setLayoutData(gd);
-		configurationFileText.setBackground(new Color(form.getShell().getDisplay(), 235, 235, 235));
+		configurationFileText.setBackground(new Color(form.getShell().getDisplay(),
+			Constants.COLOR_LIGHT_GRAY_R, Constants.COLOR_LIGHT_GRAY_G, Constants.COLOR_LIGHT_GRAY_B));
 
 		DropTarget dropTarget = new DropTarget(configurationFileText, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
 		final FileTransfer fileTransfer = FileTransfer.getInstance();
@@ -485,6 +487,9 @@ public class LigeiroView extends ViewPart
 						{
 							configurationFileText.setText(files[0]);
 							LigeiroPreferences.setFPAConfigurationFile(files[0]);
+
+							configurationFileText.setForeground(new Color(form.getShell().getDisplay(),
+								Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B));
 						}
 					}
 				}
@@ -516,6 +521,9 @@ public class LigeiroView extends ViewPart
 						{
 							configurationFileText.setText(paths.get(0));
 							LigeiroPreferences.setFPAConfigurationFile(paths.get(0));
+
+							configurationFileText.setForeground(new Color(form.getShell().getDisplay(),
+									Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B));
 						}
 					}
 				}
@@ -551,17 +559,9 @@ public class LigeiroView extends ViewPart
 		{
 			public void linkActivated(HyperlinkEvent e)
 			{
-				dfTableProvider.clear();
-				dfTable.refresh();
-				unadjustedDFTotalText.setText("");
+				resetFields();
 
-				tfTableProvider.clear();
-				tfTable.refresh();
-				unadjustedTFTotalText.setText("");
-
-				unadjustedFPATotalText.setText("");
-				vafText.setText("");
-				adjustedFPATotalText.setText("");
+				resetResults();
 			}
 		});
 
@@ -609,7 +609,8 @@ public class LigeiroView extends ViewPart
 
 		// additional information
 
-		Color mathOperationColor = new Color(form.getShell().getDisplay(), 238, 44, 44);
+		Color mathOperationColor = new Color(form.getShell().getDisplay(),
+				Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
 
 		Composite allComposite = toolkit.createComposite(resultComposite, SWT.WRAP);
 		layout = new GridLayout(9, false);
@@ -783,18 +784,38 @@ public class LigeiroView extends ViewPart
 		{
 			public void run()
 			{
-				LigeiroPreferences.clear();
-
-				statisticTable.clearAll();
-				dependencyTable.clearAll();
-
-				configurationFileText.setText("");
+				resetResults();
 			}
 		};
 		action.setText(Messages.getString("LigeiroView.action.reset.fields.label"));
 		action.setToolTipText(Messages.getString("LigeiroView.action.reset.fields.tip"));
 		action.setImageDescriptor(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_TRASH));
 		bars.getToolBarManager().add(action);
+	}
+
+	private void resetFields()
+	{
+		dfTableProvider.clear();
+		dfTable.refresh();
+		unadjustedDFTotalText.setText("");
+
+		tfTableProvider.clear();
+		tfTable.refresh();
+		unadjustedTFTotalText.setText("");
+
+		unadjustedFPATotalText.setText("");
+		vafText.setText("");
+		adjustedFPATotalText.setText("");
+	}
+
+	private void resetResults()
+	{
+		LigeiroPreferences.clear();
+
+		statisticTable.removeAll();
+		dependencyTable.removeAll();
+
+		configurationFileText.setText("");
 	}
 
 	private void loadPreviousInformation()
@@ -857,71 +878,135 @@ public class LigeiroView extends ViewPart
 	{
 		Core core = new Core();
 
+		Color brokeItemColor = new Color(form.getShell().getDisplay(),
+				Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
+
+		Color goodItemColor = new Color(form.getShell().getDisplay(),
+				Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
+
+		StringBuilder sbMessage = new StringBuilder();
+
+		if (statisticTable.getItemCount() == 0)
+		{
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.files.no.statistic.file"));
+		}
+		if (dependencyTable.getItemCount() == 0)
+		{
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.files.no.dependency.file"));
+		}
+		if (configurationFileText.getText().isEmpty())
+		{
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.control.no.configuration.file"));
+		}
+
+		boolean hasBrokenItem = false;
+		TableItem[] items = statisticTable.getItems();
+		for (int i = 0; i < items.length; i++)
+		{
+			if (items[i].getData() instanceof InputFile)
+			{
+				try
+				{
+					core.readStatistics(((InputFile) items[i].getData()).getPath());
+					items[i].setForeground(goodItemColor);
+				}
+				catch (ReadXMLException e)
+				{
+					if (!hasBrokenItem)
+					{
+						hasBrokenItem = true;
+						Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.files.statistic.file.load"));
+					}
+
+					items[i].setForeground(brokeItemColor);
+				}
+			}
+		}
+
+		hasBrokenItem = false;
+		items = dependencyTable.getItems();
+		for (int i = 0; i < items.length; i++)
+		{
+			if (items[i].getData() instanceof InputFile)
+			{
+				try
+				{
+					core.readDependencies(((InputFile) items[i].getData()).getPath());
+					items[i].setForeground(goodItemColor);
+				}
+				catch (ReadXMLException e)
+				{
+					if (!hasBrokenItem)
+					{
+						hasBrokenItem = true;
+						Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.files.dependency.file.load"));
+					}
+
+					items[i].setForeground(brokeItemColor);
+				}
+			}
+		}
+
+		FPAConfig fpaConfig = null;
+
 		try
 		{
-			TableItem[] items = statisticTable.getItems();
-			for (TableItem item : items)
+			if (!configurationFileText.getText().isEmpty())
 			{
-				if (item.getData() instanceof InputFile)
-				{
-					core.readStatistics(((InputFile) item.getData()).getPath());
-				}
+				fpaConfig = core.readFPAConfiguration(configurationFileText.getText());
+				configurationFileText.setForeground(goodItemColor);
 			}
-
-			items = dependencyTable.getItems();
-			for (TableItem item : items)
-			{
-				if (item.getData() instanceof InputFile)
-				{
-					core.readDependencies(((InputFile) item.getData()).getPath());
-				}
-			}
-
-			FPAConfig fpaConfig = core.readFPAConfiguration(configurationFileText.getText());
-
-			FPAReport fpaReport = core.startFunctionPointAnalysis(fpaConfig);
-
-			dfTableProvider.clear();
-			for (ReportResult reportResult : fpaReport.getDFReport())
-			{
-				Result result = new Result();
-				result.setElement(reportResult.getElement());
-				result.setType(reportResult.getType());
-				result.setRet_ftr(reportResult.getRet_ftr());
-				result.setDet(reportResult.getDet());
-				result.setComplexity(reportResult.getComplexity());
-				result.setComplexityValue(reportResult.getComplexityValue());
-				dfTableProvider.addResult(result);
-			}
-			dfTable.refresh();
-
-			unadjustedDFTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
-
-			tfTableProvider.clear();
-			for (ReportResult reportResult : fpaReport.getTFReport())
-			{
-				Result result = new Result();
-				result.setElement(reportResult.getElement());
-				result.setType(reportResult.getType());
-				result.setRet_ftr(reportResult.getRet_ftr());
-				result.setDet(reportResult.getDet());
-				result.setComplexity(reportResult.getComplexity());
-				result.setComplexityValue(reportResult.getComplexityValue());
-				tfTableProvider.addResult(result);
-			}
-			tfTable.refresh();
-
-			unadjustedTFTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
-
-			unadjustedFPATotalText.setText(Integer.toString(fpaReport.getReportTotal()));
-
-			vafText.setText(Double.toString(fpaConfig.getVaf()));
-
-			adjustedFPATotalText.setText(Double.toString(fpaReport.getAdjustedReportTotal(fpaConfig.getVaf())));
 		}
 		catch (ReadXMLException e)
 		{
-			e.printStackTrace();
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.control.configuration.file.load"));
+			configurationFileText.setForeground(brokeItemColor);
 		}
+
+		if (sbMessage.length() > 0)
+		{
+			showInformation(sbMessage.toString());
+			return;
+		}
+
+		FPAReport fpaReport = core.startFunctionPointAnalysis(fpaConfig);
+
+		dfTableProvider.clear();
+		for (ReportResult reportResult : fpaReport.getDFReport())
+		{
+			Result result = new Result();
+			result.setElement(reportResult.getElement());
+			result.setType(reportResult.getType());
+			result.setRet_ftr(reportResult.getRet_ftr());
+			result.setDet(reportResult.getDet());
+			result.setComplexity(reportResult.getComplexity());
+			result.setComplexityValue(reportResult.getComplexityValue());
+			dfTableProvider.addResult(result);
+		}
+		dfTable.refresh();
+
+		unadjustedDFTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
+
+		tfTableProvider.clear();
+		for (ReportResult reportResult : fpaReport.getTFReport())
+		{
+			Result result = new Result();
+			result.setElement(reportResult.getElement());
+			result.setType(reportResult.getType());
+			result.setRet_ftr(reportResult.getRet_ftr());
+			result.setDet(reportResult.getDet());
+			result.setComplexity(reportResult.getComplexity());
+			result.setComplexityValue(reportResult.getComplexityValue());
+			tfTableProvider.addResult(result);
+		}
+		tfTable.refresh();
+
+		unadjustedTFTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
+
+		unadjustedFPATotalText.setText(Integer.toString(fpaReport.getReportTotal()));
+
+		vafText.setText(Double.toString(fpaConfig.getVaf()));
+
+		adjustedFPATotalText.setText(Double.toString(fpaReport.getAdjustedReportTotal(fpaConfig.getVaf())));
 	}
 }

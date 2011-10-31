@@ -95,4 +95,11 @@ public class Util
 
 		return sb.toString();
 	}
+
+	public static void appendMessage(StringBuilder sbMessage, String message)
+	{
+		if (sbMessage.length() > 0)
+			sbMessage.append('\n');
+		sbMessage.append(message);
+	}
 }

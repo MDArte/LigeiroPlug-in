@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
@@ -40,10 +41,14 @@ import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.ViewPart;
 
+import br.ufrj.cos.pinel.ligeiro.Core;
+import br.ufrj.cos.pinel.ligeiro.common.FPAConfig;
 import br.ufrj.cos.pinel.ligeiro.plugin.Activator;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Util;
+import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.Result;
 import br.ufrj.cos.pinel.ligeiro.plugin.provider.ResultsTableProvider;
+import br.ufrj.cos.pinel.ligeiro.xml.exception.ReadXMLException;
 
 /**
  * @author Roque Pinel
@@ -54,7 +59,7 @@ public class LigeiroView extends ViewPart
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
-	public static final String ID = "br.ufrj.coppe.pinel.ligeiro.views.LigeiroView";
+	public static final String ID = "br.ufrj.cos.pinel.ligeiro.plugin.views.LigeiroView";
 
 	private FormToolkit toolkit;
 	private ScrolledForm form;
@@ -608,7 +613,7 @@ public class LigeiroView extends ViewPart
 		{
 			public void run()
 			{
-				showInformation("Start FPA executed");
+				startFPAA();
 			}
 		};
 
@@ -671,5 +676,39 @@ public class LigeiroView extends ViewPart
 		showInformation(Messages.getString("LigeiroView.error.files.type.not.file"));
 
 		return false;
+	}
+
+	private void startFPAA()
+	{
+		Core core = new Core();
+
+		try
+		{
+			TableItem[] items = statisticTable.getItems();
+			for (TableItem item : items)
+			{
+				if (item.getData() instanceof InputFile)
+				{
+					core.readStatistics(((InputFile) item.getData()).getPath());
+				}
+			}
+
+			items = dependencyTable.getItems();
+			for (TableItem item : items)
+			{
+				if (item.getData() instanceof InputFile)
+				{
+					core.readDependencies(((InputFile) item.getData()).getPath());
+				}
+			}
+
+			FPAConfig fpaConfig = core.readFPAConfiguration(configurationFileText.getText());
+
+			core.startFunctionPointAnalysis(fpaConfig);
+		}
+		catch (ReadXMLException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -681,6 +682,8 @@ public class LigeiroView extends ViewPart
 		action.setToolTipText(Messages.getString("LigeiroView.action.start.fpa.tip"));
 		action.setImageDescriptor(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_RUN));
 		bars.getToolBarManager().add(action);
+
+		bars.getToolBarManager().add(new Separator());
 
 		// reset fields
 		action = new Action()

@@ -5,7 +5,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.swt.widgets.Table;
 import org.osgi.service.prefs.BackingStoreException;
 
-import br.ufrj.cos.pinel.ligeiro.plugin.Activator;
+import br.ufrj.cos.pinel.ligeiro.plugin.LigeiroPlugin;
 
 /**
  * @author Roque Pinel
@@ -19,7 +19,7 @@ public class LigeiroPreferences
 
 	private static IEclipsePreferences getPreferences()
 	{
-		IEclipsePreferences preferences = new InstanceScope().getNode(Activator.PLUGIN_ID);
+		IEclipsePreferences preferences = LigeiroPlugin.getPreferences();
 
 		try
 		{

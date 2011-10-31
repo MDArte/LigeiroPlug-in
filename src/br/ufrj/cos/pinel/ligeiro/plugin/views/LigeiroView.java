@@ -47,7 +47,7 @@ import br.ufrj.cos.pinel.ligeiro.Core;
 import br.ufrj.cos.pinel.ligeiro.common.FPAConfig;
 import br.ufrj.cos.pinel.ligeiro.data.FPAReport;
 import br.ufrj.cos.pinel.ligeiro.data.ReportResult;
-import br.ufrj.cos.pinel.ligeiro.plugin.Activator;
+import br.ufrj.cos.pinel.ligeiro.plugin.LigeiroPlugin;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.LigeiroPreferences;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Util;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
@@ -650,7 +650,7 @@ public class LigeiroView extends ViewPart
 		};
 		action.setText(Messages.getString("LigeiroView.action.start.fpa.label"));
 		action.setToolTipText(Messages.getString("LigeiroView.action.start.fpa.tip"));
-		action.setImageDescriptor(Activator.getImageDescriptor("icons/run.gif"));
+		action.setImageDescriptor(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_RUN));
 		bars.getToolBarManager().add(action);
 
 		// reset fields
@@ -668,7 +668,7 @@ public class LigeiroView extends ViewPart
 		};
 		action.setText(Messages.getString("LigeiroView.action.reset.fields.label"));
 		action.setToolTipText(Messages.getString("LigeiroView.action.reset.fields.tip"));
-		action.setImageDescriptor(Activator.getImageDescriptor(Messages.getString("LigeiroView.action.reset.fields.icon")));
+		action.setImageDescriptor(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_TRASH));
 		bars.getToolBarManager().add(action);
 	}
 

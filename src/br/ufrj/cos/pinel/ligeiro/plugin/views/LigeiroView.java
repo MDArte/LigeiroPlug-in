@@ -88,6 +88,9 @@ public class LigeiroView extends ViewPart
 
 	private Text configurationFileText;
 
+	private Text dfTotalText;
+	private Text tfTotalText;
+
 	/**
 	 * The constructor.
 	 */
@@ -531,10 +534,10 @@ public class LigeiroView extends ViewPart
 		Composite toolbarComposite = toolkit.createComposite(resultSection, SWT.WRAP);
 		RowLayout rowlayout = new RowLayout(SWT.HORIZONTAL);
 		rowlayout.marginLeft = 0;
-		rowlayout.marginRight = 0;
+		rowlayout.marginRight = 10;
 		rowlayout.spacing = 0;
-		rowlayout.marginTop = 0;
-		rowlayout.marginBottom = 0;
+		rowlayout.marginTop = 2;
+		rowlayout.marginBottom = 2;
 		toolbarComposite.setLayout(rowlayout);
 		resultSection.setTextClient(toolbarComposite);
 		ImageHyperlink imageHyperLink = new ImageHyperlink(toolbarComposite, SWT.LEFT);
@@ -547,9 +550,11 @@ public class LigeiroView extends ViewPart
 			{
 				dfTableProvider.clear();
 				dfTable.refresh();
+				dfTotalText.setText("");
 
 				tfTableProvider.clear();
 				tfTable.refresh();
+				tfTotalText.setText("");
 			}
 		});
 
@@ -561,7 +566,7 @@ public class LigeiroView extends ViewPart
 		layout.marginHeight = 2;
 		resultComposite.setLayout(layout);
 
-		// Data Function
+		// Data Function table
 
 		dfTable = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		createResultColumns(resultComposite, dfTable, true);
@@ -578,7 +583,7 @@ public class LigeiroView extends ViewPart
 		dfTable.setInput(dfTableProvider.getResults());
 		dfTable.getTable().getHorizontalBar().setEnabled(true);
 
-		// Transaction Function
+		// Transaction Function table
 
 		tfTable = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		createResultColumns(resultComposite, tfTable, false);
@@ -594,6 +599,33 @@ public class LigeiroView extends ViewPart
 		tfTable.setContentProvider(new ArrayContentProvider());
 		tfTable.setInput(tfTableProvider.getResults());
 		tfTable.getTable().getHorizontalBar().setEnabled(true);
+
+		// additional information
+
+		Composite groupComposite = toolkit.createComposite(resultComposite, SWT.WRAP);
+		layout = new GridLayout(2, false);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		groupComposite.setLayout(layout);
+
+		Label label = new Label(groupComposite, SWT.NONE);
+		label.setText(Messages.getString("LigeiroView.results.data.function.total.label"));
+
+		dfTotalText = new Text(groupComposite, SWT.BORDER);
+		dfTotalText.setEnabled(false);
+		dfTotalText.setBackground(new Color(form.getShell().getDisplay(), 235, 235, 235));
+		dfTotalText.setSize(20, 50);
+
+		groupComposite = toolkit.createComposite(resultComposite, SWT.WRAP);
+		groupComposite.setLayout(layout);
+
+		label = new Label(groupComposite, SWT.NONE);
+		label.setText(Messages.getString("LigeiroView.results.transaction.function.total.label"));
+
+		tfTotalText = new Text(groupComposite, SWT.BORDER);
+		tfTotalText.setEnabled(false);
+		tfTotalText.setBackground(new Color(form.getShell().getDisplay(), 235, 235, 235));
+		tfTotalText.setSize(20, 50);
 	}
 
 	private void createResultColumns(final Composite parent, final TableViewer viewer, final boolean isDataFunction)
@@ -801,6 +833,8 @@ public class LigeiroView extends ViewPart
 			}
 			dfTable.refresh();
 
+			dfTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
+
 			tfTableProvider.clear();
 			for (ReportResult reportResult : fpaReport.getTFReport())
 			{
@@ -814,6 +848,8 @@ public class LigeiroView extends ViewPart
 				tfTableProvider.addResult(result);
 			}
 			tfTable.refresh();
+
+			tfTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
 		}
 		catch (ReadXMLException e)
 		{

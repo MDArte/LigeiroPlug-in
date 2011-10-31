@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
  */
 public class Messages
 {
-	private static final String BUNDLE_NAME = "br.ufrj.coppe.pinel.ligeiro.views.messages";
+	private static final String BUNDLE_NAME = "br.ufrj.cos.pinel.ligeiro.plugin.views.messages";
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 

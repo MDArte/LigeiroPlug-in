@@ -1,4 +1,4 @@
-package br.ufrj.coppe.pinel.ligeiro.common;
+package br.ufrj.cos.pinel.ligeiro.plugin.common;
 
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-import br.ufrj.coppe.pinel.ligeiro.data.InputFile;
+import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
 
 /**
  * @author Roque Pinel

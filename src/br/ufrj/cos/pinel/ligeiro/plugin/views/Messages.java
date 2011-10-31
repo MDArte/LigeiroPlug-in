@@ -1,4 +1,4 @@
-package br.ufrj.coppe.pinel.ligeiro.views;
+package br.ufrj.cos.pinel.ligeiro.plugin.views;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

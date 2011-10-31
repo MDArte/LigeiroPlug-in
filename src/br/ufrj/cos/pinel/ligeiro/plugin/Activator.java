@@ -1,4 +1,4 @@
-package br.ufrj.coppe.pinel.ligeiro;
+package br.ufrj.cos.pinel.ligeiro.plugin;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;

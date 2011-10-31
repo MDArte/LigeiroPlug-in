@@ -1,4 +1,4 @@
-package br.ufrj.coppe.pinel.ligeiro.views;
+package br.ufrj.cos.pinel.ligeiro.plugin.views;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -40,10 +40,10 @@ import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.ViewPart;
 
-import br.ufrj.coppe.pinel.ligeiro.Activator;
-import br.ufrj.coppe.pinel.ligeiro.common.Util;
-import br.ufrj.coppe.pinel.ligeiro.data.Result;
-import br.ufrj.coppe.pinel.ligeiro.provider.ResultsTableProvider;
+import br.ufrj.cos.pinel.ligeiro.plugin.Activator;
+import br.ufrj.cos.pinel.ligeiro.plugin.common.Util;
+import br.ufrj.cos.pinel.ligeiro.plugin.data.Result;
+import br.ufrj.cos.pinel.ligeiro.plugin.provider.ResultsTableProvider;
 
 /**
  * @author Roque Pinel

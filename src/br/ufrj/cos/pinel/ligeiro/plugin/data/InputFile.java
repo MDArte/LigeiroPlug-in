@@ -1,4 +1,4 @@
-package br.ufrj.coppe.pinel.ligeiro.data;
+package br.ufrj.cos.pinel.ligeiro.plugin.data;
 
 import java.io.File;
 

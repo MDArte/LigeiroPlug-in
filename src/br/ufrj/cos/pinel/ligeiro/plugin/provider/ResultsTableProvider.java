@@ -1,9 +1,9 @@
-package br.ufrj.coppe.pinel.ligeiro.provider;
+package br.ufrj.cos.pinel.ligeiro.plugin.provider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import br.ufrj.coppe.pinel.ligeiro.data.Result;
+import br.ufrj.cos.pinel.ligeiro.plugin.data.Result;
 
 /**
  * @author Roque Pinel

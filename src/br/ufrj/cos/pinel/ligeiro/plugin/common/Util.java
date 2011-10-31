@@ -21,7 +21,7 @@ public class Util
 	{
 		InputFile inputFile = new InputFile(path);
 
-		if (Util.containsInputFile(table, inputFile) == NOT_FOUND)
+		if (path != null  && Util.containsInputFile(table, inputFile) == NOT_FOUND)
 		{
 			TableItem item = new TableItem(table, SWT.NONE);
 			item.setText(inputFile.toString());
@@ -74,5 +74,25 @@ public class Util
 		column.setResizable(true);
 		column.setMoveable(true);
 		return viewerColumn;
+	}
+
+	public static String getInputFileTableCSV(Table table)
+	{
+		StringBuilder sb = new StringBuilder();
+
+		TableItem[] items = table.getItems();
+		for (int i = 0; i < items.length; i++)
+		{
+			InputFile inputFile = (InputFile) items[i].getData();
+
+			sb.append(inputFile.getPath());
+
+			if (i < items.length - 1)
+			{
+				sb.append(Constants.CSV_DELIMITER);
+			}
+		}
+
+		return sb.toString();
 	}
 }

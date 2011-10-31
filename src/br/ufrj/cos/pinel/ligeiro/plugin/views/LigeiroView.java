@@ -19,6 +19,8 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -46,6 +48,7 @@ import br.ufrj.cos.pinel.ligeiro.common.FPAConfig;
 import br.ufrj.cos.pinel.ligeiro.data.FPAReport;
 import br.ufrj.cos.pinel.ligeiro.data.ReportResult;
 import br.ufrj.cos.pinel.ligeiro.plugin.Activator;
+import br.ufrj.cos.pinel.ligeiro.plugin.common.LigeiroPreferences;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Util;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.Result;
@@ -80,8 +83,6 @@ public class LigeiroView extends ViewPart
 	private TableViewer tfTable;
 	private ResultsTableProvider tfTableProvider;
 
-	private Action startFPAAction;
-
 	private Text configurationFileText;
 
 	/**
@@ -93,14 +94,6 @@ public class LigeiroView extends ViewPart
 
 		dfTableProvider = new ResultsTableProvider();
 		tfTableProvider = new ResultsTableProvider();
-
-		Result result = new Result();
-		result.setElement("ReadStudent");
-		result.setRet_ftr(1);
-		result.setDet(2);
-		result.setComplexity("Low");
-		result.setComplexityValue(4);
-		dfTableProvider.getResults().add(result);
 	}
 
 	/**
@@ -124,6 +117,8 @@ public class LigeiroView extends ViewPart
 		createResultSection(form.getBody());
 
 		appendActions();
+
+		loadPreviousInformation();
 
 		form.reflow(true);
 	}
@@ -153,10 +148,8 @@ public class LigeiroView extends ViewPart
 		layout.marginHeight = 2;
 		filesComposite.setLayout(layout);
 
-		// Statistic
 		createFilesSectionStatistic(filesComposite);
 
-		// Dependency
 		createFilesSectionDependency(filesComposite);
 	}
 
@@ -182,6 +175,7 @@ public class LigeiroView extends ViewPart
 		gd.heightHint = 200;
 		gd.widthHint = 300;
 		statisticTable.setLayoutData(gd);
+		LigeiroPreferences.loadStatisticFiles(statisticTable);
 
 		toolkit.paintBordersFor(statisticComposite);
 
@@ -195,21 +189,26 @@ public class LigeiroView extends ViewPart
 				{
 					if (fileTransfer.isSupportedType(event.currentDataType))
 					{
-						String[] files = (String[]) event.data;
+						String[] paths = (String[]) event.data;
 
-						for (int i = 0; i < files.length; i++)
+						for (String path : paths)
 						{
-							if (!verifyFileType(files[i]))
+							if (!verifyFileType(path))
 								return;
 						}
 
-						for (int i = 0; i < files.length; i++)
+						for (String path : paths)
 						{
-							if (Util.addInputFile(statisticTable, files[i])
+							if (Util.addInputFile(statisticTable, path)
 								&& !statisticRemoveButton.isEnabled())
 							{
 								statisticRemoveButton.setEnabled(true);
 							}
+						}
+
+						if (paths.length > 0)
+						{
+							LigeiroPreferences.saveStatisticFiles(statisticTable);
 						}
 					}
 				}
@@ -253,6 +252,11 @@ public class LigeiroView extends ViewPart
 								statisticRemoveButton.setEnabled(true);
 							}
 						}
+
+						if (paths.size() > 0)
+						{
+							LigeiroPreferences.saveStatisticFiles(statisticTable);
+						}
 					}
 				}
 				public void widgetDefaultSelected(SelectionEvent event) { }
@@ -263,22 +267,26 @@ public class LigeiroView extends ViewPart
 		statisticRemoveButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.remove.button.label"), SWT.PUSH);
 		statisticRemoveButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_REMOVE));
 		statisticRemoveButton.setToolTipText(Messages.getString("LigeiroView.files.statistic.remove.button.tip"));
-		statisticRemoveButton.setEnabled(false);
 		statisticRemoveButton.setLayoutData(gd);
 		statisticRemoveButton.addSelectionListener(
 			new SelectionListener()
 			{
 				public void widgetSelected(SelectionEvent event)
 				{
-					if (Util.removeInputFiles(statisticTable, statisticTable.getSelection())
-						&& statisticTable.getItemCount() == 0)
+					if (Util.removeInputFiles(statisticTable, statisticTable.getSelection()))
 					{
-						statisticRemoveButton.setEnabled(false);
+						LigeiroPreferences.saveStatisticFiles(statisticTable);
+
+						if (statisticTable.getItemCount() == 0)
+							statisticRemoveButton.setEnabled(false);
 					}
 				}
 				public void widgetDefaultSelected(SelectionEvent event) { }
 			}
 		);
+
+		if (statisticTable.getItemCount() == 0)
+			statisticRemoveButton.setEnabled(false);
 	}
 
 	private void createFilesSectionDependency(Composite parent)
@@ -303,6 +311,7 @@ public class LigeiroView extends ViewPart
 		gd.heightHint = 200;
 		gd.widthHint = 300;
 		dependencyTable.setLayoutData(gd);
+		LigeiroPreferences.loadDependencyFiles(dependencyTable);
 
 		toolkit.paintBordersFor(dependencyComposite);
 
@@ -316,21 +325,26 @@ public class LigeiroView extends ViewPart
 				{
 					if (fileTransfer.isSupportedType(event.currentDataType))
 					{
-						String[] files = (String[]) event.data;
+						String[] paths = (String[]) event.data;
 
-						for (int i = 0; i < files.length; i++)
+						for (String path : paths)
 						{
-							if (!verifyFileType(files[i]))
+							if (!verifyFileType(path))
 								return;
 						}
 
-						for (int i = 0; i < files.length; i++)
+						for (String path : paths)
 						{
-							if (Util.addInputFile(dependencyTable, files[i])
+							if (Util.addInputFile(dependencyTable, path)
 								&& !dependencyRemoveButton.isEnabled())
 							{
 								dependencyRemoveButton.setEnabled(true);
 							}
+						}
+
+						if (paths.length > 0)
+						{
+							LigeiroPreferences.saveDependencyFiles(dependencyTable);
 						}
 					}
 				}
@@ -374,6 +388,11 @@ public class LigeiroView extends ViewPart
 								dependencyRemoveButton.setEnabled(true);
 							}
 						}
+
+						if (paths.size() > 0)
+						{
+							LigeiroPreferences.saveDependencyFiles(dependencyTable);
+						}
 					}
 				}
 				public void widgetDefaultSelected(SelectionEvent event) { }
@@ -384,22 +403,26 @@ public class LigeiroView extends ViewPart
 		dependencyRemoveButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.remove.button.label"), SWT.PUSH);
 		dependencyRemoveButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_REMOVE));
 		dependencyRemoveButton.setToolTipText(Messages.getString("LigeiroView.files.dependency.remove.button.tip"));
-		dependencyRemoveButton.setEnabled(false);
 		dependencyRemoveButton.setLayoutData(gd);
 		dependencyRemoveButton.addSelectionListener(
 			new SelectionListener()
 			{
 				public void widgetSelected(SelectionEvent event)
 				{
-					if (Util.removeInputFiles(dependencyTable, dependencyTable.getSelection())
-						&& dependencyTable.getItemCount() == 0)
+					if (Util.removeInputFiles(dependencyTable, dependencyTable.getSelection()))
 					{
-						dependencyRemoveButton.setEnabled(false);
+						LigeiroPreferences.saveDependencyFiles(dependencyTable);
+
+						if (dependencyTable.getItemCount() == 0)
+							dependencyRemoveButton.setEnabled(false);
 					}
 				}
 				public void widgetDefaultSelected(SelectionEvent event){ }
 			}
 		);
+
+		if (dependencyTable.getItemCount() == 0)
+			dependencyRemoveButton.setEnabled(false);
 	}
 
 	private void createControlSection(Composite parent)
@@ -452,6 +475,7 @@ public class LigeiroView extends ViewPart
 						else if (files.length == 1 && verifyFileType(files[0]))
 						{
 							configurationFileText.setText(files[0]);
+							LigeiroPreferences.setFPAConfigurationFile(files[0]);
 						}
 					}
 				}
@@ -482,6 +506,7 @@ public class LigeiroView extends ViewPart
 						else if (!paths.isEmpty())
 						{
 							configurationFileText.setText(paths.get(0));
+							LigeiroPreferences.setFPAConfigurationFile(paths.get(0));
 						}
 					}
 				}
@@ -613,22 +638,43 @@ public class LigeiroView extends ViewPart
 
 	private void appendActions()
 	{
-		startFPAAction = new Action()
+		IActionBars bars = getViewSite().getActionBars();
+
+		// start FPA
+		Action action = new Action()
 		{
 			public void run()
 			{
 				startFPAA();
 			}
 		};
+		action.setText(Messages.getString("LigeiroView.action.start.fpa.label"));
+		action.setToolTipText(Messages.getString("LigeiroView.action.start.fpa.tip"));
+		action.setImageDescriptor(Activator.getImageDescriptor("icons/run.gif"));
+		bars.getToolBarManager().add(action);
 
-		startFPAAction.setText(Messages.getString("LigeiroView.action.start.fpa.label"));
-		startFPAAction.setToolTipText(Messages.getString("LigeiroView.action.start.fpa.tip"));
+		// reset fields
+		action = new Action()
+		{
+			public void run()
+			{
+				LigeiroPreferences.clear();
 
-		startFPAAction.setImageDescriptor(Activator.getImageDescriptor("icons/run.gif"));
+				statisticTable.clearAll();
+				dependencyTable.clearAll();
 
-		IActionBars bars = getViewSite().getActionBars();
-		//bars.getMenuManager().add(startFPAAction);
-		bars.getToolBarManager().add(startFPAAction);
+				configurationFileText.setText("");
+			}
+		};
+		action.setText(Messages.getString("LigeiroView.action.reset.fields.label"));
+		action.setToolTipText(Messages.getString("LigeiroView.action.reset.fields.tip"));
+		action.setImageDescriptor(Activator.getImageDescriptor(Messages.getString("LigeiroView.action.reset.fields.icon")));
+		bars.getToolBarManager().add(action);
+	}
+
+	private void loadPreviousInformation()
+	{
+		configurationFileText.setText(LigeiroPreferences.getFPAConfigurationFile());
 	}
 
 	private void showInformation(String message)
@@ -722,6 +768,7 @@ public class LigeiroView extends ViewPart
 				result.setComplexityValue(reportResult.getComplexityValue());
 				dfTableProvider.addResult(result);
 			}
+			dfTable.getTable().getHorizontalBar().setEnabled(true);
 			dfTable.refresh();
 
 			tfTableProvider.clear();
@@ -736,6 +783,7 @@ public class LigeiroView extends ViewPart
 				result.setComplexityValue(reportResult.getComplexityValue());
 				tfTableProvider.addResult(result);
 			}
+			tfTable.getTable().getHorizontalBar().setEnabled(true);
 			tfTable.refresh();
 		}
 		catch (ReadXMLException e)

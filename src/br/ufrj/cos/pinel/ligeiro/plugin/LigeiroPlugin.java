@@ -3,6 +3,10 @@ package br.ufrj.cos.pinel.ligeiro.plugin;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleManager;
+import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -79,5 +83,25 @@ public class LigeiroPlugin extends AbstractUIPlugin
 	public static IEclipsePreferences getPreferences()
 	{
 		return new InstanceScope().getNode(PLUGIN_ID);
+	}
+
+	/**
+	 * Find the right the console.
+	 * 
+	 * @param name the message
+	 * @return the console
+	 */
+	public static MessageConsole findConsole(String name)
+	{
+		ConsolePlugin plugin = ConsolePlugin.getDefault();
+		IConsoleManager conMan = plugin.getConsoleManager();
+		IConsole[] existing = conMan.getConsoles();
+		for (int i = 0; i < existing.length; i++)
+			if (name.equals(existing[i].getName()))
+				return (MessageConsole) existing[i];
+			// no console found, so create a new one
+		MessageConsole myConsole = new MessageConsole(name, null);
+		conMan.addConsoles(new IConsole[]{myConsole});
+		return myConsole;
 	}
 }

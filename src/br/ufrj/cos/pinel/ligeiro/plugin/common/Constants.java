@@ -27,4 +27,16 @@ public class Constants
 	public static int COLOR_BLACK_R = 0;
 	public static int COLOR_BLACK_G = 0;
 	public static int COLOR_BLACK_B = 0;
+
+	public static int COLOR_LIME_GREEN_R = 50;
+	public static int COLOR_LIME_GREEN_G = 205;
+	public static int COLOR_LIME_GREEN_B = 50;
+
+	public static int COLOR_STEEL_BLUE1_R = 99;
+	public static int COLOR_STEEL_BLUE1_G = 184;
+	public static int COLOR_STEEL_BLUE1_B = 255;
+
+	public static int COLOR_DARK_ORANGE2_R = 238;
+	public static int COLOR_DARK_ORANGE2_G = 118;
+	public static int COLOR_DARK_ORANGE2_B = 0;
 }

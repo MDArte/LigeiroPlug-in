@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
@@ -48,15 +49,17 @@ import org.eclipse.ui.part.ViewPart;
 
 import br.ufrj.cos.pinel.ligeiro.Core;
 import br.ufrj.cos.pinel.ligeiro.common.FPAConfig;
-import br.ufrj.cos.pinel.ligeiro.data.FPAReport;
-import br.ufrj.cos.pinel.ligeiro.data.ReportResult;
 import br.ufrj.cos.pinel.ligeiro.plugin.LigeiroPlugin;
+import br.ufrj.cos.pinel.ligeiro.plugin.common.ConsoleUtil;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Constants;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.LigeiroPreferences;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Util;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.Result;
 import br.ufrj.cos.pinel.ligeiro.plugin.provider.ResultsTableProvider;
+import br.ufrj.cos.pinel.ligeiro.report.FPAReport;
+import br.ufrj.cos.pinel.ligeiro.report.LoadReport;
+import br.ufrj.cos.pinel.ligeiro.report.ReportResult;
 import br.ufrj.cos.pinel.ligeiro.xml.exception.ReadXMLException;
 
 /**
@@ -899,6 +902,9 @@ public class LigeiroView extends ViewPart
 			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.configuration.file"));
 		}
 
+		ConsoleUtil.clearConsole();
+		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.reading.statistic.files"));
+
 		boolean hasBrokenItem = false;
 		TableItem[] items = statisticTable.getItems();
 		for (int i = 0; i < items.length; i++)
@@ -907,7 +913,11 @@ public class LigeiroView extends ViewPart
 			{
 				try
 				{
-					core.readStatistics(((InputFile) items[i].getData()).getPath());
+					LoadReport loadReport = core.readStatistics(((InputFile) items[i].getData()).getPath());
+
+					ConsoleUtil.writeFile(form, loadReport.getFileName());
+					ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
+
 					items[i].setForeground(goodItemColor);
 				}
 				catch (ReadXMLException e)
@@ -923,6 +933,8 @@ public class LigeiroView extends ViewPart
 			}
 		}
 
+		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.reading.dependency.files"));
+
 		hasBrokenItem = false;
 		items = dependencyTable.getItems();
 		for (int i = 0; i < items.length; i++)
@@ -931,7 +943,11 @@ public class LigeiroView extends ViewPart
 			{
 				try
 				{
-					core.readDependencies(((InputFile) items[i].getData()).getPath());
+					LoadReport loadReport = core.readDependencies(((InputFile) items[i].getData()).getPath());
+
+					ConsoleUtil.writeFile(form, loadReport.getFileName());
+					ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
+
 					items[i].setForeground(goodItemColor);
 				}
 				catch (ReadXMLException e)
@@ -946,6 +962,8 @@ public class LigeiroView extends ViewPart
 				}
 			}
 		}
+
+		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.reading.configuration.file"));
 
 		FPAConfig fpaConfig = null;
 
@@ -969,6 +987,8 @@ public class LigeiroView extends ViewPart
 			return;
 		}
 
+		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.starting.fpa"));
+
 		FPAReport fpaReport = core.startFunctionPointAnalysis(fpaConfig);
 
 		dfTableProvider.clear();
@@ -984,6 +1004,8 @@ public class LigeiroView extends ViewPart
 			dfTableProvider.addResult(result);
 		}
 		dfTable.refresh();
+
+		ConsoleUtil.writeTableResume(form, Messages.getString("LigeiroView.results.table.data.function"),fpaReport.getDFReport().size());
 
 		unadjustedDFTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
 
@@ -1001,6 +1023,8 @@ public class LigeiroView extends ViewPart
 		}
 		tfTable.refresh();
 
+		ConsoleUtil.writeTableResume(form, Messages.getString("LigeiroView.results.table.transaction.function"),fpaReport.getTFReport().size());
+
 		unadjustedTFTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
 
 		unadjustedFPATotalText.setText(Integer.toString(fpaReport.getReportTotal()));
@@ -1008,5 +1032,7 @@ public class LigeiroView extends ViewPart
 		vafText.setText(Double.toString(fpaConfig.getVaf()));
 
 		adjustedFPATotalText.setText(Double.toString(fpaReport.getAdjustedReportTotal(fpaConfig.getVaf())));
+
+		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.done"));
 	}
 }

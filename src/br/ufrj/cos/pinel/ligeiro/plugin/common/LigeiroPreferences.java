@@ -1,7 +1,6 @@
 package br.ufrj.cos.pinel.ligeiro.plugin.common;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.swt.widgets.Table;
 import org.osgi.service.prefs.BackingStoreException;
 

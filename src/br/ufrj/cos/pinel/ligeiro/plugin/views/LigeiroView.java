@@ -561,8 +561,6 @@ public class LigeiroView extends ViewPart
 		{
 			public void linkActivated(HyperlinkEvent e)
 			{
-				resetFields();
-
 				resetResults();
 			}
 		});
@@ -794,6 +792,7 @@ public class LigeiroView extends ViewPart
 		{
 			public void run()
 			{
+				resetFields();
 				resetResults();
 			}
 		};
@@ -804,6 +803,16 @@ public class LigeiroView extends ViewPart
 	}
 
 	private void resetFields()
+	{
+		LigeiroPreferences.clear();
+
+		statisticTable.removeAll();
+		dependencyTable.removeAll();
+
+		configurationFileText.setText("");
+	}
+
+	private void resetResults()
 	{
 		dfTableProvider.clear();
 		dfTable.refresh();
@@ -816,16 +825,6 @@ public class LigeiroView extends ViewPart
 		unadjustedFPATotalText.setText("");
 		vafText.setText("");
 		adjustedFPATotalText.setText("");
-	}
-
-	private void resetResults()
-	{
-		LigeiroPreferences.clear();
-
-		statisticTable.removeAll();
-		dependencyTable.removeAll();
-
-		configurationFileText.setText("");
 	}
 
 	private void loadPreviousInformation()

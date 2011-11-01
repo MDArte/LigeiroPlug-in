@@ -35,7 +35,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
@@ -897,7 +896,7 @@ public class LigeiroView extends ViewPart
 		{
 			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.dependency.file"));
 		}
-		if (configurationFileText.getText().isEmpty())
+		if (br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileText.getText()))
 		{
 			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.configuration.file"));
 		}
@@ -969,7 +968,7 @@ public class LigeiroView extends ViewPart
 
 		try
 		{
-			if (!configurationFileText.getText().isEmpty())
+			if (!br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileText.getText()))
 			{
 				fpaConfig = core.readFPAConfiguration(configurationFileText.getText());
 				configurationFileText.setForeground(goodItemColor);

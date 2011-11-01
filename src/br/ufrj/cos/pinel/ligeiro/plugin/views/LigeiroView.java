@@ -614,6 +614,9 @@ public class LigeiroView extends ViewPart
 		Color mathOperationColor = new Color(form.getShell().getDisplay(),
 				Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
 
+		Color fieldColor = new Color(form.getShell().getDisplay(),
+				Constants.COLOR_LIGHT_GRAY_R, Constants.COLOR_LIGHT_GRAY_G, Constants.COLOR_LIGHT_GRAY_B);
+
 		Composite allComposite = toolkit.createComposite(resultComposite, SWT.WRAP);
 		layout = new GridLayout(9, false);
 		layout.marginWidth = 2;
@@ -633,7 +636,8 @@ public class LigeiroView extends ViewPart
 		Label label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.data.function.total.label"));
 		unadjustedDFTotalText = new Text(groupComposite, SWT.BORDER);
-		unadjustedDFTotalText.setEnabled(false);
+		unadjustedDFTotalText.setEditable(false);
+		unadjustedDFTotalText.setBackground(fieldColor);
 		unadjustedDFTotalText.setSize(20, 50);
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
@@ -647,7 +651,8 @@ public class LigeiroView extends ViewPart
 		label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.transaction.function.total.label"));
 		unadjustedTFTotalText = new Text(groupComposite, SWT.BORDER);
-		unadjustedTFTotalText.setEnabled(false);
+		unadjustedTFTotalText.setEditable(false);
+		unadjustedTFTotalText.setBackground(fieldColor);
 		unadjustedTFTotalText.setSize(20, 50);
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
@@ -661,7 +666,8 @@ public class LigeiroView extends ViewPart
 		label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.unadjusted.fpa.total.label"));
 		unadjustedFPATotalText = new Text(groupComposite, SWT.BORDER);
-		unadjustedFPATotalText.setEnabled(false);
+		unadjustedFPATotalText.setEditable(false);
+		unadjustedFPATotalText.setBackground(fieldColor);
 		unadjustedFPATotalText.setSize(20, 50);
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
@@ -675,7 +681,8 @@ public class LigeiroView extends ViewPart
 		label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.vaf.label"));
 		vafText = new Text(groupComposite, SWT.BORDER);
-		vafText.setEnabled(false);
+		vafText.setEditable(false);
+		vafText.setBackground(fieldColor);
 		vafText.setSize(20, 50);
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
@@ -689,7 +696,8 @@ public class LigeiroView extends ViewPart
 		label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.adjusted.fpa.total.label"));
 		adjustedFPATotalText = new Text(groupComposite, SWT.BORDER);
-		adjustedFPATotalText.setEnabled(false);
+		adjustedFPATotalText.setEditable(false);
+		adjustedFPATotalText.setBackground(fieldColor);
 		adjustedFPATotalText.setSize(20, 50);
 	}
 

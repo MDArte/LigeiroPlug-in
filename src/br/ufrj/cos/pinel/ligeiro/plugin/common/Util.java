@@ -65,13 +65,14 @@ public class Util
 		return NOT_FOUND;
 	}
 
-	public static TableViewerColumn createTableViewerColumn(final TableViewer viewer, String title)
+	public static TableViewerColumn createTableViewerColumn(final TableViewer viewer, String title, int position)
 	{
 		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
 		final TableColumn column = viewerColumn.getColumn();
 		column.setText(title);
 		// trying to keep the column with a good width
-		column.setWidth(title.length() * 6 + 50);
+		//column.setWidth(title.length() * 6 + 40);
+		column.setWidth(Constants.RESULT_COLUMNS_WIDTH[position]);
 		column.setResizable(true);
 		column.setMoveable(true);
 		return viewerColumn;

@@ -460,7 +460,7 @@ public class LigeiroView extends ViewPart
 		configurationFileLabel.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
 
 		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
-		gd.widthHint = 400;
+		gd.widthHint = Constants.CONTROL_CONFIGURATION_WIDTH;
 
 		configurationFileText = new Text(controlComposite, SWT.BORDER);
 		configurationFileText.setEditable(false);
@@ -573,6 +573,10 @@ public class LigeiroView extends ViewPart
 		layout.marginHeight = 2;
 		resultComposite.setLayout(layout);
 
+		// for tables
+		gd = new GridData(GridData.GRAB_HORIZONTAL);
+		gd.heightHint = 300;
+
 		// Data Function table
 
 		dfTable = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
@@ -581,9 +585,6 @@ public class LigeiroView extends ViewPart
 		Table table = dfTable.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-
-		gd = new GridData(GridData.FILL_BOTH);
-		gd.heightHint = 300;
 		table.setLayoutData(gd);
 
 		dfTable.setContentProvider(new ArrayContentProvider());
@@ -598,9 +599,6 @@ public class LigeiroView extends ViewPart
 		table = tfTable.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-
-		gd = new GridData(GridData.FILL_BOTH);
-		gd.heightHint = 300;
 		table.setLayoutData(gd);
 
 		tfTable.setContentProvider(new ArrayContentProvider());
@@ -620,23 +618,27 @@ public class LigeiroView extends ViewPart
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		allComposite.setLayout(layout);
-		gd = new GridData();
-		gd.horizontalAlignment = GridData.FILL;
+
+		gd = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
 		gd.horizontalSpan = 2;
-		gd.grabExcessHorizontalSpace = true;
 		allComposite.setLayoutData(gd);
 
+		// for fields
+		gd = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
+
 		Composite groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
-		layout = new GridLayout(2, false);
+		layout = new GridLayout(1, false);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		groupComposite.setLayout(layout);
 		Label label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.data.function.total.label"));
 		unadjustedDFTotalText = new Text(groupComposite, SWT.BORDER);
+		unadjustedDFTotalText.setLayoutData(gd);
 		unadjustedDFTotalText.setEditable(false);
 		unadjustedDFTotalText.setBackground(fieldColor);
-		unadjustedDFTotalText.setSize(20, 50);
+		unadjustedDFTotalText.setSize(Constants.RESULT_FIELD_WIDTH, Constants.RESULT_FIELD_HEIGHT);
+		unadjustedDFTotalText.setToolTipText(Messages.getString("LigeiroView.results.data.function.total.tip"));
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
@@ -649,9 +651,11 @@ public class LigeiroView extends ViewPart
 		label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.transaction.function.total.label"));
 		unadjustedTFTotalText = new Text(groupComposite, SWT.BORDER);
+		unadjustedTFTotalText.setLayoutData(gd);
 		unadjustedTFTotalText.setEditable(false);
 		unadjustedTFTotalText.setBackground(fieldColor);
-		unadjustedTFTotalText.setSize(20, 50);
+		unadjustedTFTotalText.setSize(Constants.RESULT_FIELD_WIDTH, Constants.RESULT_FIELD_HEIGHT);
+		unadjustedTFTotalText.setToolTipText(Messages.getString("LigeiroView.results.transaction.function.total.tip"));
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
@@ -664,9 +668,11 @@ public class LigeiroView extends ViewPart
 		label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.unadjusted.fpa.total.label"));
 		unadjustedFPATotalText = new Text(groupComposite, SWT.BORDER);
+		unadjustedFPATotalText.setLayoutData(gd);
 		unadjustedFPATotalText.setEditable(false);
 		unadjustedFPATotalText.setBackground(fieldColor);
-		unadjustedFPATotalText.setSize(20, 50);
+		unadjustedFPATotalText.setSize(Constants.RESULT_FIELD_WIDTH, Constants.RESULT_FIELD_HEIGHT);
+		unadjustedFPATotalText.setToolTipText(Messages.getString("LigeiroView.results.unadjusted.fpa.total.tip"));
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
@@ -679,9 +685,11 @@ public class LigeiroView extends ViewPart
 		label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.vaf.label"));
 		vafText = new Text(groupComposite, SWT.BORDER);
+		vafText.setLayoutData(gd);
 		vafText.setEditable(false);
 		vafText.setBackground(fieldColor);
 		vafText.setSize(20, 50);
+		vafText.setToolTipText(Messages.getString("LigeiroView.results.vaf.tip"));
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
@@ -694,13 +702,16 @@ public class LigeiroView extends ViewPart
 		label = new Label(groupComposite, SWT.NONE);
 		label.setText(Messages.getString("LigeiroView.results.adjusted.fpa.total.label"));
 		adjustedFPATotalText = new Text(groupComposite, SWT.BORDER);
+		adjustedFPATotalText.setLayoutData(gd);
 		adjustedFPATotalText.setEditable(false);
 		adjustedFPATotalText.setBackground(fieldColor);
-		adjustedFPATotalText.setSize(20, 50);
+		adjustedFPATotalText.setSize(Constants.RESULT_FIELD_WIDTH, Constants.RESULT_FIELD_HEIGHT);
+		adjustedFPATotalText.setToolTipText(Messages.getString("LigeiroView.results.adjusted.fpa.total.tip"));
 	}
 
 	private void createResultColumns(final Composite parent, final TableViewer viewer, final boolean isDataFunction)
 	{
+		int position = 0;
 		String message;
 
 		if (isDataFunction)
@@ -708,7 +719,7 @@ public class LigeiroView extends ViewPart
 		else
 			message = Messages.getString("LigeiroView.results.table.transaction.function");
 
-		TableViewerColumn col = Util.createTableViewerColumn(viewer, message);
+		TableViewerColumn col = Util.createTableViewerColumn(viewer, message, position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -717,7 +728,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.type"));
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.type"), position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -731,7 +742,7 @@ public class LigeiroView extends ViewPart
 		else
 			message = Messages.getString("LigeiroView.results.table.ftr");
 
-		col = Util.createTableViewerColumn(viewer, message);
+		col = Util.createTableViewerColumn(viewer, message, position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -740,7 +751,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.det"));
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.det"), position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -749,7 +760,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity"));
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity"), position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -758,7 +769,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity.value"));
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity.value"), position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {

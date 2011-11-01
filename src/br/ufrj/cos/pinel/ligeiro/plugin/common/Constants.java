@@ -8,14 +8,15 @@ package br.ufrj.cos.pinel.ligeiro.plugin.common;
  */
 public class Constants
 {
-	/**
+	/*
 	 * The caracter used to separe the value in a CSV
 	 */
 	public static char CSV_DELIMITER = ';';
 
-	/**
+	/*
 	 * Useful colors.
 	 */
+
 	public static int COLOR_RED_R = 238;
 	public static int COLOR_RED_G = 44;
 	public static int COLOR_RED_B = 44;
@@ -39,4 +40,14 @@ public class Constants
 	public static int COLOR_DARK_ORANGE2_R = 238;
 	public static int COLOR_DARK_ORANGE2_G = 118;
 	public static int COLOR_DARK_ORANGE2_B = 0;
+
+	/*
+	 * Fields
+	 */
+
+	public static int CONTROL_CONFIGURATION_WIDTH = 500;
+
+	public static int RESULT_FIELD_WIDTH = 50;
+	public static int RESULT_FIELD_HEIGHT = 20;
+	public static int[] RESULT_COLUMNS_WIDTH = {300, 42, 37, 37, 87, 87};
 }

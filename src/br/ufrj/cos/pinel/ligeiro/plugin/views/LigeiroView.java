@@ -20,6 +20,7 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -30,6 +31,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
@@ -53,6 +55,7 @@ import br.ufrj.cos.pinel.ligeiro.plugin.common.ConsoleUtil;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Constants;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.LigeiroPreferences;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Util;
+import br.ufrj.cos.pinel.ligeiro.plugin.comparator.SummaryTableComparator;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.Result;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.SummaryElement;
@@ -87,6 +90,7 @@ public class LigeiroView extends ViewPart
 
 	private TableViewer summaryTable;
 	private SummaryTableProvider summaryProvider;
+	private SummaryTableComparator summaryTableComparator;
 
 	private TableViewer dfTable;
 	private ResultsTableProvider dfTableProvider;
@@ -110,6 +114,7 @@ public class LigeiroView extends ViewPart
 		super();
 
 		summaryProvider = new SummaryTableProvider();
+		summaryTableComparator = new SummaryTableComparator();
 
 		dfTableProvider = new ResultsTableProvider();
 		tfTableProvider = new ResultsTableProvider();
@@ -467,12 +472,15 @@ public class LigeiroView extends ViewPart
 		Table table = summaryTable.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		table.setEnabled(false);
 		table.setLayoutData(gd);
 
 		summaryTable.setContentProvider(new ArrayContentProvider());
 		summaryTable.setInput(summaryProvider.getElements());
+		summaryTable.setComparator(summaryTableComparator);
 		summaryTable.getTable().getHorizontalBar().setEnabled(true);
+
+		summaryTable.getTable().setBackground(new Color(form.getShell().getDisplay(),
+				Constants.COLOR_LIGHT_GRAY_R, Constants.COLOR_LIGHT_GRAY_G, Constants.COLOR_LIGHT_GRAY_B));
 
 		toolkit.paintBordersFor(summaryComposite);
 	}
@@ -481,26 +489,51 @@ public class LigeiroView extends ViewPart
 	{
 		int position = 0;
 
-		TableViewerColumn col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.files.summary.table.type"),
-				Constants.SUMMARY_COLUMNS_WIDTH[position++]);
+		TableViewerColumn col = createSummaryTableColumn(Messages.getString("LigeiroView.files.summary.table.type"),
+				Constants.SUMMARY_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				SummaryElement p = (SummaryElement) element;
-				return p.getType();
+				SummaryElement summaryElement = (SummaryElement) element;
+				return summaryElement.getType();
 			}
 		});
 
-
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.files.summary.table.total"),
-				Constants.SUMMARY_COLUMNS_WIDTH[position++]);
+		col = createSummaryTableColumn(Messages.getString("LigeiroView.files.summary.table.total"),
+				Constants.SUMMARY_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				SummaryElement p = (SummaryElement) element;
-				return Integer.toString(p.getTotal());
+				SummaryElement summaryElement = (SummaryElement) element;
+				return Integer.toString(summaryElement.getTotal());
 			}
 		});
+	}
+
+	private TableViewerColumn createSummaryTableColumn(String title, int width, final int colNumber)
+	{
+		final TableViewerColumn viewerColumn = new TableViewerColumn(summaryTable, SWT.NONE);
+		final TableColumn column = viewerColumn.getColumn();
+		column.setText(title);
+		column.setWidth(width);
+		column.setResizable(true);
+		column.setMoveable(true);
+
+		column.addSelectionListener(
+			new SelectionAdapter()
+			{
+				@Override
+				public void widgetSelected(SelectionEvent event)
+				{
+					summaryTableComparator.setColumn(colNumber);
+					int dir = summaryTableComparator.getDirection();
+					summaryTable.getTable().setSortDirection(dir);
+					summaryTable.refresh();
+				}
+			}
+		);
+
+		return viewerColumn;
 	}
 
 	private void createControlSection(Composite parent)

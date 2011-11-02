@@ -9,6 +9,14 @@ import java.beans.PropertyChangeSupport;
  */
 public class SummaryElement
 {
+	public static int CLASS = 0;
+	public static int ENTITY = 1;
+	public static int SERVICE = 2;
+	public static int USE_CASE = 3;
+	public static int DEPENDENCY = 4;
+
+	private int internalType;
+
 	private String type;
 
 	private int total;
@@ -18,9 +26,10 @@ public class SummaryElement
 	/**
 	 * Default contructor.
 	 */
-	public SummaryElement()
+	public SummaryElement(int internalType)
 	{
-		// empty
+		this.internalType = internalType;
+		this.total = 0;
 	}
 
 	public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener)
@@ -31,6 +40,14 @@ public class SummaryElement
 	public void removePropertyChangeListener(PropertyChangeListener listener)
 	{
 		propertyChangeSupport.removePropertyChangeListener(listener);
+	}
+
+	/**
+	 * @return the internalType
+	 */
+	public int getInternalType()
+	{
+		return internalType;
 	}
 
 	/**
@@ -58,10 +75,10 @@ public class SummaryElement
 	}
 
 	/**
-	 * @param total the total to set
+	 * @param value the value to increase
 	 */
-	public void setTotal(int total)
+	public void addTotal(int value)
 	{
-		propertyChangeSupport.firePropertyChange("total", this.total, this.total = total);
+		propertyChangeSupport.firePropertyChange("total", this.total, this.total = this.total + value);
 	}
 }

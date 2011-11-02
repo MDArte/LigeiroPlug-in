@@ -30,18 +30,54 @@ public class SummaryTableProvider
 	}
 
 	/**
-	 * @param element the element to be added
-	 */
-	public void addElement(SummaryElement result)
-	{
-		elements.add(result);
-	}
-
-	/**
 	 * Clear the results.
 	 */
 	public void clear()
 	{
 		elements.clear();
+	}
+
+	public SummaryElement getSummaryClass()
+	{
+		return getSummaryFromType(SummaryElement.CLASS);
+	}
+
+	public SummaryElement getSummaryEntity()
+	{
+		return getSummaryFromType(SummaryElement.ENTITY);
+	}
+
+	public SummaryElement getSummaryService()
+	{
+		return getSummaryFromType(SummaryElement.SERVICE);
+	}
+
+	public SummaryElement getSummaryUseCase()
+	{
+		return getSummaryFromType(SummaryElement.USE_CASE);
+	}
+
+	public SummaryElement getSummaryDependency()
+	{
+		return getSummaryFromType(SummaryElement.DEPENDENCY);
+	}
+
+	private SummaryElement getSummaryFromType(int internalType)
+	{
+		SummaryElement summaryEntity = null;
+
+		for (SummaryElement element : elements)
+		{
+			if (element.getInternalType() ==  internalType)
+				summaryEntity = element;
+		}
+
+		if (summaryEntity == null)
+		{
+			summaryEntity = new SummaryElement(internalType);
+			elements.add(summaryEntity);
+		}
+
+		return summaryEntity;
 	}
 }

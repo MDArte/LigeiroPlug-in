@@ -1005,6 +1005,8 @@ public class LigeiroView extends ViewPart
 					ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
 
 					items[i].setForeground(goodItemColor);
+
+					updateFilesSumamary(loadReport);
 				}
 				catch (ReadXMLException e)
 				{
@@ -1035,6 +1037,8 @@ public class LigeiroView extends ViewPart
 					ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
 
 					items[i].setForeground(goodItemColor);
+
+					updateFilesSumamary(loadReport);
 				}
 				catch (ReadXMLException e)
 				{
@@ -1122,8 +1126,37 @@ public class LigeiroView extends ViewPart
 		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.done"));
 	}
 
-	private void updateFilesSumamary()
+	private void updateFilesSumamary(LoadReport loadReport)
 	{
-		
+		SummaryElement element = null;
+
+		if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_CLASS))
+		{
+			element = summaryProvider.getSummaryClass();
+		}
+		else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_DEPENDENCY))
+		{
+			element = summaryProvider.getSummaryDependency();
+		}
+		else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_ENTITY))
+		{
+			element = summaryProvider.getSummaryEntity();
+		}
+		else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_SERVICE))
+		{
+			element = summaryProvider.getSummaryService();
+		}
+		else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_USE_CASE))
+		{
+			element = summaryProvider.getSummaryUseCase();
+		}
+
+		if (element != null)
+		{
+			element.setType(Util.getLoadReportType(loadReport.getType(), loadReport.getElementsRead() > 1));
+			element.addTotal(loadReport.getElementsRead());
+
+			summaryTable.refresh();
+		}
 	}
 }

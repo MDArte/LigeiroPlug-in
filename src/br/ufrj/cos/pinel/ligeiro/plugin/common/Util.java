@@ -3,10 +3,13 @@ package br.ufrj.cos.pinel.ligeiro.plugin.common;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
+import br.ufrj.cos.pinel.ligeiro.plugin.comparator.ITableComparator;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
 import br.ufrj.cos.pinel.ligeiro.plugin.views.Messages;
 
@@ -65,7 +68,7 @@ public class Util
 		return NOT_FOUND;
 	}
 
-	public static TableViewerColumn createTableViewerColumn(final TableViewer viewer, String title, int width)
+	public static TableViewerColumn createTableViewerColumn(final TableViewer viewer, final ITableComparator comparator, String title, int width, final int colNumber)
 	{
 		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
 		final TableColumn column = viewerColumn.getColumn();
@@ -73,6 +76,21 @@ public class Util
 		column.setWidth(width);
 		column.setResizable(true);
 		column.setMoveable(true);
+
+		column.addSelectionListener(
+			new SelectionAdapter()
+			{
+				@Override
+				public void widgetSelected(SelectionEvent event)
+				{
+					comparator.setColumn(colNumber);
+					int dir = comparator.getDirection();
+					viewer.getTable().setSortDirection(dir);
+					viewer.refresh();
+				}
+			}
+		);
+
 		return viewerColumn;
 	}
 

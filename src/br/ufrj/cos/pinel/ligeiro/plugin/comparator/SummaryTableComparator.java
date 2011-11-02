@@ -10,7 +10,7 @@ import br.ufrj.cos.pinel.ligeiro.plugin.data.SummaryElement;
  * @author Roque Pinel
  *
  */
-public class SummaryTableComparator extends ViewerComparator
+public class SummaryTableComparator extends ViewerComparator implements ITableComparator
 {
 	private int propertyIndex;
 

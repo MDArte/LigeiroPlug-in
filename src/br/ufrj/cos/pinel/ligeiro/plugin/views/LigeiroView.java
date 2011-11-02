@@ -465,8 +465,29 @@ public class LigeiroView extends ViewPart
 		layout.marginHeight = 2;
 		summaryComposite.setLayout(layout);
 
-		Label tableLabel = new Label(summaryComposite, SWT.NONE);
+		Composite toolbarComposite = toolkit.createComposite(summaryComposite, SWT.WRAP);
+		RowLayout rowlayout = new RowLayout(SWT.HORIZONTAL);
+		rowlayout.marginLeft = 0;
+		rowlayout.marginRight = 10;
+		rowlayout.spacing = 20;
+		rowlayout.marginTop = 2;
+		rowlayout.marginBottom = 2;
+		toolbarComposite.setLayout(rowlayout);
+
+		Label tableLabel = new Label(toolbarComposite, SWT.NONE);
 		tableLabel.setText(Messages.getString("LigeiroView.files.summary.table.label"));
+
+		ImageHyperlink imageHyperLink = new ImageHyperlink(toolbarComposite, SWT.LEFT);
+		imageHyperLink.setBackgroundImage(toolbarComposite.getBackgroundImage());
+		imageHyperLink.setToolTipText(Messages.getString("LigeiroView.files.summary.clear.tip"));
+		imageHyperLink.setImage(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_TRASH).createImage());
+		imageHyperLink.addHyperlinkListener(new HyperlinkAdapter()
+		{
+			public void linkActivated(HyperlinkEvent e)
+			{
+				resetSummary();
+			}
+		});
 
 		GridData gd = new GridData(GridData.FILL_BOTH);
 		gd.heightHint = 200;
@@ -899,6 +920,7 @@ public class LigeiroView extends ViewPart
 			public void run()
 			{
 				resetFields();
+				resetSummary();
 				resetResults();
 
 				if (core != null)
@@ -918,10 +940,13 @@ public class LigeiroView extends ViewPart
 		statisticTable.removeAll();
 		dependencyTable.removeAll();
 
+		configurationFileText.setText("");
+	}
+
+	private void resetSummary()
+	{
 		summaryProvider.clear();
 		summaryTable.refresh();
-
-		configurationFileText.setText("");
 	}
 
 	private void resetResults()

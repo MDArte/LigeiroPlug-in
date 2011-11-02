@@ -45,9 +45,12 @@ public class Constants
 	 * Fields
 	 */
 
+	public static int[] SUMMARY_COLUMNS_WIDTH = {100, 50};
+
 	public static int CONTROL_CONFIGURATION_WIDTH = 500;
 
 	public static int RESULT_FIELD_WIDTH = 50;
 	public static int RESULT_FIELD_HEIGHT = 20;
-	public static int[] RESULT_COLUMNS_WIDTH = {300, 42, 37, 37, 87, 87};
+	//public static int[] RESULT_COLUMNS_WIDTH = {300, 42, 37, 37, 87, 87};
+	public static int[] RESULT_COLUMNS_WIDTH = {250, 42, 37, 37, 87, 75};
 }

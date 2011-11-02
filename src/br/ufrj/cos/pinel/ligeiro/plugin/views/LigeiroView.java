@@ -55,7 +55,9 @@ import br.ufrj.cos.pinel.ligeiro.plugin.common.LigeiroPreferences;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Util;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.Result;
+import br.ufrj.cos.pinel.ligeiro.plugin.data.SummaryElement;
 import br.ufrj.cos.pinel.ligeiro.plugin.provider.ResultsTableProvider;
+import br.ufrj.cos.pinel.ligeiro.plugin.provider.SummaryTableProvider;
 import br.ufrj.cos.pinel.ligeiro.report.FPAReport;
 import br.ufrj.cos.pinel.ligeiro.report.LoadReport;
 import br.ufrj.cos.pinel.ligeiro.report.ReportResult;
@@ -83,6 +85,9 @@ public class LigeiroView extends ViewPart
 	private Button dependencyAddButton;
 	private Button dependencyRemoveButton;
 
+	private TableViewer summaryTable;
+	private SummaryTableProvider summaryProvider;
+
 	private TableViewer dfTable;
 	private ResultsTableProvider dfTableProvider;
 
@@ -103,6 +108,8 @@ public class LigeiroView extends ViewPart
 	public LigeiroView()
 	{
 		super();
+
+		summaryProvider = new SummaryTableProvider();
 
 		dfTableProvider = new ResultsTableProvider();
 		tfTableProvider = new ResultsTableProvider();
@@ -155,7 +162,7 @@ public class LigeiroView extends ViewPart
 
 		Composite filesComposite = toolkit.createComposite(filesSection, SWT.WRAP);
 		filesSection.setClient(filesComposite);
-		GridLayout layout = new GridLayout(2, true);
+		GridLayout layout = new GridLayout(3, true);
 		layout.marginWidth = 2;
 		layout.marginHeight = 2;
 		filesComposite.setLayout(layout);
@@ -163,6 +170,8 @@ public class LigeiroView extends ViewPart
 		createFilesSectionStatistic(filesComposite);
 
 		createFilesSectionDependency(filesComposite);
+
+		createFilesSectionSummary(filesComposite);
 	}
 
 	private void createFilesSectionStatistic(Composite parent)
@@ -437,6 +446,63 @@ public class LigeiroView extends ViewPart
 			dependencyRemoveButton.setEnabled(false);
 	}
 
+	private void createFilesSectionSummary(Composite parent)
+	{
+		Composite summaryComposite = toolkit.createComposite(parent, SWT.WRAP);
+		GridLayout layout = new GridLayout(1, false);
+		layout.marginWidth = 2;
+		layout.marginHeight = 2;
+		summaryComposite.setLayout(layout);
+
+		Label tableLabel = new Label(summaryComposite, SWT.NONE);
+		tableLabel.setText(Messages.getString("LigeiroView.files.summary.table.label"));
+
+		GridData gd = new GridData(GridData.FILL_BOTH);
+		gd.heightHint = 200;
+		gd.widthHint = 300;
+
+		summaryTable = new TableViewer(summaryComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		createSummaryColumns(summaryComposite, summaryTable, true);
+
+		Table table = summaryTable.getTable();
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		table.setEnabled(false);
+		table.setLayoutData(gd);
+
+		summaryTable.setContentProvider(new ArrayContentProvider());
+		summaryTable.setInput(summaryProvider.getElements());
+		summaryTable.getTable().getHorizontalBar().setEnabled(true);
+
+		toolkit.paintBordersFor(summaryComposite);
+	}
+
+	private void createSummaryColumns(final Composite parent, final TableViewer viewer, final boolean isDataFunction)
+	{
+		int position = 0;
+
+		TableViewerColumn col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.files.summary.table.type"),
+				Constants.SUMMARY_COLUMNS_WIDTH[position++]);
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				SummaryElement p = (SummaryElement) element;
+				return p.getType();
+			}
+		});
+
+
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.files.summary.table.total"),
+				Constants.SUMMARY_COLUMNS_WIDTH[position++]);
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				SummaryElement p = (SummaryElement) element;
+				return Integer.toString(p.getTotal());
+			}
+		});
+	}
+
 	private void createControlSection(Composite parent)
 	{
 		GridData gd = new GridData();
@@ -459,7 +525,7 @@ public class LigeiroView extends ViewPart
 		configurationFileLabel.setText(Messages.getString("LigeiroView.control.configuration.file.label"));
 		configurationFileLabel.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
 
-		gd = new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL);
+		gd = new GridData();
 		gd.widthHint = Constants.CONTROL_CONFIGURATION_WIDTH;
 
 		configurationFileText = new Text(controlComposite, SWT.BORDER);
@@ -719,7 +785,7 @@ public class LigeiroView extends ViewPart
 		else
 			message = Messages.getString("LigeiroView.results.table.transaction.function");
 
-		TableViewerColumn col = Util.createTableViewerColumn(viewer, message, position++);
+		TableViewerColumn col = Util.createTableViewerColumn(viewer, message, Constants.RESULT_COLUMNS_WIDTH[position++]);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -728,7 +794,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.type"), position++);
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.type"), Constants.RESULT_COLUMNS_WIDTH[position++]);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -742,7 +808,7 @@ public class LigeiroView extends ViewPart
 		else
 			message = Messages.getString("LigeiroView.results.table.ftr");
 
-		col = Util.createTableViewerColumn(viewer, message, position++);
+		col = Util.createTableViewerColumn(viewer, message, Constants.RESULT_COLUMNS_WIDTH[position++]);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -751,7 +817,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.det"), position++);
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.det"), Constants.RESULT_COLUMNS_WIDTH[position++]);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -760,7 +826,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity"), position++);
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity"), Constants.RESULT_COLUMNS_WIDTH[position++]);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -769,7 +835,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity.value"), position++);
+		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity.value"), Constants.RESULT_COLUMNS_WIDTH[position++]);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -819,6 +885,9 @@ public class LigeiroView extends ViewPart
 
 		statisticTable.removeAll();
 		dependencyTable.removeAll();
+
+		summaryProvider.clear();
+		summaryTable.refresh();
 
 		configurationFileText.setText("");
 	}
@@ -1051,5 +1120,10 @@ public class LigeiroView extends ViewPart
 		adjustedFPATotalText.setText(Double.toString(fpaReport.getAdjustedReportTotal(fpaConfig.getVaf())));
 
 		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.done"));
+	}
+
+	private void updateFilesSumamary()
+	{
+		
 	}
 }

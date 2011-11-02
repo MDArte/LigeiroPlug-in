@@ -62,7 +62,8 @@ public class Result
 	 */
 	public String getType()
 	{
-		return type;
+		// may not always be setted
+		return type != null ? type : "";
 	}
 
 	/**
@@ -110,7 +111,8 @@ public class Result
 	 */
 	public String getComplexity()
 	{
-		return complexity;
+		// may not always be setted
+		return complexity != null ? complexity : "";
 	}
 
 	/**

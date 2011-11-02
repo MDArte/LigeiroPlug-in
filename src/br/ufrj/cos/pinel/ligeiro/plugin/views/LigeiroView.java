@@ -36,8 +36,10 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
+import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.events.IExpansionListener;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ImageHyperlink;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
@@ -167,9 +169,20 @@ public class LigeiroView extends ViewPart
 		gd.horizontalAlignment = GridData.FILL;
 		gd.grabExcessHorizontalSpace = true;
 
-		Section filesSection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED);
+		Section filesSection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE);
 		filesSection.setText(Messages.getString("LigeiroView.files.section.title"));
 		filesSection.setLayoutData(gd);
+		filesSection.setExpanded(LigeiroPreferences.isSectionFilesExpanded());
+		filesSection.addExpansionListener(
+			new IExpansionListener()
+			{
+				public void expansionStateChanged(ExpansionEvent event)
+				{
+					LigeiroPreferences.setSectionFilesExpanded(event.getState());
+				}
+				public void expansionStateChanging(ExpansionEvent event) { }
+			}
+		);
 
 		Composite filesComposite = toolkit.createComposite(filesSection, SWT.WRAP);
 		filesSection.setClient(filesComposite);
@@ -543,9 +556,20 @@ public class LigeiroView extends ViewPart
 		gd.horizontalAlignment = GridData.FILL;
 		gd.grabExcessHorizontalSpace = true;
 
-		Section controlSection = toolkit.createSection(parent, Section.TITLE_BAR);
+		Section controlSection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE);
 		controlSection.setText(Messages.getString("LigeiroView.control.section.title"));
 		controlSection.setLayoutData(gd);
+		controlSection.setExpanded(LigeiroPreferences.isSectionControlExpanded());
+		controlSection.addExpansionListener(
+			new IExpansionListener()
+			{
+				public void expansionStateChanged(ExpansionEvent event)
+				{
+					LigeiroPreferences.setSectionControlExpanded(event.getState());
+				}
+				public void expansionStateChanging(ExpansionEvent event) { }
+			}
+		);
 
 		Composite controlComposite = toolkit.createComposite(controlSection, SWT.WRAP);
 		controlSection.setClient(controlComposite);
@@ -640,9 +664,20 @@ public class LigeiroView extends ViewPart
 		gd.horizontalAlignment = GridData.FILL;
 		gd.grabExcessHorizontalSpace = true;
 
-		Section resultSection = toolkit.createSection(parent, Section.TITLE_BAR);
+		Section resultSection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE);
 		resultSection.setText(Messages.getString("LigeiroView.results.section.title"));
 		resultSection.setLayoutData(gd);
+		resultSection.setExpanded(LigeiroPreferences.isSectionResultsExpanded());
+		resultSection.addExpansionListener(
+			new IExpansionListener()
+			{
+				public void expansionStateChanged(ExpansionEvent event)
+				{
+					LigeiroPreferences.setSectionResultsExpanded(event.getState());
+				}
+				public void expansionStateChanging(ExpansionEvent event) { }
+			}
+		);
 
 		Composite toolbarComposite = toolkit.createComposite(resultSection, SWT.WRAP);
 		RowLayout rowlayout = new RowLayout(SWT.HORIZONTAL);

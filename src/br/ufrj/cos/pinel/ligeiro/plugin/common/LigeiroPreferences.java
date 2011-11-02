@@ -12,6 +12,10 @@ import br.ufrj.cos.pinel.ligeiro.plugin.LigeiroPlugin;
  */
 public class LigeiroPreferences
 {
+	private static String KEY_SECTION_FILES_EXPANDED = "LIGEIRO_SECTION_FILES_EXPANDED";
+	private static String KEY_SECTION_CONTROL_EXPANDED = "LIGEIRO_SECTION_CONTROL_EXPANDED";
+	private static String KEY_SECTION_RESULTS_EXPANDED = "LIGEIRO_SECTION_RESULTS_EXPANDED";
+
 	private static String KEY_STATISTIC_FILES_CSV = "LIGEIRO_STATISTIC_FILES_CSV";
 	private static String KEY_DEPENDENCY_FILES_CSV = "LIGEIRO_DEPENDENCY_FILES_CSV";
 	private static String KEY_FPA_CONFIGURATION_FILE = "LIGEIRO_FPA_CONFIGURATION_FILE";
@@ -51,6 +55,27 @@ public class LigeiroPreferences
 	}
 
 	/**
+	 * Clears all fields from preferences.
+	 */
+	public static void clearFields()
+	{
+		IEclipsePreferences preferences = getPreferences();
+
+		try
+		{
+			preferences.remove(KEY_STATISTIC_FILES_CSV);
+			preferences.remove(KEY_DEPENDENCY_FILES_CSV);
+			preferences.remove(KEY_FPA_CONFIGURATION_FILE);
+
+			preferences.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			// ignoring
+		}
+	}
+
+	/**
 	 * @param table the to be changed
 	 */
 	public static void loadStatisticFiles(Table table)
@@ -70,18 +95,7 @@ public class LigeiroPreferences
 
 	public static void saveStatisticFiles(Table table)
 	{
-		IEclipsePreferences preferences = getPreferences();
-
-		preferences.put(KEY_STATISTIC_FILES_CSV, Util.getInputFileTableCSV(table));
-
-		try
-		{
-			preferences.flush();
-		}
-		catch (BackingStoreException e)
-		{
-			// ignoring
-		}
+		put(KEY_STATISTIC_FILES_CSV, Util.getInputFileTableCSV(table));
 	}
 
 	/**
@@ -104,18 +118,7 @@ public class LigeiroPreferences
 
 	public static void saveDependencyFiles(Table table)
 	{
-		IEclipsePreferences preferences = getPreferences();
-
-		preferences.put(KEY_DEPENDENCY_FILES_CSV, Util.getInputFileTableCSV(table));
-
-		try
-		{
-			preferences.flush();
-		}
-		catch (BackingStoreException e)
-		{
-			// ignoring
-		}
+		put(KEY_DEPENDENCY_FILES_CSV, Util.getInputFileTableCSV(table));
 	}
 
 	/**
@@ -131,9 +134,92 @@ public class LigeiroPreferences
 	 */
 	public static void setFPAConfigurationFile(String path)
 	{
+		put(KEY_FPA_CONFIGURATION_FILE, path);
+	}
+
+	/**
+	 * @return if the files section is expanded
+	 */
+	public static boolean isSectionFilesExpanded()
+	{
+		return getPreferences().getBoolean(KEY_SECTION_FILES_EXPANDED, true);
+	}
+
+	/**
+	 * @param value The value to be setted
+	 */
+	public static void setSectionFilesExpanded(boolean value)
+	{
+		put(KEY_SECTION_FILES_EXPANDED, value);
+	}
+
+	/**
+	 * @return if the control section is expanded
+	 */
+	public static boolean isSectionControlExpanded()
+	{
+		return getPreferences().getBoolean(KEY_SECTION_CONTROL_EXPANDED, true);
+	}
+
+	/**
+	 * @param value The value to be setted
+	 */
+	public static void setSectionControlExpanded(boolean value)
+	{
+		put(KEY_SECTION_CONTROL_EXPANDED, value);
+	}
+
+	/**
+	 * @return if the results section is expanded
+	 */
+	public static boolean isSectionResultsExpanded()
+	{
+		return getPreferences().getBoolean(KEY_SECTION_RESULTS_EXPANDED, true);
+	}
+
+	/**
+	 * @param value The value to be setted
+	 */
+	public static void setSectionResultsExpanded(boolean value)
+	{
+		put(KEY_SECTION_RESULTS_EXPANDED, value);
+	}
+
+	// GENERAL
+
+	/**
+	 * Puts a <code>String</code> value.
+	 * 
+	 * @param key the key
+	 * @param value the value
+	 */
+	private static void put(String key, String value)
+	{
 		IEclipsePreferences preferences = getPreferences();
 
-		preferences.put(KEY_FPA_CONFIGURATION_FILE, path);
+		preferences.put(key, value);
+
+		try
+		{
+			preferences.flush();
+		}
+		catch (BackingStoreException e)
+		{
+			// ignoring
+		}
+	}
+
+	/**
+	 * Puts a <code>boolean</code> value.
+	 * 
+	 * @param key the key
+	 * @param value the value
+	 */
+	private static void put(String key, boolean value)
+	{
+		IEclipsePreferences preferences = getPreferences();
+
+		preferences.putBoolean(key, value);
 
 		try
 		{

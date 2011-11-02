@@ -19,7 +19,7 @@ public class SummaryTableComparator extends ViewerComparator implements ITableCo
 	public SummaryTableComparator()
 	{
 		propertyIndex = 0;
-		descending = true;
+		descending = false;
 	}
 
 	public int getDirection()

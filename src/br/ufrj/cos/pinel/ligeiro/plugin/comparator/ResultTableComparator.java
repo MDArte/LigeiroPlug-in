@@ -19,7 +19,7 @@ public class ResultTableComparator extends ViewerComparator implements ITableCom
 	public ResultTableComparator()
 	{
 		propertyIndex = 0;
-		descending = true;
+		descending = false;
 	}
 
 	public int getDirection()

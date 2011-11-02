@@ -34,5 +34,15 @@
             file="contexts.xml">
       </contexts>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="Ligeiro"
+            icon="icons/ligeiro.gif"
+            category="LigeiroPlug-in"
+            class="br.ufrj.cos.pinel.ligeiro.plugin.perspectives.LigeiroPerspectiveFactory"
+            id="br.ufrj.cos.pinel.ligeiro.plugin.perspectives.LigeiroPerspectiveFactory">
+      </perspective>
+   </extension>
 
 </plugin>

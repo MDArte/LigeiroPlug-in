@@ -55,6 +55,7 @@ import br.ufrj.cos.pinel.ligeiro.plugin.common.ConsoleUtil;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Constants;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.LigeiroPreferences;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Util;
+import br.ufrj.cos.pinel.ligeiro.plugin.comparator.ResultTableComparator;
 import br.ufrj.cos.pinel.ligeiro.plugin.comparator.SummaryTableComparator;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.Result;
@@ -94,9 +95,11 @@ public class LigeiroView extends ViewPart
 
 	private TableViewer dfTable;
 	private ResultsTableProvider dfTableProvider;
+	private ResultTableComparator dfTableComparator;
 
 	private TableViewer tfTable;
 	private ResultsTableProvider tfTableProvider;
+	private ResultTableComparator tfTableComparator;
 
 	private Text configurationFileText;
 
@@ -117,7 +120,10 @@ public class LigeiroView extends ViewPart
 		summaryTableComparator = new SummaryTableComparator();
 
 		dfTableProvider = new ResultsTableProvider();
+		dfTableComparator = new ResultTableComparator();
+
 		tfTableProvider = new ResultsTableProvider();
+		tfTableComparator = new ResultTableComparator();
 	}
 
 	/**
@@ -679,7 +685,7 @@ public class LigeiroView extends ViewPart
 		// Data Function table
 
 		dfTable = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		createResultColumns(resultComposite, dfTable, true);
+		createResultColumns(resultComposite, dfTable, dfTableComparator, true);
 
 		Table table = dfTable.getTable();
 		table.setHeaderVisible(true);
@@ -688,12 +694,13 @@ public class LigeiroView extends ViewPart
 
 		dfTable.setContentProvider(new ArrayContentProvider());
 		dfTable.setInput(dfTableProvider.getResults());
+		dfTable.setComparator(dfTableComparator);
 		dfTable.getTable().getHorizontalBar().setEnabled(true);
 
 		// Transaction Function table
 
 		tfTable = new TableViewer(resultComposite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		createResultColumns(resultComposite, tfTable, false);
+		createResultColumns(resultComposite, tfTable, tfTableComparator, false);
 
 		table = tfTable.getTable();
 		table.setHeaderVisible(true);
@@ -702,6 +709,7 @@ public class LigeiroView extends ViewPart
 
 		tfTable.setContentProvider(new ArrayContentProvider());
 		tfTable.setInput(tfTableProvider.getResults());
+		tfTable.setComparator(tfTableComparator);
 		tfTable.getTable().getHorizontalBar().setEnabled(true);
 
 		// additional information
@@ -808,7 +816,7 @@ public class LigeiroView extends ViewPart
 		adjustedFPATotalText.setToolTipText(Messages.getString("LigeiroView.results.adjusted.fpa.total.tip"));
 	}
 
-	private void createResultColumns(final Composite parent, final TableViewer viewer, final boolean isDataFunction)
+	private void createResultColumns(final Composite parent, final TableViewer viewer, final ResultTableComparator comparator, final boolean isDataFunction)
 	{
 		int position = 0;
 		String message;
@@ -818,7 +826,7 @@ public class LigeiroView extends ViewPart
 		else
 			message = Messages.getString("LigeiroView.results.table.transaction.function");
 
-		TableViewerColumn col = Util.createTableViewerColumn(viewer, message, Constants.RESULT_COLUMNS_WIDTH[position++]);
+		TableViewerColumn col = createResultTableColumn(viewer, comparator, message, Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -827,7 +835,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.type"), Constants.RESULT_COLUMNS_WIDTH[position++]);
+		col = createResultTableColumn(viewer, comparator, Messages.getString("LigeiroView.results.table.type"), Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -841,7 +849,7 @@ public class LigeiroView extends ViewPart
 		else
 			message = Messages.getString("LigeiroView.results.table.ftr");
 
-		col = Util.createTableViewerColumn(viewer, message, Constants.RESULT_COLUMNS_WIDTH[position++]);
+		col = createResultTableColumn(viewer, comparator, message, Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -850,7 +858,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.det"), Constants.RESULT_COLUMNS_WIDTH[position++]);
+		col = createResultTableColumn(viewer, comparator, Messages.getString("LigeiroView.results.table.det"), Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -859,7 +867,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity"), Constants.RESULT_COLUMNS_WIDTH[position++]);
+		col = createResultTableColumn(viewer, comparator, Messages.getString("LigeiroView.results.table.complexity"), Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -868,7 +876,7 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, Messages.getString("LigeiroView.results.table.complexity.value"), Constants.RESULT_COLUMNS_WIDTH[position++]);
+		col = createResultTableColumn(viewer, comparator, Messages.getString("LigeiroView.results.table.complexity.value"), Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -876,6 +884,32 @@ public class LigeiroView extends ViewPart
 				return Integer.toString(p.getComplexityValue());
 			}
 		});
+	}
+
+	private TableViewerColumn createResultTableColumn(final TableViewer viewer, final ResultTableComparator comparator, String title, int width, final int colNumber)
+	{
+		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
+		final TableColumn column = viewerColumn.getColumn();
+		column.setText(title);
+		column.setWidth(width);
+		column.setResizable(true);
+		column.setMoveable(true);
+
+		column.addSelectionListener(
+			new SelectionAdapter()
+			{
+				@Override
+				public void widgetSelected(SelectionEvent event)
+				{
+					comparator.setColumn(colNumber);
+					int dir = comparator.getDirection();
+					viewer.getTable().setSortDirection(dir);
+					viewer.refresh();
+				}
+			}
+		);
+
+		return viewerColumn;
 	}
 
 	private void appendActions()

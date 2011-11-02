@@ -654,7 +654,7 @@ public class LigeiroView extends ViewPart
 		toolbarComposite.setLayout(rowlayout);
 		resultSection.setTextClient(toolbarComposite);
 		ImageHyperlink imageHyperLink = new ImageHyperlink(toolbarComposite, SWT.LEFT);
-		imageHyperLink.setBackgroundImage(resultSection.getBackgroundImage());
+		imageHyperLink.setBackgroundImage(toolbarComposite.getBackgroundImage());
 		imageHyperLink.setToolTipText(Messages.getString("LigeiroView.results.toolbar.clear.tip"));
 		imageHyperLink.setImage(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_TRASH).createImage());
 		imageHyperLink.addHyperlinkListener(new HyperlinkAdapter()

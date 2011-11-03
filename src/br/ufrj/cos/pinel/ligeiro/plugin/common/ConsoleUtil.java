@@ -12,7 +12,7 @@ public class ConsoleUtil
 {
 	public static MessageConsole getConsole()
 	{
-		return LigeiroPlugin.findConsole(Messages.getString("LigeiroView.console.title"));
+		return LigeiroPlugin.findConsole(Messages.getString("LigeiroView.console.title")); //$NON-NLS-1$
 	}
 
 	public static void clearConsole()
@@ -33,8 +33,8 @@ public class ConsoleUtil
 		MessageConsoleStream out = getConsole().newMessageStream();
 		out.setColor(new Color(control.getShell().getDisplay(),
 				Constants.COLOR_STEEL_BLUE1_R, Constants.COLOR_STEEL_BLUE1_G, Constants.COLOR_STEEL_BLUE1_B));
-		out.print(Messages.getString("LigeiroView.console.file"));
-		out.print(": ");
+		out.print(Messages.getString("LigeiroView.console.file")); //$NON-NLS-1$
+		out.print(": "); //$NON-NLS-1$
 		out.println(fileName);
 	}
 
@@ -43,12 +43,12 @@ public class ConsoleUtil
 		MessageConsoleStream out = getConsole().newMessageStream();
 		out.setColor(new Color(control.getShell().getDisplay(),
 				Constants.COLOR_DARK_ORANGE2_R, Constants.COLOR_DARK_ORANGE2_G, Constants.COLOR_DARK_ORANGE2_B));
-		out.print("\t" + elementsRead);
-		out.print(" ");
+		out.print("\t" + elementsRead); //$NON-NLS-1$
+		out.print(" "); //$NON-NLS-1$
 		out.print(Util.getLoadReportType(type, elementsRead > 1));
-		out.print(" ");
-		out.print(Messages.getString("LigeiroView.console.read"));
-		out.println(".");
+		out.print(" "); //$NON-NLS-1$
+		out.print(Messages.getString("LigeiroView.console.read")); //$NON-NLS-1$
+		out.println("."); //$NON-NLS-1$
 	}
 
 	public static void writeTableResume(Control control, String tableName, int elementsRead)
@@ -57,12 +57,12 @@ public class ConsoleUtil
 		out.setColor(new Color(control.getShell().getDisplay(),
 				Constants.COLOR_STEEL_BLUE1_R, Constants.COLOR_STEEL_BLUE1_G, Constants.COLOR_STEEL_BLUE1_B));
 		out.print(tableName);
-		out.print(": " + elementsRead);
-		out.print(" ");
+		out.print(": " + elementsRead); //$NON-NLS-1$
+		out.print(" "); //$NON-NLS-1$
 		if (elementsRead > 1)
-			out.print(Messages.getString("LigeiroView.console.element.plural"));
+			out.print(Messages.getString("LigeiroView.console.element.plural")); //$NON-NLS-1$
 		else
-			out.print(Messages.getString("LigeiroView.console.element"));
-		out.println(".");
+			out.print(Messages.getString("LigeiroView.console.element")); //$NON-NLS-1$
+		out.println("."); //$NON-NLS-1$
 	}
 }

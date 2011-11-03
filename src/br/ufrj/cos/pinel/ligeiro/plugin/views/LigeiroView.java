@@ -76,7 +76,7 @@ public class LigeiroView extends ViewPart
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
-	public static final String ID = "br.ufrj.cos.pinel.ligeiro.plugin.views.LigeiroView";
+	public static final String ID = "br.ufrj.cos.pinel.ligeiro.plugin.views.LigeiroView"; //$NON-NLS-1$
 
 	private FormToolkit toolkit;
 	private ScrolledForm form;
@@ -135,7 +135,7 @@ public class LigeiroView extends ViewPart
 	{
 		toolkit = new FormToolkit(parent.getDisplay());
 		form = toolkit.createScrolledForm(parent);
-		form.setText(Messages.getString("LigeiroView.title"));
+		form.setText(Messages.getString("LigeiroView.title")); //$NON-NLS-1$
 
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 2;
@@ -170,7 +170,7 @@ public class LigeiroView extends ViewPart
 		gd.grabExcessHorizontalSpace = true;
 
 		Section filesSection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE);
-		filesSection.setText(Messages.getString("LigeiroView.files.section.title"));
+		filesSection.setText(Messages.getString("LigeiroView.files.section.title")); //$NON-NLS-1$
 		filesSection.setLayoutData(gd);
 		filesSection.setExpanded(LigeiroPreferences.isSectionFilesExpanded());
 		filesSection.addExpansionListener(
@@ -212,7 +212,7 @@ public class LigeiroView extends ViewPart
 		gd.grabExcessHorizontalSpace = true;
 
 		Label tableLabel = new Label(statisticComposite, SWT.NONE);
-		tableLabel.setText(Messages.getString("LigeiroView.files.statistic.table.label"));
+		tableLabel.setText(Messages.getString("LigeiroView.files.statistic.table.label")); //$NON-NLS-1$
 		tableLabel.setLayoutData(gd);
 
 		statisticTable = toolkit.createTable(statisticComposite, SWT.MULTI);
@@ -274,9 +274,9 @@ public class LigeiroView extends ViewPart
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
 		// add
-		statisticAddButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.add.button.label"), SWT.PUSH);
+		statisticAddButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.add.button.label"), SWT.PUSH);//$NON-NLS-1$
 		statisticAddButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ADD));
-		statisticAddButton.setToolTipText(Messages.getString("LigeiroView.files.statistic.add.button.tip"));
+		statisticAddButton.setToolTipText(Messages.getString("LigeiroView.files.statistic.add.button.tip")); //$NON-NLS-1$
 		statisticAddButton.setLayoutData(gd);
 		statisticAddButton.addSelectionListener(
 			new SelectionListener()
@@ -284,8 +284,8 @@ public class LigeiroView extends ViewPart
 				public void widgetSelected(SelectionEvent event)
 				{
 					List<String> paths = createFileCheckedTreeSelectionDialog(
-							Messages.getString("LigeiroView.files.statistic.add.dialog.title"),
-							Messages.getString("LigeiroView.files.add.dialog.message"));
+							Messages.getString("LigeiroView.files.statistic.add.dialog.title"), //$NON-NLS-1$
+							Messages.getString("LigeiroView.files.add.dialog.message")); //$NON-NLS-1$
 
 					if (paths != null)
 					{
@@ -309,9 +309,9 @@ public class LigeiroView extends ViewPart
 		);
 
 		// remove
-		statisticRemoveButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.remove.button.label"), SWT.PUSH);
+		statisticRemoveButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.statistic.remove.button.label"), SWT.PUSH); //$NON-NLS-1$
 		statisticRemoveButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_REMOVE));
-		statisticRemoveButton.setToolTipText(Messages.getString("LigeiroView.files.statistic.remove.button.tip"));
+		statisticRemoveButton.setToolTipText(Messages.getString("LigeiroView.files.statistic.remove.button.tip")); //$NON-NLS-1$
 		statisticRemoveButton.setLayoutData(gd);
 		statisticRemoveButton.addSelectionListener(
 			new SelectionListener()
@@ -348,7 +348,7 @@ public class LigeiroView extends ViewPart
 		gd.grabExcessHorizontalSpace = true;
 
 		Label tableLabel = new Label(dependencyComposite, SWT.NONE);
-		tableLabel.setText(Messages.getString("LigeiroView.files.dependency.table.label"));
+		tableLabel.setText(Messages.getString("LigeiroView.files.dependency.table.label")); //$NON-NLS-1$
 		tableLabel.setLayoutData(gd);
 
 		dependencyTable = toolkit.createTable(dependencyComposite, SWT.MULTI);
@@ -410,9 +410,9 @@ public class LigeiroView extends ViewPart
 		gd = new GridData(GridData.VERTICAL_ALIGN_BEGINNING);
 
 		// add
-		dependencyAddButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.add.button.label"), SWT.PUSH);
+		dependencyAddButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.add.button.label"), SWT.PUSH); //$NON-NLS-1$
 		dependencyAddButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ADD));
-		dependencyAddButton.setToolTipText(Messages.getString("LigeiroView.files.dependency.add.button.tip"));
+		dependencyAddButton.setToolTipText(Messages.getString("LigeiroView.files.dependency.add.button.tip")); //$NON-NLS-1$
 		dependencyAddButton.setLayoutData(gd);
 		dependencyAddButton.addSelectionListener(
 			new SelectionListener()
@@ -420,8 +420,8 @@ public class LigeiroView extends ViewPart
 				public void widgetSelected(SelectionEvent event)
 				{
 					List<String> paths = createFileCheckedTreeSelectionDialog(
-							Messages.getString("LigeiroView.files.dependency.add.dialog.title"),
-							Messages.getString("LigeiroView.files.add.dialog.message"));
+							Messages.getString("LigeiroView.files.dependency.add.dialog.title"), //$NON-NLS-1$
+							Messages.getString("LigeiroView.files.add.dialog.message")); //$NON-NLS-1$
 
 					if (paths != null)
 					{
@@ -445,9 +445,9 @@ public class LigeiroView extends ViewPart
 		);
 
 		// remove
-		dependencyRemoveButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.remove.button.label"), SWT.PUSH);
+		dependencyRemoveButton = toolkit.createButton(buttonComposite, Messages.getString("LigeiroView.files.dependency.remove.button.label"), SWT.PUSH); //$NON-NLS-1$
 		dependencyRemoveButton.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_ELCL_REMOVE));
-		dependencyRemoveButton.setToolTipText(Messages.getString("LigeiroView.files.dependency.remove.button.tip"));
+		dependencyRemoveButton.setToolTipText(Messages.getString("LigeiroView.files.dependency.remove.button.tip")); //$NON-NLS-1$
 		dependencyRemoveButton.setLayoutData(gd);
 		dependencyRemoveButton.addSelectionListener(
 			new SelectionListener()
@@ -488,11 +488,11 @@ public class LigeiroView extends ViewPart
 		toolbarComposite.setLayout(rowlayout);
 
 		Label tableLabel = new Label(toolbarComposite, SWT.NONE);
-		tableLabel.setText(Messages.getString("LigeiroView.files.summary.table.label"));
+		tableLabel.setText(Messages.getString("LigeiroView.files.summary.table.label")); //$NON-NLS-1$
 
 		ImageHyperlink imageHyperLink = new ImageHyperlink(toolbarComposite, SWT.LEFT);
 		imageHyperLink.setBackgroundImage(toolbarComposite.getBackgroundImage());
-		imageHyperLink.setToolTipText(Messages.getString("LigeiroView.files.summary.clear.tip"));
+		imageHyperLink.setToolTipText(Messages.getString("LigeiroView.files.summary.clear.tip")); //$NON-NLS-1$
 		imageHyperLink.setImage(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_TRASH).createImage());
 		imageHyperLink.addHyperlinkListener(new HyperlinkAdapter()
 		{
@@ -529,7 +529,8 @@ public class LigeiroView extends ViewPart
 	{
 		int position = 0;
 
-		TableViewerColumn col = Util.createTableViewerColumn(summaryTable, summaryTableComparator, Messages.getString("LigeiroView.files.summary.table.type"),
+		TableViewerColumn col = Util.createTableViewerColumn(summaryTable, summaryTableComparator,
+				Messages.getString("LigeiroView.files.summary.table.type"), //$NON-NLS-1$
 				Constants.SUMMARY_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -539,7 +540,8 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(summaryTable, summaryTableComparator, Messages.getString("LigeiroView.files.summary.table.total"),
+		col = Util.createTableViewerColumn(summaryTable, summaryTableComparator,
+				Messages.getString("LigeiroView.files.summary.table.total"), //$NON-NLS-1$
 				Constants.SUMMARY_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -557,7 +559,7 @@ public class LigeiroView extends ViewPart
 		gd.grabExcessHorizontalSpace = true;
 
 		Section controlSection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE);
-		controlSection.setText(Messages.getString("LigeiroView.control.section.title"));
+		controlSection.setText(Messages.getString("LigeiroView.control.section.title")); //$NON-NLS-1$
 		controlSection.setLayoutData(gd);
 		controlSection.setExpanded(LigeiroPreferences.isSectionControlExpanded());
 		controlSection.addExpansionListener(
@@ -580,7 +582,7 @@ public class LigeiroView extends ViewPart
 		controlComposite.setLayout(layout);
 
 		Label configurationFileLabel = new Label(controlComposite, SWT.NONE);
-		configurationFileLabel.setText(Messages.getString("LigeiroView.control.configuration.file.label"));
+		configurationFileLabel.setText(Messages.getString("LigeiroView.control.configuration.file.label")); //$NON-NLS-1$
 		configurationFileLabel.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL));
 
 		gd = new GridData();
@@ -606,7 +608,7 @@ public class LigeiroView extends ViewPart
 	
 						if (files.length > 1)
 						{
-							showInformation(Messages.getString("LigeiroView.error.many.configuration.files"));
+							showInformation(Messages.getString("LigeiroView.error.many.configuration.files")); //$NON-NLS-1$
 							return;
 						}
 						else if (files.length == 1 && verifyFileType(files[0]))
@@ -627,21 +629,22 @@ public class LigeiroView extends ViewPart
 			}
 		);
 
-		Button configurationFileButton = toolkit.createButton(controlComposite, Messages.getString("LigeiroView.control.configuration.file.button.label"), SWT.PUSH);
+		Button configurationFileButton = toolkit.createButton(controlComposite,
+				Messages.getString("LigeiroView.control.configuration.file.button.label"), SWT.PUSH); //$NON-NLS-1$
 		configurationFileButton.addSelectionListener(
 			new SelectionListener()
 			{
 				public void widgetSelected(SelectionEvent event)
 				{
 					List<String> paths = createFileCheckedTreeSelectionDialog(
-							Messages.getString("LigeiroView.control.configuration.add.dialog.title"),
-							Messages.getString("LigeiroView.control.configuration.add.dialog.message"));
+							Messages.getString("LigeiroView.control.configuration.add.dialog.title"), //$NON-NLS-1$
+							Messages.getString("LigeiroView.control.configuration.add.dialog.message")); //$NON-NLS-1$
 
 					if (paths != null)
 					{
 						if (paths.size() > 1)
 						{
-							showInformation(Messages.getString("LigeiroView.error.many.configuration.files"));
+							showInformation(Messages.getString("LigeiroView.error.many.configuration.files")); //$NON-NLS-1$
 						}
 						else if (!paths.isEmpty())
 						{
@@ -665,7 +668,7 @@ public class LigeiroView extends ViewPart
 		gd.grabExcessHorizontalSpace = true;
 
 		Section resultSection = toolkit.createSection(parent, Section.TITLE_BAR | Section.TWISTIE);
-		resultSection.setText(Messages.getString("LigeiroView.results.section.title"));
+		resultSection.setText(Messages.getString("LigeiroView.results.section.title")); //$NON-NLS-1$
 		resultSection.setLayoutData(gd);
 		resultSection.setExpanded(LigeiroPreferences.isSectionResultsExpanded());
 		resultSection.addExpansionListener(
@@ -690,7 +693,7 @@ public class LigeiroView extends ViewPart
 		resultSection.setTextClient(toolbarComposite);
 		ImageHyperlink imageHyperLink = new ImageHyperlink(toolbarComposite, SWT.LEFT);
 		imageHyperLink.setBackgroundImage(toolbarComposite.getBackgroundImage());
-		imageHyperLink.setToolTipText(Messages.getString("LigeiroView.results.toolbar.clear.tip"));
+		imageHyperLink.setToolTipText(Messages.getString("LigeiroView.results.toolbar.clear.tip")); //$NON-NLS-1$
 		imageHyperLink.setImage(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_TRASH).createImage());
 		imageHyperLink.addHyperlinkListener(new HyperlinkAdapter()
 		{
@@ -769,81 +772,81 @@ public class LigeiroView extends ViewPart
 		layout.marginHeight = 2;
 		groupComposite.setLayout(layout);
 		Label label = new Label(groupComposite, SWT.NONE);
-		label.setText(Messages.getString("LigeiroView.results.data.function.total.label"));
+		label.setText(Messages.getString("LigeiroView.results.data.function.total.label")); //$NON-NLS-1$
 		unadjustedDFTotalText = new Text(groupComposite, SWT.BORDER);
 		unadjustedDFTotalText.setLayoutData(gd);
 		unadjustedDFTotalText.setEditable(false);
 		unadjustedDFTotalText.setBackground(fieldColor);
 		unadjustedDFTotalText.setSize(Constants.RESULT_FIELD_WIDTH, Constants.RESULT_FIELD_HEIGHT);
-		unadjustedDFTotalText.setToolTipText(Messages.getString("LigeiroView.results.data.function.total.tip"));
+		unadjustedDFTotalText.setToolTipText(Messages.getString("LigeiroView.results.data.function.total.tip")); //$NON-NLS-1$
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
 		label = new Label(groupComposite, SWT.NONE);
-		label.setText(Messages.getString("LigeiroView.results.plus"));
+		label.setText(Messages.getString("LigeiroView.results.plus")); //$NON-NLS-1$
 		label.setForeground(mathOperationColor);
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
 		label = new Label(groupComposite, SWT.NONE);
-		label.setText(Messages.getString("LigeiroView.results.transaction.function.total.label"));
+		label.setText(Messages.getString("LigeiroView.results.transaction.function.total.label")); //$NON-NLS-1$
 		unadjustedTFTotalText = new Text(groupComposite, SWT.BORDER);
 		unadjustedTFTotalText.setLayoutData(gd);
 		unadjustedTFTotalText.setEditable(false);
 		unadjustedTFTotalText.setBackground(fieldColor);
 		unadjustedTFTotalText.setSize(Constants.RESULT_FIELD_WIDTH, Constants.RESULT_FIELD_HEIGHT);
-		unadjustedTFTotalText.setToolTipText(Messages.getString("LigeiroView.results.transaction.function.total.tip"));
+		unadjustedTFTotalText.setToolTipText(Messages.getString("LigeiroView.results.transaction.function.total.tip")); //$NON-NLS-1$
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
 		label = new Label(groupComposite, SWT.NONE);
-		label.setText(Messages.getString("LigeiroView.results.equals"));
+		label.setText(Messages.getString("LigeiroView.results.equals")); //$NON-NLS-1$
 		label.setForeground(mathOperationColor);
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
 		label = new Label(groupComposite, SWT.NONE);
-		label.setText(Messages.getString("LigeiroView.results.unadjusted.fpa.total.label"));
+		label.setText(Messages.getString("LigeiroView.results.unadjusted.fpa.total.label")); //$NON-NLS-1$
 		unadjustedFPATotalText = new Text(groupComposite, SWT.BORDER);
 		unadjustedFPATotalText.setLayoutData(gd);
 		unadjustedFPATotalText.setEditable(false);
 		unadjustedFPATotalText.setBackground(fieldColor);
 		unadjustedFPATotalText.setSize(Constants.RESULT_FIELD_WIDTH, Constants.RESULT_FIELD_HEIGHT);
-		unadjustedFPATotalText.setToolTipText(Messages.getString("LigeiroView.results.unadjusted.fpa.total.tip"));
+		unadjustedFPATotalText.setToolTipText(Messages.getString("LigeiroView.results.unadjusted.fpa.total.tip")); //$NON-NLS-1$
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
 		label = new Label(groupComposite, SWT.NONE);
-		label.setText(Messages.getString("LigeiroView.results.times"));
+		label.setText(Messages.getString("LigeiroView.results.times")); //$NON-NLS-1$
 		label.setForeground(mathOperationColor);
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
 		label = new Label(groupComposite, SWT.NONE);
-		label.setText(Messages.getString("LigeiroView.results.vaf.label"));
+		label.setText(Messages.getString("LigeiroView.results.vaf.label")); //$NON-NLS-1$
 		vafText = new Text(groupComposite, SWT.BORDER);
 		vafText.setLayoutData(gd);
 		vafText.setEditable(false);
 		vafText.setBackground(fieldColor);
 		vafText.setSize(20, 50);
-		vafText.setToolTipText(Messages.getString("LigeiroView.results.vaf.tip"));
+		vafText.setToolTipText(Messages.getString("LigeiroView.results.vaf.tip")); //$NON-NLS-1$
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
 		label = new Label(groupComposite, SWT.NONE);
-		label.setText(Messages.getString("LigeiroView.results.equals"));
+		label.setText(Messages.getString("LigeiroView.results.equals")); //$NON-NLS-1$
 		label.setForeground(mathOperationColor);
 
 		groupComposite = toolkit.createComposite(allComposite, SWT.WRAP);
 		groupComposite.setLayout(layout);
 		label = new Label(groupComposite, SWT.NONE);
-		label.setText(Messages.getString("LigeiroView.results.adjusted.fpa.total.label"));
+		label.setText(Messages.getString("LigeiroView.results.adjusted.fpa.total.label")); //$NON-NLS-1$
 		adjustedFPATotalText = new Text(groupComposite, SWT.BORDER);
 		adjustedFPATotalText.setLayoutData(gd);
 		adjustedFPATotalText.setEditable(false);
 		adjustedFPATotalText.setBackground(fieldColor);
 		adjustedFPATotalText.setSize(Constants.RESULT_FIELD_WIDTH, Constants.RESULT_FIELD_HEIGHT);
-		adjustedFPATotalText.setToolTipText(Messages.getString("LigeiroView.results.adjusted.fpa.total.tip"));
+		adjustedFPATotalText.setToolTipText(Messages.getString("LigeiroView.results.adjusted.fpa.total.tip")); //$NON-NLS-1$
 	}
 
 	private void createResultColumns(final Composite parent, final TableViewer viewer, final ResultTableComparator comparator, final boolean isDataFunction)
@@ -852,9 +855,9 @@ public class LigeiroView extends ViewPart
 		String message;
 
 		if (isDataFunction)
-			message = Messages.getString("LigeiroView.results.table.data.function");
+			message = Messages.getString("LigeiroView.results.table.data.function"); //$NON-NLS-1$
 		else
-			message = Messages.getString("LigeiroView.results.table.transaction.function");
+			message = Messages.getString("LigeiroView.results.table.transaction.function"); //$NON-NLS-1$
 
 		TableViewerColumn col = Util.createTableViewerColumn(viewer, comparator, message, Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -865,7 +868,9 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, comparator, Messages.getString("LigeiroView.results.table.type"), Constants.RESULT_COLUMNS_WIDTH[position], position++);
+		col = Util.createTableViewerColumn(viewer, comparator,
+				Messages.getString("LigeiroView.results.table.type"), //$NON-NLS-1$
+				Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -875,9 +880,9 @@ public class LigeiroView extends ViewPart
 		});
 
 		if (isDataFunction)
-			message = Messages.getString("LigeiroView.results.table.ret");
+			message = Messages.getString("LigeiroView.results.table.ret"); //$NON-NLS-1$
 		else
-			message = Messages.getString("LigeiroView.results.table.ftr");
+			message = Messages.getString("LigeiroView.results.table.ftr"); //$NON-NLS-1$
 
 		col = Util.createTableViewerColumn(viewer, comparator, message, Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -888,7 +893,9 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, comparator, Messages.getString("LigeiroView.results.table.det"), Constants.RESULT_COLUMNS_WIDTH[position], position++);
+		col = Util.createTableViewerColumn(viewer, comparator,
+				Messages.getString("LigeiroView.results.table.det"), //$NON-NLS-1$
+				Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -897,7 +904,9 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, comparator, Messages.getString("LigeiroView.results.table.complexity"), Constants.RESULT_COLUMNS_WIDTH[position], position++);
+		col = Util.createTableViewerColumn(viewer, comparator,
+				Messages.getString("LigeiroView.results.table.complexity"), //$NON-NLS-1$
+				Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -906,7 +915,9 @@ public class LigeiroView extends ViewPart
 			}
 		});
 
-		col = Util.createTableViewerColumn(viewer, comparator, Messages.getString("LigeiroView.results.table.complexity.value"), Constants.RESULT_COLUMNS_WIDTH[position], position++);
+		col = Util.createTableViewerColumn(viewer, comparator,
+				Messages.getString("LigeiroView.results.table.complexity.value"), //$NON-NLS-1$
+				Constants.RESULT_COLUMNS_WIDTH[position], position++);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -928,8 +939,8 @@ public class LigeiroView extends ViewPart
 				startFPAA();
 			}
 		};
-		action.setText(Messages.getString("LigeiroView.action.start.fpa.label"));
-		action.setToolTipText(Messages.getString("LigeiroView.action.start.fpa.tip"));
+		action.setText(Messages.getString("LigeiroView.action.start.fpa.label")); //$NON-NLS-1$
+		action.setToolTipText(Messages.getString("LigeiroView.action.start.fpa.tip")); //$NON-NLS-1$
 		action.setImageDescriptor(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_RUN));
 		bars.getToolBarManager().add(action);
 
@@ -941,8 +952,8 @@ public class LigeiroView extends ViewPart
 				loadStatisticAndDependencyFiles(false);
 			}
 		};
-		action.setText(Messages.getString("LigeiroView.action.load.files.label"));
-		action.setToolTipText(Messages.getString("LigeiroView.action.load.files.tip"));
+		action.setText(Messages.getString("LigeiroView.action.load.files.label")); //$NON-NLS-1$
+		action.setToolTipText(Messages.getString("LigeiroView.action.load.files.tip")); //$NON-NLS-1$
 		action.setImageDescriptor(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_PROPERTIES));
 		bars.getToolBarManager().add(action);
 
@@ -962,8 +973,8 @@ public class LigeiroView extends ViewPart
 					core.clear();
 			}
 		};
-		action.setText(Messages.getString("LigeiroView.action.reset.fields.label"));
-		action.setToolTipText(Messages.getString("LigeiroView.action.reset.fields.tip"));
+		action.setText(Messages.getString("LigeiroView.action.reset.fields.label")); //$NON-NLS-1$
+		action.setToolTipText(Messages.getString("LigeiroView.action.reset.fields.tip")); //$NON-NLS-1$
 		action.setImageDescriptor(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_TRASH));
 		bars.getToolBarManager().add(action);
 	}
@@ -975,7 +986,7 @@ public class LigeiroView extends ViewPart
 		statisticTable.removeAll();
 		dependencyTable.removeAll();
 
-		configurationFileText.setText("");
+		configurationFileText.setText(""); //$NON-NLS-1$
 	}
 
 	private void resetSummary()
@@ -988,15 +999,15 @@ public class LigeiroView extends ViewPart
 	{
 		dfTableProvider.clear();
 		dfTable.refresh();
-		unadjustedDFTotalText.setText("");
+		unadjustedDFTotalText.setText(""); //$NON-NLS-1$
 
 		tfTableProvider.clear();
 		tfTable.refresh();
-		unadjustedTFTotalText.setText("");
+		unadjustedTFTotalText.setText(""); //$NON-NLS-1$
 
-		unadjustedFPATotalText.setText("");
-		vafText.setText("");
-		adjustedFPATotalText.setText("");
+		unadjustedFPATotalText.setText(""); //$NON-NLS-1$
+		vafText.setText(""); //$NON-NLS-1$
+		adjustedFPATotalText.setText(""); //$NON-NLS-1$
 	}
 
 	private void loadPreviousInformation()
@@ -1006,7 +1017,7 @@ public class LigeiroView extends ViewPart
 
 	private void showInformation(String message)
 	{
-		MessageDialog.openInformation(form.getShell(), Messages.getString("LigeiroView.title"), message);
+		MessageDialog.openInformation(form.getShell(), Messages.getString("LigeiroView.title"), message); //$NON-NLS-1$
 	}
 
 	private List<String> createFileCheckedTreeSelectionDialog(String title, String message)
@@ -1034,7 +1045,7 @@ public class LigeiroView extends ViewPart
 				}
 				else
 				{
-					showInformation(Messages.getString("LigeiroView.error.type.not.file"));
+					showInformation(Messages.getString("LigeiroView.error.type.not.file")); //$NON-NLS-1$
 					return null;
 				}
 			}
@@ -1050,7 +1061,7 @@ public class LigeiroView extends ViewPart
 		if (file.isFile())
 			return true;
 
-		showInformation(Messages.getString("LigeiroView.error.type.not.file"));
+		showInformation(Messages.getString("LigeiroView.error.type.not.file")); //$NON-NLS-1$
 
 		return false;
 	}
@@ -1065,7 +1076,7 @@ public class LigeiroView extends ViewPart
 
 		StringBuilder sbMessage = loadStatisticAndDependencyFiles(true);
 
-		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.reading.configuration.file"));
+		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.reading.configuration.file")); //$NON-NLS-1$
 
 		FPAConfig fpaConfig = null;
 
@@ -1079,7 +1090,7 @@ public class LigeiroView extends ViewPart
 		}
 		catch (ReadXMLException e)
 		{
-			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.load.configuration.file"));
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.load.configuration.file")); //$NON-NLS-1$
 			configurationFileText.setForeground(brokeItemColor);
 		}
 
@@ -1089,7 +1100,7 @@ public class LigeiroView extends ViewPart
 			return;
 		}
 
-		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.starting.fpa"));
+		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.starting.fpa")); //$NON-NLS-1$
 
 		FPAReport fpaReport = core.startFunctionPointAnalysis(fpaConfig);
 
@@ -1107,7 +1118,7 @@ public class LigeiroView extends ViewPart
 		}
 		dfTable.refresh();
 
-		ConsoleUtil.writeTableResume(form, Messages.getString("LigeiroView.results.table.data.function"),fpaReport.getDFReport().size());
+		ConsoleUtil.writeTableResume(form, Messages.getString("LigeiroView.results.table.data.function"),fpaReport.getDFReport().size()); //$NON-NLS-1$
 
 		unadjustedDFTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
 
@@ -1125,7 +1136,7 @@ public class LigeiroView extends ViewPart
 		}
 		tfTable.refresh();
 
-		ConsoleUtil.writeTableResume(form, Messages.getString("LigeiroView.results.table.transaction.function"),fpaReport.getTFReport().size());
+		ConsoleUtil.writeTableResume(form, Messages.getString("LigeiroView.results.table.transaction.function"),fpaReport.getTFReport().size()); //$NON-NLS-1$
 
 		unadjustedTFTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
 
@@ -1135,7 +1146,7 @@ public class LigeiroView extends ViewPart
 
 		adjustedFPATotalText.setText(Double.toString(fpaReport.getAdjustedReportTotal(fpaConfig.getVaf())));
 
-		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.done"));
+		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.done")); //$NON-NLS-1$
 	}
 
 	private StringBuilder loadStatisticAndDependencyFiles(boolean startFPA)
@@ -1159,19 +1170,19 @@ public class LigeiroView extends ViewPart
 
 		if (statisticTable.getItemCount() == 0)
 		{
-			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.statistic.file"));
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.statistic.file")); //$NON-NLS-1$
 		}
 		if (dependencyTable.getItemCount() == 0)
 		{
-			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.dependency.file"));
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.dependency.file")); //$NON-NLS-1$
 		}
 		if (br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileText.getText()))
 		{
-			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.configuration.file"));
+			Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.no.configuration.file")); //$NON-NLS-1$
 		}
 
 		ConsoleUtil.clearConsole();
-		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.reading.statistic.files"));
+		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.reading.statistic.files")); //$NON-NLS-1$
 
 		boolean hasBrokenItem = false;
 		TableItem[] items = statisticTable.getItems();
@@ -1195,7 +1206,7 @@ public class LigeiroView extends ViewPart
 					if (!hasBrokenItem)
 					{
 						hasBrokenItem = true;
-						Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.load.statistic.file"));
+						Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.load.statistic.file")); //$NON-NLS-1$
 					}
 
 					items[i].setForeground(brokeItemColor);
@@ -1203,7 +1214,7 @@ public class LigeiroView extends ViewPart
 			}
 		}
 
-		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.reading.dependency.files"));
+		ConsoleUtil.writeSection(form, Messages.getString("LigeiroView.console.reading.dependency.files")); //$NON-NLS-1$
 
 		hasBrokenItem = false;
 		items = dependencyTable.getItems();
@@ -1227,7 +1238,7 @@ public class LigeiroView extends ViewPart
 					if (!hasBrokenItem)
 					{
 						hasBrokenItem = true;
-						Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.load.dependency.file"));
+						Util.appendMessage(sbMessage, Messages.getString("LigeiroView.error.load.dependency.file")); //$NON-NLS-1$
 					}
 
 					items[i].setForeground(brokeItemColor);

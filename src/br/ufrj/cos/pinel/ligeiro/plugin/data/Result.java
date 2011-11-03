@@ -54,7 +54,7 @@ public class Result
 	 */
 	public void setElement(String element)
 	{
-		propertyChangeSupport.firePropertyChange("element", this.element, this.element = element);
+		propertyChangeSupport.firePropertyChange("element", this.element, this.element = element); //$NON-NLS-1$
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class Result
 	public String getType()
 	{
 		// may not always be setted
-		return type != null ? type : "";
+		return type != null ? type : ""; //$NON-NLS-1$
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class Result
 	 */
 	public void setType(String type)
 	{
-		propertyChangeSupport.firePropertyChange("type", this.type, this.type = type);
+		propertyChangeSupport.firePropertyChange("type", this.type, this.type = type); //$NON-NLS-1$
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class Result
 	 */
 	public void setDet(int det)
 	{
-		propertyChangeSupport.firePropertyChange("det", this.det, this.det = det);
+		propertyChangeSupport.firePropertyChange("det", this.det, this.det = det); //$NON-NLS-1$
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class Result
 	 */
 	public void setRet_ftr(int ret_ftr)
 	{
-		propertyChangeSupport.firePropertyChange("ret_ftr", this.ret_ftr, this.ret_ftr = ret_ftr);
+		propertyChangeSupport.firePropertyChange("ret_ftr", this.ret_ftr, this.ret_ftr = ret_ftr); //$NON-NLS-1$
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class Result
 	public String getComplexity()
 	{
 		// may not always be setted
-		return complexity != null ? complexity : "";
+		return complexity != null ? complexity : ""; //$NON-NLS-1$
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class Result
 	 */
 	public void setComplexity(String complexity)
 	{
-		propertyChangeSupport.firePropertyChange("complexity", this.complexity, this.complexity = complexity);
+		propertyChangeSupport.firePropertyChange("complexity", this.complexity, this.complexity = complexity); //$NON-NLS-1$
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class Result
 	 */
 	public void setComplexityValue(int complexityValue)
 	{
-		propertyChangeSupport.firePropertyChange("complexityValue", this.complexityValue, this.complexityValue = complexityValue);
+		propertyChangeSupport.firePropertyChange("complexityValue", this.complexityValue, this.complexityValue = complexityValue); //$NON-NLS-1$
 	}
 
 	/**

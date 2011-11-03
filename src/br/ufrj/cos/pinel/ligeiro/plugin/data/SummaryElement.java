@@ -63,7 +63,7 @@ public class SummaryElement
 	 */
 	public void setType(String type)
 	{
-		propertyChangeSupport.firePropertyChange("type", this.type, this.type = type);
+		propertyChangeSupport.firePropertyChange("type", this.type, this.type = type); //$NON-NLS-1$
 	}
 
 	/**
@@ -79,6 +79,6 @@ public class SummaryElement
 	 */
 	public void addTotal(int value)
 	{
-		propertyChangeSupport.firePropertyChange("total", this.total, this.total = this.total + value);
+		propertyChangeSupport.firePropertyChange("total", this.total, this.total = this.total + value); //$NON-NLS-1$
 	}
 }

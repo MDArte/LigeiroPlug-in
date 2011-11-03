@@ -12,13 +12,13 @@ import br.ufrj.cos.pinel.ligeiro.plugin.LigeiroPlugin;
  */
 public class LigeiroPreferences
 {
-	private static String KEY_SECTION_FILES_EXPANDED = "LIGEIRO_SECTION_FILES_EXPANDED";
-	private static String KEY_SECTION_CONTROL_EXPANDED = "LIGEIRO_SECTION_CONTROL_EXPANDED";
-	private static String KEY_SECTION_RESULTS_EXPANDED = "LIGEIRO_SECTION_RESULTS_EXPANDED";
+	private static String KEY_SECTION_FILES_EXPANDED = "LIGEIRO_SECTION_FILES_EXPANDED"; //$NON-NLS-1$
+	private static String KEY_SECTION_CONTROL_EXPANDED = "LIGEIRO_SECTION_CONTROL_EXPANDED"; //$NON-NLS-1$
+	private static String KEY_SECTION_RESULTS_EXPANDED = "LIGEIRO_SECTION_RESULTS_EXPANDED"; //$NON-NLS-1$
 
-	private static String KEY_STATISTIC_FILES_CSV = "LIGEIRO_STATISTIC_FILES_CSV";
-	private static String KEY_DEPENDENCY_FILES_CSV = "LIGEIRO_DEPENDENCY_FILES_CSV";
-	private static String KEY_FPA_CONFIGURATION_FILE = "LIGEIRO_FPA_CONFIGURATION_FILE";
+	private static String KEY_STATISTIC_FILES_CSV = "LIGEIRO_STATISTIC_FILES_CSV"; //$NON-NLS-1$
+	private static String KEY_DEPENDENCY_FILES_CSV = "LIGEIRO_DEPENDENCY_FILES_CSV"; //$NON-NLS-1$
+	private static String KEY_FPA_CONFIGURATION_FILE = "LIGEIRO_FPA_CONFIGURATION_FILE"; //$NON-NLS-1$
 
 	private static IEclipsePreferences getPreferences()
 	{
@@ -126,7 +126,7 @@ public class LigeiroPreferences
 	 */
 	public static String getFPAConfigurationFile()
 	{
-		return getPreferences().get(KEY_FPA_CONFIGURATION_FILE, "");
+		return getPreferences().get(KEY_FPA_CONFIGURATION_FILE, ""); //$NON-NLS-1$
 	}
 
 	/**

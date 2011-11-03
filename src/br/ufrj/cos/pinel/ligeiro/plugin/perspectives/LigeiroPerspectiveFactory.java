@@ -15,9 +15,9 @@ import br.ufrj.cos.pinel.ligeiro.plugin.views.LigeiroView;
  */
 public class LigeiroPerspectiveFactory implements IPerspectiveFactory
 {
-	private static final String TOP_RIGHT = "topRight";
-	private static final String BOTTOM_RIGHT = "bottomRight";
-	private static final String LEFT = "left";
+	private static final String TOP_RIGHT = "topRight"; //$NON-NLS-1$
+	private static final String BOTTOM_RIGHT = "bottomRight"; //$NON-NLS-1$
+	private static final String LEFT = "left"; //$NON-NLS-1$
 
 	/**
 	 * @see org.eclipse.ui.IPerspectiveFactory#createInitialLayout(org.eclipse.ui.IPageLayout)
@@ -26,8 +26,8 @@ public class LigeiroPerspectiveFactory implements IPerspectiveFactory
 	{
 		pageLayout.setEditorAreaVisible(false);
 
-		pageLayout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");
-		pageLayout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");
+		pageLayout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file"); //$NON-NLS-1$
+		pageLayout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder"); //$NON-NLS-1$
 
 		pageLayout.addShowViewShortcut(LigeiroView.ID);
 		pageLayout.addShowViewShortcut(JavaUI.ID_PACKAGES);
@@ -41,7 +41,6 @@ public class LigeiroPerspectiveFactory implements IPerspectiveFactory
 
 		IFolderLayout left = pageLayout.createFolder(LEFT, IPageLayout.LEFT, 0.195f, pageLayout.getEditorArea());
 		left.addView(JavaUI.ID_PACKAGES);
-	
 
 		IFolderLayout topRight = pageLayout.createFolder(TOP_RIGHT, IPageLayout.TOP, 0.84f, pageLayout.getEditorArea());
 		topRight.addView(LigeiroView.ID);

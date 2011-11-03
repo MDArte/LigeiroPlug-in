@@ -3,12 +3,34 @@ package br.ufrj.cos.pinel.ligeiro.plugin.data;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
+import org.eclipse.ui.views.properties.IPropertyDescriptor;
+import org.eclipse.ui.views.properties.IPropertySource;
+import org.eclipse.ui.views.properties.PropertyDescriptor;
+
+import br.ufrj.cos.pinel.ligeiro.plugin.messages.Messages;
+
 /**
  * @author Roque Pinel
  *
  */
-public class Result
+public class Result implements IPropertySource
 {
+	private static final String ELEMENT_ID = "Result.element"; //$NON-NLS-1$
+	private static final String TYPE_ID = "Result.type"; //$NON-NLS-1$
+	private static final String RET_FTR_ID = "Result.ret_ftr"; //$NON-NLS-1$
+	private static final String DET_ID = "Result.det"; //$NON-NLS-1$
+	private static final String COMPLEXITY_ID = "Result.complexity"; //$NON-NLS-1$
+	private static final String COMPLEXITY_VALUE_ID = "Result.complexityValue"; //$NON-NLS-1$
+	private static final IPropertyDescriptor[] DESCRIPTORS =
+		{
+			new PropertyDescriptor(ELEMENT_ID, Messages.LigeiroView_results_table_element),
+			new PropertyDescriptor(TYPE_ID, Messages.LigeiroView_results_table_type),
+			new PropertyDescriptor(RET_FTR_ID, Messages.LigeiroView_results_table_ret_ftr),
+			new PropertyDescriptor(DET_ID, Messages.LigeiroView_results_table_det),
+			new PropertyDescriptor(COMPLEXITY_ID, Messages.LigeiroView_results_table_complexity),
+			new PropertyDescriptor(COMPLEXITY_VALUE_ID, Messages.LigeiroView_results_table_complexity_value),
+		};
+
 	private String element;
 
 	private String type;
@@ -146,5 +168,84 @@ public class Result
 	public String toString()
 	{
 		return element;
+	}
+	/**
+	 * @see org.eclipse.ui.views.properties.IPropertySource#getEditableValue()
+	 */
+	public Object getEditableValue()
+	{
+		return null;
+	}
+
+	/**
+	 * @see org.eclipse.ui.views.properties.IPropertySource#getPropertyDescriptors()
+	 */
+	public IPropertyDescriptor[] getPropertyDescriptors()
+	{
+		return DESCRIPTORS;
+	}
+
+	/**
+	 * @see org.eclipse.ui.views.properties.IPropertySource#getPropertyValue(java.lang.Object)
+	 */
+	public Object getPropertyValue(Object id)
+	{
+		try
+		{
+			if(ELEMENT_ID.equals(id))
+			{
+				return getElement();
+			}
+			else if(TYPE_ID.equals(id))
+			{
+				return getType();
+			}
+			else if(RET_FTR_ID.equals(id))
+			{
+				return getRet_ftr();
+			}
+			else if(DET_ID.equals(id))
+			{
+				return getDet();
+			}
+			else if(COMPLEXITY_ID.equals(id))
+			{
+				return getComplexity();
+			}
+			else if(COMPLEXITY_VALUE_ID.equals(id))
+			{
+				return getComplexityValue();
+			}
+		}
+		catch(Exception e)
+		{
+			// ignoring
+		}
+
+		return null;
+	}
+
+	/**
+	 * @see org.eclipse.ui.views.properties.IPropertySource#isPropertySet(java.lang.Object)
+	 */
+	public boolean isPropertySet(Object id)
+	{
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.ui.views.properties.IPropertySource#resetPropertyValue(java.lang.Object)
+	 */
+	public void resetPropertyValue(Object id)
+	{
+		// empty
+	}
+
+	/**
+	 * @see org.eclipse.ui.views.properties.IPropertySource#setPropertyValue(java.lang.Object, java.lang.Object)
+	 */
+	public void setPropertyValue(Object id, Object value)
+	{
+		// empty
 	}
 }

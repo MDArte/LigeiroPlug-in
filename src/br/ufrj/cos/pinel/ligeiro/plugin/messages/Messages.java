@@ -28,6 +28,8 @@ public class Messages extends NLS
 	public static String LigeiroView_action_reset_fields_label;
 	public static String LigeiroView_action_reset_fields_tip;
 	public static String LigeiroView_files_section_title;
+	public static String LigeiroView_files_properties_filename;
+	public static String LigeiroView_files_properties_path;
 	public static String LigeiroView_files_statistic_table_label;
 	public static String LigeiroView_files_statistic_add_button_label;
 	public static String LigeiroView_files_statistic_add_button_tip;
@@ -53,9 +55,11 @@ public class Messages extends NLS
 	public static String LigeiroView_control_configuration_add_dialog_message;
 	public static String LigeiroView_results_section_title;
 	public static String LigeiroView_results_toolbar_clear_tip;
+	public static String LigeiroView_results_table_element;
 	public static String LigeiroView_results_table_data_function;
 	public static String LigeiroView_results_table_transaction_function;
 	public static String LigeiroView_results_table_type;
+	public static String LigeiroView_results_table_ret_ftr;
 	public static String LigeiroView_results_table_ret;
 	public static String LigeiroView_results_table_ftr;
 	public static String LigeiroView_results_table_det;

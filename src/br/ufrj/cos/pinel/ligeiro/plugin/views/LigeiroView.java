@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jdt.internal.ui.viewsupport.SelectionProviderMediator;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.window.Window;
@@ -82,11 +85,11 @@ public class LigeiroView extends ViewPart
 	private FormToolkit toolkit;
 	private ScrolledForm form;
 
-	private Table statisticTable;
+	private TableViewer statisticTable;
 	private Button statisticAddButton;
 	private Button statisticRemoveButton;
 
-	private Table dependencyTable;
+	private TableViewer dependencyTable;
 	private Button dependencyAddButton;
 	private Button dependencyRemoveButton;
 
@@ -153,6 +156,17 @@ public class LigeiroView extends ViewPart
 
 		loadPreviousInformation();
 
+		StructuredViewer[] trackedViewers = new StructuredViewer[]
+			{
+				statisticTable,
+				dependencyTable,
+				summaryTable,
+				dfTable,
+				tfTable
+			};
+		ISelectionProvider selectionProvider = new SelectionProviderMediator(trackedViewers, statisticTable);
+		getSite().setSelectionProvider(selectionProvider); 
+
 		form.reflow(true);
 	}
 
@@ -216,16 +230,17 @@ public class LigeiroView extends ViewPart
 		tableLabel.setText(Messages.LigeiroView_files_statistic_table_label);
 		tableLabel.setLayoutData(gd);
 
-		statisticTable = toolkit.createTable(statisticComposite, SWT.MULTI);
 		gd = new GridData(GridData.FILL_BOTH);
 		gd.heightHint = 200;
 		gd.widthHint = 300;
-		statisticTable.setLayoutData(gd);
-		LigeiroPreferences.loadStatisticFiles(statisticTable);
+
+		statisticTable = new TableViewer(statisticComposite, SWT.MULTI);
+		statisticTable.getTable().setLayoutData(gd);
+		LigeiroPreferences.loadStatisticFiles(statisticTable.getTable());
 
 		toolkit.paintBordersFor(statisticComposite);
 
-		DropTarget dropTarget = new DropTarget(statisticTable, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
+		DropTarget dropTarget = new DropTarget(statisticTable.getTable(), DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
 		final FileTransfer fileTransfer = FileTransfer.getInstance();
 		dropTarget.setTransfer(new Transfer[] {fileTransfer});
 		dropTarget.addDropListener(
@@ -245,7 +260,7 @@ public class LigeiroView extends ViewPart
 
 						for (String path : paths)
 						{
-							if (Util.addInputFile(statisticTable, path)
+							if (Util.addInputFile(statisticTable.getTable(), path)
 								&& !statisticRemoveButton.isEnabled())
 							{
 								statisticRemoveButton.setEnabled(true);
@@ -254,7 +269,7 @@ public class LigeiroView extends ViewPart
 
 						if (paths.length > 0)
 						{
-							LigeiroPreferences.saveStatisticFiles(statisticTable);
+							LigeiroPreferences.saveStatisticFiles(statisticTable.getTable());
 						}
 					}
 				}
@@ -292,7 +307,7 @@ public class LigeiroView extends ViewPart
 					{
 						for (String path : paths)
 						{
-							if (Util.addInputFile(statisticTable, path)
+							if (Util.addInputFile(statisticTable.getTable(), path)
 								&& !statisticRemoveButton.isEnabled())
 							{
 								statisticRemoveButton.setEnabled(true);
@@ -301,7 +316,7 @@ public class LigeiroView extends ViewPart
 
 						if (paths.size() > 0)
 						{
-							LigeiroPreferences.saveStatisticFiles(statisticTable);
+							LigeiroPreferences.saveStatisticFiles(statisticTable.getTable());
 						}
 					}
 				}
@@ -319,11 +334,11 @@ public class LigeiroView extends ViewPart
 			{
 				public void widgetSelected(SelectionEvent event)
 				{
-					if (Util.removeInputFiles(statisticTable, statisticTable.getSelection()))
+					if (Util.removeInputFiles(statisticTable.getTable(), statisticTable.getTable().getSelection()))
 					{
-						LigeiroPreferences.saveStatisticFiles(statisticTable);
+						LigeiroPreferences.saveStatisticFiles(statisticTable.getTable());
 
-						if (statisticTable.getItemCount() == 0)
+						if (statisticTable.getTable().getItemCount() == 0)
 							statisticRemoveButton.setEnabled(false);
 					}
 				}
@@ -331,7 +346,7 @@ public class LigeiroView extends ViewPart
 			}
 		);
 
-		if (statisticTable.getItemCount() == 0)
+		if (statisticTable.getTable().getItemCount() == 0)
 			statisticRemoveButton.setEnabled(false);
 	}
 
@@ -352,16 +367,17 @@ public class LigeiroView extends ViewPart
 		tableLabel.setText(Messages.LigeiroView_files_dependency_table_label);
 		tableLabel.setLayoutData(gd);
 
-		dependencyTable = toolkit.createTable(dependencyComposite, SWT.MULTI);
 		gd = new GridData(GridData.FILL_BOTH);
 		gd.heightHint = 200;
 		gd.widthHint = 300;
-		dependencyTable.setLayoutData(gd);
-		LigeiroPreferences.loadDependencyFiles(dependencyTable);
+
+		dependencyTable = new TableViewer(dependencyComposite, SWT.MULTI);
+		dependencyTable.getTable().setLayoutData(gd);
+		LigeiroPreferences.loadDependencyFiles(dependencyTable.getTable());
 
 		toolkit.paintBordersFor(dependencyComposite);
 
-		DropTarget dropTarget = new DropTarget(dependencyTable, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
+		DropTarget dropTarget = new DropTarget(dependencyTable.getTable(), DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
 		final FileTransfer fileTransfer = FileTransfer.getInstance();
 		dropTarget.setTransfer(new Transfer[] {fileTransfer});
 		dropTarget.addDropListener(
@@ -381,7 +397,7 @@ public class LigeiroView extends ViewPart
 
 						for (String path : paths)
 						{
-							if (Util.addInputFile(dependencyTable, path)
+							if (Util.addInputFile(dependencyTable.getTable(), path)
 								&& !dependencyRemoveButton.isEnabled())
 							{
 								dependencyRemoveButton.setEnabled(true);
@@ -390,7 +406,7 @@ public class LigeiroView extends ViewPart
 
 						if (paths.length > 0)
 						{
-							LigeiroPreferences.saveDependencyFiles(dependencyTable);
+							LigeiroPreferences.saveDependencyFiles(dependencyTable.getTable());
 						}
 					}
 				}
@@ -428,7 +444,7 @@ public class LigeiroView extends ViewPart
 					{
 						for (String path : paths)
 						{
-							if (Util.addInputFile(dependencyTable, path)
+							if (Util.addInputFile(dependencyTable.getTable(), path)
 								&& !dependencyRemoveButton.isEnabled())
 							{
 								dependencyRemoveButton.setEnabled(true);
@@ -437,7 +453,7 @@ public class LigeiroView extends ViewPart
 
 						if (paths.size() > 0)
 						{
-							LigeiroPreferences.saveDependencyFiles(dependencyTable);
+							LigeiroPreferences.saveDependencyFiles(dependencyTable.getTable());
 						}
 					}
 				}
@@ -455,11 +471,11 @@ public class LigeiroView extends ViewPart
 			{
 				public void widgetSelected(SelectionEvent event)
 				{
-					if (Util.removeInputFiles(dependencyTable, dependencyTable.getSelection()))
+					if (Util.removeInputFiles(dependencyTable.getTable(), dependencyTable.getTable().getSelection()))
 					{
-						LigeiroPreferences.saveDependencyFiles(dependencyTable);
+						LigeiroPreferences.saveDependencyFiles(dependencyTable.getTable());
 
-						if (dependencyTable.getItemCount() == 0)
+						if (dependencyTable.getTable().getItemCount() == 0)
 							dependencyRemoveButton.setEnabled(false);
 					}
 				}
@@ -467,7 +483,7 @@ public class LigeiroView extends ViewPart
 			}
 		);
 
-		if (dependencyTable.getItemCount() == 0)
+		if (dependencyTable.getTable().getItemCount() == 0)
 			dependencyRemoveButton.setEnabled(false);
 	}
 
@@ -984,8 +1000,8 @@ public class LigeiroView extends ViewPart
 	{
 		LigeiroPreferences.clear();
 
-		statisticTable.removeAll();
-		dependencyTable.removeAll();
+		statisticTable.getTable().removeAll();
+		dependencyTable.getTable().removeAll();
 
 		configurationFileText.setText(""); //$NON-NLS-1$
 	}
@@ -1169,11 +1185,11 @@ public class LigeiroView extends ViewPart
 
 		StringBuilder sbMessage = new StringBuilder();
 
-		if (statisticTable.getItemCount() == 0)
+		if (statisticTable.getTable().getItemCount() == 0)
 		{
 			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_statistic_file);
 		}
-		if (dependencyTable.getItemCount() == 0)
+		if (dependencyTable.getTable().getItemCount() == 0)
 		{
 			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_dependency_file);
 		}
@@ -1186,7 +1202,7 @@ public class LigeiroView extends ViewPart
 		ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_statistic_files);
 
 		boolean hasBrokenItem = false;
-		TableItem[] items = statisticTable.getItems();
+		TableItem[] items = statisticTable.getTable().getItems();
 		for (int i = 0; i < items.length; i++)
 		{
 			if (items[i].getData() instanceof InputFile)
@@ -1218,7 +1234,7 @@ public class LigeiroView extends ViewPart
 		ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_dependency_files);
 
 		hasBrokenItem = false;
-		items = dependencyTable.getItems();
+		items = dependencyTable.getTable().getItems();
 		for (int i = 0; i < items.length; i++)
 		{
 			if (items[i].getData() instanceof InputFile)

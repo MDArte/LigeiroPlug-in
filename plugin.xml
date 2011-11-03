@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="Ligeiro"
+            name="%plugin.view.category.name"
             id="LigeiroPlug-in">
       </category>
       <view
-            name="Ligeiro"
+            name="%plugin.view.name"
             icon="icons/ligeiro.gif"
             category="LigeiroPlug-in"
             class="br.ufrj.cos.pinel.ligeiro.plugin.views.LigeiroView"
@@ -37,12 +36,11 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            name="Ligeiro"
+            name="%plugin.perspective.name"
             icon="icons/ligeiro.gif"
             category="LigeiroPlug-in"
             class="br.ufrj.cos.pinel.ligeiro.plugin.perspectives.LigeiroPerspectiveFactory"
             id="br.ufrj.cos.pinel.ligeiro.plugin.perspectives.LigeiroPerspectiveFactory">
       </perspective>
    </extension>
-
 </plugin>

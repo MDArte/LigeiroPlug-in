@@ -1093,6 +1093,19 @@ public class LigeiroView extends ViewPart
 
 		StringBuilder sbMessage = loadStatisticAndDependencyFiles(true);
 
+		if (statisticTable.getTable().getItemCount() == 0)
+		{
+			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_statistic_file);
+		}
+		if (dependencyTable.getTable().getItemCount() == 0)
+		{
+			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_dependency_file);
+		}
+		if (br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileText.getText()))
+		{
+			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_configuration_file);
+		}
+
 		ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_configuration_file);
 
 		FPAConfig fpaConfig = null;
@@ -1185,19 +1198,6 @@ public class LigeiroView extends ViewPart
 
 		StringBuilder sbMessage = new StringBuilder();
 
-		if (statisticTable.getTable().getItemCount() == 0)
-		{
-			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_statistic_file);
-		}
-		if (dependencyTable.getTable().getItemCount() == 0)
-		{
-			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_dependency_file);
-		}
-		if (br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileText.getText()))
-		{
-			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_configuration_file);
-		}
-
 		ConsoleUtil.clearConsole();
 		ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_statistic_files);
 
@@ -1269,8 +1269,8 @@ public class LigeiroView extends ViewPart
 			// then show messages, if any
 			if (sbMessage.length() > 0)
 				showInformation(sbMessage.toString());
-
-			ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
+			else
+				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
 		}
 
 		return sbMessage;

@@ -6,13 +6,13 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import br.ufrj.cos.pinel.ligeiro.plugin.LigeiroPlugin;
-import br.ufrj.cos.pinel.ligeiro.plugin.views.Messages;
+import br.ufrj.cos.pinel.ligeiro.plugin.messages.Messages;
 
 public class ConsoleUtil
 {
 	public static MessageConsole getConsole()
 	{
-		return LigeiroPlugin.findConsole(Messages.getString("LigeiroView.console.title")); //$NON-NLS-1$
+		return LigeiroPlugin.findConsole(Messages.LigeiroView_console_title);
 	}
 
 	public static void clearConsole()
@@ -33,7 +33,7 @@ public class ConsoleUtil
 		MessageConsoleStream out = getConsole().newMessageStream();
 		out.setColor(new Color(control.getShell().getDisplay(),
 				Constants.COLOR_STEEL_BLUE1_R, Constants.COLOR_STEEL_BLUE1_G, Constants.COLOR_STEEL_BLUE1_B));
-		out.print(Messages.getString("LigeiroView.console.file")); //$NON-NLS-1$
+		out.print(Messages.LigeiroView_console_file);
 		out.print(": "); //$NON-NLS-1$
 		out.println(fileName);
 	}
@@ -47,7 +47,7 @@ public class ConsoleUtil
 		out.print(" "); //$NON-NLS-1$
 		out.print(Util.getLoadReportType(type, elementsRead > 1));
 		out.print(" "); //$NON-NLS-1$
-		out.print(Messages.getString("LigeiroView.console.read")); //$NON-NLS-1$
+		out.print(Messages.LigeiroView_console_read);
 		out.println("."); //$NON-NLS-1$
 	}
 
@@ -60,9 +60,9 @@ public class ConsoleUtil
 		out.print(": " + elementsRead); //$NON-NLS-1$
 		out.print(" "); //$NON-NLS-1$
 		if (elementsRead > 1)
-			out.print(Messages.getString("LigeiroView.console.element.plural")); //$NON-NLS-1$
+			out.print(Messages.LigeiroView_console_element_plural);
 		else
-			out.print(Messages.getString("LigeiroView.console.element")); //$NON-NLS-1$
+			out.print(Messages.LigeiroView_console_element);
 		out.println("."); //$NON-NLS-1$
 	}
 }

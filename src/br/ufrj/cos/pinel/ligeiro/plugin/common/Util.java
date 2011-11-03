@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import br.ufrj.cos.pinel.ligeiro.plugin.comparator.ITableComparator;
 import br.ufrj.cos.pinel.ligeiro.plugin.data.InputFile;
-import br.ufrj.cos.pinel.ligeiro.plugin.views.Messages;
+import br.ufrj.cos.pinel.ligeiro.plugin.messages.Messages;
 
 /**
  * @author Roque Pinel
@@ -117,7 +117,7 @@ public class Util
 	public static void appendMessage(StringBuilder sbMessage, String message)
 	{
 		if (sbMessage.length() > 0)
-			sbMessage.append('\n'); //$NON-NLS-1$
+			sbMessage.append('\n');
 		sbMessage.append(message);
 	}
 
@@ -128,37 +128,37 @@ public class Util
 		if (type.equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_CLASS))
 		{
 			if (plural)
-				mType = Messages.getString("LigeiroView.xml.type.class.plural"); //$NON-NLS-1$
+				mType = Messages.LigeiroView_xml_type_class_plural;
 			else
-				mType = Messages.getString("LigeiroView.xml.type.class"); //$NON-NLS-1$
+				mType = Messages.LigeiroView_xml_type_class;
 		}
 		else if (type.equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_DEPENDENCY))
 		{
 			if (plural)
-				mType = Messages.getString("LigeiroView.xml.type.dependency.plural"); //$NON-NLS-1$
+				mType = Messages.LigeiroView_xml_type_dependency_plural;
 			else
-				mType = Messages.getString("LigeiroView.xml.type.dependency"); //$NON-NLS-1$
+				mType = Messages.LigeiroView_xml_type_dependency;
 		}
 		else if (type.equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_ENTITY))
 		{
 			if (plural)
-				mType = Messages.getString("LigeiroView.xml.type.entity.plural"); //$NON-NLS-1$
+				mType = Messages.LigeiroView_xml_type_entity_plural;
 			else
-				mType = Messages.getString("LigeiroView.xml.type.entity"); //$NON-NLS-1$
+				mType = Messages.LigeiroView_xml_type_entity;
 		}
 		else if (type.equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_SERVICE))
 		{
 			if (plural)
-				mType = Messages.getString("LigeiroView.xml.type.service.plural"); //$NON-NLS-1$
+				mType = Messages.LigeiroView_xml_type_service_plural;
 			else
-				mType = Messages.getString("LigeiroView.xml.type.service"); //$NON-NLS-1$
+				mType = Messages.LigeiroView_xml_type_service;
 		}
 		else if (type.equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_USE_CASE))
 		{
 			if (plural)
-				mType = Messages.getString("LigeiroView.xml.type.use.case.plural"); //$NON-NLS-1$
+				mType = Messages.LigeiroView_xml_type_use_case_plural;
 			else
-				mType = Messages.getString("LigeiroView.xml.type.use.case"); //$NON-NLS-1$
+				mType = Messages.LigeiroView_xml_type_use_case;
 		}
 
 		return mType;

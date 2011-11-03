@@ -11,7 +11,7 @@ public class Constants
 	/*
 	 * The caracter used to separe the value in a CSV
 	 */
-	public static char CSV_DELIMITER = ';'; //$NON-NLS-1$
+	public static char CSV_DELIMITER = ';';
 
 	/*
 	 * Useful colors.

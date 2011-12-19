@@ -15,6 +15,7 @@ import br.ufrj.cos.pinel.ligeiro.plugin.messages.Messages;
  */
 public class Result implements IPropertySource
 {
+	private static final String NAMESPACE_ID = "Result.namespace"; //$NON-NLS-1$
 	private static final String ELEMENT_ID = "Result.element"; //$NON-NLS-1$
 	private static final String TYPE_ID = "Result.type"; //$NON-NLS-1$
 	private static final String RET_FTR_ID = "Result.ret_ftr"; //$NON-NLS-1$
@@ -23,6 +24,7 @@ public class Result implements IPropertySource
 	private static final String COMPLEXITY_VALUE_ID = "Result.complexityValue"; //$NON-NLS-1$
 	private static final IPropertyDescriptor[] DESCRIPTORS =
 		{
+			new PropertyDescriptor(NAMESPACE_ID, Messages.LigeiroView_results_table_namespace),
 			new PropertyDescriptor(ELEMENT_ID, Messages.LigeiroView_results_table_element),
 			new PropertyDescriptor(TYPE_ID, Messages.LigeiroView_results_table_type),
 			new PropertyDescriptor(RET_FTR_ID, Messages.LigeiroView_results_table_ret_ftr),
@@ -30,6 +32,8 @@ public class Result implements IPropertySource
 			new PropertyDescriptor(COMPLEXITY_ID, Messages.LigeiroView_results_table_complexity),
 			new PropertyDescriptor(COMPLEXITY_VALUE_ID, Messages.LigeiroView_results_table_complexity_value),
 		};
+
+	private String namespace;
 
 	private String element;
 
@@ -61,6 +65,22 @@ public class Result implements IPropertySource
 	public void removePropertyChangeListener(PropertyChangeListener listener)
 	{
 		propertyChangeSupport.removePropertyChangeListener(listener);
+	}
+
+	/**
+	 * @return the namespace
+	 */
+	public String getNamespace()
+	{
+		return namespace;
+	}
+
+	/**
+	 * @param namespace the namespace to set
+	 */
+	public void setNamespace(String namespace)
+	{
+		propertyChangeSupport.firePropertyChange("namespace", this.namespace, this.namespace = namespace); //$NON-NLS-1$
 	}
 
 	/**
@@ -192,7 +212,11 @@ public class Result implements IPropertySource
 	{
 		try
 		{
-			if(ELEMENT_ID.equals(id))
+			if(NAMESPACE_ID.equals(id))
+			{
+				return getNamespace();
+			}
+			else if(ELEMENT_ID.equals(id))
 			{
 				return getElement();
 			}

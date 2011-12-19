@@ -1138,6 +1138,7 @@ public class LigeiroView extends ViewPart
 		for (ReportResult reportResult : fpaReport.getDFReport())
 		{
 			Result result = new Result();
+			result.setNamespace(reportResult.getNamespace());
 			result.setElement(reportResult.getElement());
 			result.setType(reportResult.getType());
 			result.setRet_ftr(reportResult.getRet_ftr());
@@ -1156,6 +1157,7 @@ public class LigeiroView extends ViewPart
 		for (ReportResult reportResult : fpaReport.getTFReport())
 		{
 			Result result = new Result();
+			result.setNamespace(reportResult.getNamespace());
 			result.setElement(reportResult.getElement());
 			result.setType(reportResult.getType());
 			result.setRet_ftr(reportResult.getRet_ftr());

@@ -55,6 +55,7 @@ public class Messages extends NLS
 	public static String LigeiroView_control_configuration_add_dialog_message;
 	public static String LigeiroView_results_section_title;
 	public static String LigeiroView_results_toolbar_clear_tip;
+	public static String LigeiroView_results_table_namespace;
 	public static String LigeiroView_results_table_element;
 	public static String LigeiroView_results_table_data_function;
 	public static String LigeiroView_results_table_transaction_function;

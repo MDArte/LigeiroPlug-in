@@ -99,6 +99,7 @@ public class Messages extends NLS
 	public static String LigeiroView_xml_type_service_plural;
 	public static String LigeiroView_xml_type_use_case;
 	public static String LigeiroView_xml_type_use_case_plural;
+	public static String LigeiroView_job_load_files_name;
 	public static String LigeiroView_error_many_configuration_files;
 	public static String LigeiroView_error_no_configuration_file;
 	public static String LigeiroView_error_load_configuration_file;

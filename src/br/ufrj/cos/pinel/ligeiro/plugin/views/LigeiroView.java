@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.internal.ui.viewsupport.SelectionProviderMediator;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.Separator;
@@ -31,6 +35,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -966,7 +971,19 @@ public class LigeiroView extends ViewPart
 		{
 			public void run()
 			{
-				loadStatisticAndDependencyFiles(false);
+				Job job = new Job(Messages.LigeiroView_job_load_files_name)
+				{
+					@Override
+					protected IStatus run(IProgressMonitor monitor)
+					{
+						loadStatisticAndDependencyFiles(false);
+
+						return Status.OK_STATUS;
+					}
+				};
+
+				job.setUser(true);
+				job.schedule();
 			}
 		};
 		action.setText(Messages.LigeiroView_action_load_files_label);
@@ -1188,37 +1205,73 @@ public class LigeiroView extends ViewPart
 
 		core.clear();
 
-		// clearing the summary table
-		summaryProvider.clear();
-		summaryTable.refresh();
-
-		Color brokeItemColor = new Color(form.getShell().getDisplay(),
-				Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
-
-		Color goodItemColor = new Color(form.getShell().getDisplay(),
-				Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
-
 		StringBuilder sbMessage = new StringBuilder();
 
-		ConsoleUtil.clearConsole();
-		ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_statistic_files);
+		/*
+		 * (Sync) Wait for the tables and cosole to be ready.
+		 * 
+		 */
+		UpdateResults updateResults = new UpdateResults()
+		{
+			public void run()
+			{
+				// clearing the summary table
+				summaryProvider.clear();
+				summaryTable.refresh();
+
+				// getting the console ready
+				ConsoleUtil.clearConsole();
+				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_statistic_files);
+
+				// getting the values from the table
+				this.obj = statisticTable.getTable().getItems();
+			}
+		};
+		Display.getDefault().syncExec(updateResults);
+
+		TableItem[] items = (TableItem[]) updateResults.obj;
 
 		boolean hasBrokenItem = false;
-		TableItem[] items = statisticTable.getTable().getItems();
 		for (int i = 0; i < items.length; i++)
 		{
-			if (items[i].getData() instanceof InputFile)
+			/*
+			 * (Sync) Reading the data from the table.
+			 */
+			updateResults = new UpdateResults(items[i])
 			{
+				public void run()
+				{
+					this.obj = ((TableItem) obj).getData();
+				}
+			};
+			Display.getDefault().syncExec(updateResults);
+
+			if (updateResults.obj instanceof InputFile)
+			{
+				InputFile inputFile = (InputFile) updateResults.obj;
+
 				try
 				{
-					LoadReport loadReport = core.readStatistics(((InputFile) items[i].getData()).getPath());
+					final LoadReport loadReport = core.readStatistics(inputFile.getPath());
 
-					ConsoleUtil.writeFile(form, loadReport.getFileName());
-					ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
+					/*
+					 * (Async) Updating the tables.
+					 */
+					Display.getDefault().asyncExec(new UpdateResults(items[i])
+					{
+						public void run()
+						{
+							ConsoleUtil.writeFile(form, loadReport.getFileName());
+							ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
 
-					items[i].setForeground(goodItemColor);
+							Color goodItemColor = new Color(form.getShell().getDisplay(),
+									Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
 
-					updateFilesSumamary(loadReport);
+							((TableItem)this.obj).setForeground(goodItemColor);
+
+							updateFilesSumamary(loadReport);
+						}
+					});
 				}
 				catch (ReadXMLException e)
 				{
@@ -1228,29 +1281,79 @@ public class LigeiroView extends ViewPart
 						Util.appendMessage(sbMessage, Messages.LigeiroView_error_load_statistic_file);
 					}
 
-					items[i].setForeground(brokeItemColor);
+					/*
+					 * (Async) Coloring the broken item.
+					 */
+					Display.getDefault().asyncExec(new UpdateResults(items[i])
+					{
+						public void run()
+						{
+							Color brokenItemColor = new Color(form.getShell().getDisplay(),
+									Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
+
+							((TableItem)this.obj).setForeground(brokenItemColor);
+						}
+					});
 				}
 			}
 		}
 
-		ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_dependency_files);
+		/*
+		 * (Sync) Getting the values from table.
+		 */
+		updateResults = new UpdateResults()
+		{
+			public void run()
+			{
+				// getting the values from the table
+				this.obj = dependencyTable.getTable().getItems();
+			}
+		};
+		Display.getDefault().syncExec(updateResults);
+
+		items = (TableItem[]) updateResults.obj;
 
 		hasBrokenItem = false;
-		items = dependencyTable.getTable().getItems();
 		for (int i = 0; i < items.length; i++)
 		{
-			if (items[i].getData() instanceof InputFile)
+			/*
+			 * (Sync) Reading the data from the table.
+			 */
+			updateResults = new UpdateResults(items[i])
 			{
+				public void run()
+				{
+					this.obj = ((TableItem) obj).getData();
+				}
+			};
+			Display.getDefault().syncExec(updateResults);
+
+			if (updateResults.obj instanceof InputFile)
+			{
+				InputFile inputFile = (InputFile) updateResults.obj;
+
 				try
 				{
-					LoadReport loadReport = core.readDependencies(((InputFile) items[i].getData()).getPath());
+					final LoadReport loadReport = core.readDependencies(inputFile.getPath());
 
-					ConsoleUtil.writeFile(form, loadReport.getFileName());
-					ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
+					/*
+					 * (Async) Updating the tables.
+					 */
+					Display.getDefault().asyncExec(new UpdateResults(items[i])
+					{
+						public void run()
+						{
+							ConsoleUtil.writeFile(form, loadReport.getFileName());
+							ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
 
-					items[i].setForeground(goodItemColor);
+							Color goodItemColor = new Color(form.getShell().getDisplay(),
+									Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
 
-					updateFilesSumamary(loadReport);
+							((TableItem)this.obj).setForeground(goodItemColor);
+
+							updateFilesSumamary(loadReport);
+						}
+					});
 				}
 				catch (ReadXMLException e)
 				{
@@ -1260,7 +1363,19 @@ public class LigeiroView extends ViewPart
 						Util.appendMessage(sbMessage, Messages.LigeiroView_error_load_dependency_file);
 					}
 
-					items[i].setForeground(brokeItemColor);
+					/*
+					 * (Async) Coloring the broken item.
+					 */
+					Display.getDefault().asyncExec(new UpdateResults(items[i])
+					{
+						public void run()
+						{
+							Color brokeItemColor = new Color(form.getShell().getDisplay(),
+									Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
+
+							((TableItem)this.obj).setForeground(brokeItemColor);
+						}
+					});
 				}
 			}
 		}
@@ -1268,11 +1383,22 @@ public class LigeiroView extends ViewPart
 		// if it will not start FPA
 		if (!startFPA)
 		{
-			// then show messages, if any
-			if (sbMessage.length() > 0)
-				showInformation(sbMessage.toString());
-			else
-				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
+			/*
+			 * (Async) Showing the final result, good or bad.
+			 */
+			Display.getDefault().asyncExec(new UpdateResults(sbMessage)
+			{
+				public void run()
+				{
+					StringBuilder sb = (StringBuilder) this.obj;
+
+					// then show messages, if any
+					if (sb.length() > 0)
+						showInformation(sb.toString());
+					else
+						ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
+				}
+			});
 		}
 
 		return sbMessage;
@@ -1309,6 +1435,27 @@ public class LigeiroView extends ViewPart
 			element.addTotal(loadReport.getElementsRead());
 
 			summaryTable.refresh();
+		}
+	}
+
+	/**
+	 * Helps to update the results using
+	 * the UI Thread.
+	 * 
+	 * @author Roque Pinel
+	 */
+	abstract class UpdateResults implements Runnable
+	{
+		Object obj;
+
+		public UpdateResults()
+		{
+			// empty
+		}
+
+		public UpdateResults(Object obj)
+		{
+			this.obj = obj;
 		}
 	}
 }

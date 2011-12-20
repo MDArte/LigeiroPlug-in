@@ -958,7 +958,19 @@ public class LigeiroView extends ViewPart
 		{
 			public void run()
 			{
-				startFPAA();
+				Job job = new Job(Messages.LigeiroView_job_start_fpa_name)
+				{
+					@Override
+					protected IStatus run(IProgressMonitor monitor)
+					{
+						startFPAA();
+
+						return Status.OK_STATUS;
+					}
+				};
+
+				job.setUser(true);
+				job.schedule();
 			}
 		};
 		action.setText(Messages.LigeiroView_action_start_fpa_label);
@@ -1102,56 +1114,119 @@ public class LigeiroView extends ViewPart
 
 	private void startFPAA()
 	{
-		Color brokeItemColor = new Color(form.getShell().getDisplay(),
-				Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
-
-		Color goodItemColor = new Color(form.getShell().getDisplay(),
-				Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
-
 		StringBuilder sbMessage = loadStatisticAndDependencyFiles(true);
 
-		if (statisticTable.getTable().getItemCount() == 0)
+		/*
+		 * (Sync) Verifing if input files are ready.
+		 * 
+		 */
+		UpdateResults updateResults = new UpdateResults(sbMessage)
 		{
-			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_statistic_file);
-		}
-		if (dependencyTable.getTable().getItemCount() == 0)
-		{
-			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_dependency_file);
-		}
-		if (br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileText.getText()))
-		{
-			Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_configuration_file);
-		}
+			public void run()
+			{
+				StringBuilder sbMessage = (StringBuilder) this.obj1;
 
-		ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_configuration_file);
+				if (statisticTable.getTable().getItemCount() == 0)
+				{
+					Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_statistic_file);
+				}
+				if (dependencyTable.getTable().getItemCount() == 0)
+				{
+					Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_dependency_file);
+				}
+				if (br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileText.getText()))
+				{
+					Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_configuration_file);
+				}
+
+				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_configuration_file);
+
+				this.obj2 = configurationFileText.getText();
+			}
+		};
+		Display.getDefault().syncExec(updateResults);
+
+		String configurationFileStr = (String) updateResults.obj2;
 
 		FPAConfig fpaConfig = null;
 
 		try
 		{
-			if (!br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileText.getText()))
+			if (!br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileStr))
 			{
-				fpaConfig = core.readFPAConfiguration(configurationFileText.getText());
-				configurationFileText.setForeground(goodItemColor);
+				fpaConfig = core.readFPAConfiguration(configurationFileStr);
+
+				/*
+				 * (Async) Marking the field as good input.
+				 * 
+				 */
+				Display.getDefault().asyncExec(new UpdateResults()
+				{
+					public void run()
+					{
+						Color goodItemColor = new Color(form.getShell().getDisplay(),
+								Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
+
+						configurationFileText.setForeground(goodItemColor);
+					}
+				});
 			}
 		}
 		catch (ReadXMLException e)
 		{
-			Util.appendMessage(sbMessage, Messages.LigeiroView_error_load_configuration_file);
-			configurationFileText.setForeground(brokeItemColor);
+			/*
+			 * (Async) Marking the field as broken input.
+			 * 
+			 */
+			Display.getDefault().asyncExec(new UpdateResults(sbMessage)
+			{
+				public void run()
+				{
+					Util.appendMessage((StringBuilder) this.obj1, Messages.LigeiroView_error_load_configuration_file);
+
+					Color brokenItemColor = new Color(form.getShell().getDisplay(),
+							Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
+
+					configurationFileText.setForeground(brokenItemColor);
+				}
+			});
 		}
+
+
 
 		if (sbMessage.length() > 0)
 		{
-			showInformation(sbMessage.toString());
+			/*
+			 * (Async) Showing the error messages.
+			 * 
+			 */
+			Display.getDefault().asyncExec(new UpdateResults(sbMessage)
+			{
+				public void run()
+				{
+					showInformation(((StringBuilder) this.obj1).toString());
+				}
+			});
+
 			return;
 		}
 
-		ConsoleUtil.writeSection(form, Messages.LigeiroView_console_starting_fpa);
+		/*
+		 * (Sync) Wrinting the console.
+		 * and clearing the DF table.
+		 */
+		Display.getDefault().syncExec(new UpdateResults()
+		{
+			public void run()
+			{
+				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_starting_fpa);
+
+				dfTableProvider.clear();
+			}
+		});
 
 		FPAReport fpaReport = core.startFunctionPointAnalysis(fpaConfig);
 
-		dfTableProvider.clear();
 		for (ReportResult reportResult : fpaReport.getDFReport())
 		{
 			Result result = new Result();
@@ -1162,15 +1237,38 @@ public class LigeiroView extends ViewPart
 			result.setDet(reportResult.getDet());
 			result.setComplexity(reportResult.getComplexity());
 			result.setComplexityValue(reportResult.getComplexityValue());
-			dfTableProvider.addResult(result);
+
+			/*
+			 * (Async) Updating the table.
+			 */
+			Display.getDefault().asyncExec(new UpdateResults(result)
+			{
+				public void run()
+				{
+					dfTableProvider.addResult((Result) this.obj1);
+				}
+			});
 		}
-		dfTable.refresh();
 
-		ConsoleUtil.writeTableResume(form, Messages.LigeiroView_results_table_data_function,fpaReport.getDFReport().size());
+		/*
+		 * (Sync) Updating results.
+		 */
+		Display.getDefault().syncExec(new UpdateResults(fpaReport)
+		{
+			public void run()
+			{
+				FPAReport fpaReport = (FPAReport) this.obj1;
 
-		unadjustedDFTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
+				dfTable.refresh();
 
-		tfTableProvider.clear();
+				ConsoleUtil.writeTableResume(form, Messages.LigeiroView_results_table_data_function, fpaReport.getDFReport().size());
+
+				unadjustedDFTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
+
+				tfTableProvider.clear();
+			}
+		});
+
 		for (ReportResult reportResult : fpaReport.getTFReport())
 		{
 			Result result = new Result();
@@ -1181,21 +1279,44 @@ public class LigeiroView extends ViewPart
 			result.setDet(reportResult.getDet());
 			result.setComplexity(reportResult.getComplexity());
 			result.setComplexityValue(reportResult.getComplexityValue());
-			tfTableProvider.addResult(result);
+
+			/*
+			 * (Async) Updating the table.
+			 */
+			Display.getDefault().asyncExec(new UpdateResults(result)
+			{
+				public void run()
+				{
+					tfTableProvider.addResult((Result) this.obj1);
+				}
+			});
 		}
-		tfTable.refresh();
 
-		ConsoleUtil.writeTableResume(form, Messages.LigeiroView_results_table_transaction_function,fpaReport.getTFReport().size());
+		/*
+		 * (Sync) Updating results.
+		 */
+		Display.getDefault().asyncExec(new UpdateResults(fpaReport, fpaConfig)
+		{
+			public void run()
+			{
+				FPAReport fpaReport = (FPAReport) this.obj1;
+				FPAConfig fpaConfig = (FPAConfig) this.obj2;
 
-		unadjustedTFTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
+				tfTable.refresh();
 
-		unadjustedFPATotalText.setText(Integer.toString(fpaReport.getReportTotal()));
+				ConsoleUtil.writeTableResume(form, Messages.LigeiroView_results_table_transaction_function,fpaReport.getTFReport().size());
 
-		vafText.setText(Double.toString(fpaConfig.getVaf()));
+				unadjustedTFTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
 
-		adjustedFPATotalText.setText(Double.toString(fpaReport.getAdjustedReportTotal(fpaConfig.getVaf())));
+				unadjustedFPATotalText.setText(Integer.toString(fpaReport.getReportTotal()));
 
-		ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
+				vafText.setText(Double.toString(fpaConfig.getVaf()));
+
+				adjustedFPATotalText.setText(Double.toString(fpaReport.getAdjustedReportTotal(fpaConfig.getVaf())));
+
+				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
+			}
+		});
 	}
 
 	private StringBuilder loadStatisticAndDependencyFiles(boolean startFPA)
@@ -1224,12 +1345,12 @@ public class LigeiroView extends ViewPart
 				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_statistic_files);
 
 				// getting the values from the table
-				this.obj = statisticTable.getTable().getItems();
+				this.obj1 = statisticTable.getTable().getItems();
 			}
 		};
 		Display.getDefault().syncExec(updateResults);
 
-		TableItem[] items = (TableItem[]) updateResults.obj;
+		TableItem[] items = (TableItem[]) updateResults.obj1;
 
 		boolean hasBrokenItem = false;
 		for (int i = 0; i < items.length; i++)
@@ -1241,14 +1362,14 @@ public class LigeiroView extends ViewPart
 			{
 				public void run()
 				{
-					this.obj = ((TableItem) obj).getData();
+					this.obj1 = ((TableItem) obj1).getData();
 				}
 			};
 			Display.getDefault().syncExec(updateResults);
 
-			if (updateResults.obj instanceof InputFile)
+			if (updateResults.obj1 instanceof InputFile)
 			{
-				InputFile inputFile = (InputFile) updateResults.obj;
+				InputFile inputFile = (InputFile) updateResults.obj1;
 
 				try
 				{
@@ -1267,7 +1388,7 @@ public class LigeiroView extends ViewPart
 							Color goodItemColor = new Color(form.getShell().getDisplay(),
 									Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
 
-							((TableItem)this.obj).setForeground(goodItemColor);
+							((TableItem)this.obj1).setForeground(goodItemColor);
 
 							updateFilesSumamary(loadReport);
 						}
@@ -1291,7 +1412,7 @@ public class LigeiroView extends ViewPart
 							Color brokenItemColor = new Color(form.getShell().getDisplay(),
 									Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
 
-							((TableItem)this.obj).setForeground(brokenItemColor);
+							((TableItem)this.obj1).setForeground(brokenItemColor);
 						}
 					});
 				}
@@ -1306,12 +1427,12 @@ public class LigeiroView extends ViewPart
 			public void run()
 			{
 				// getting the values from the table
-				this.obj = dependencyTable.getTable().getItems();
+				this.obj1 = dependencyTable.getTable().getItems();
 			}
 		};
 		Display.getDefault().syncExec(updateResults);
 
-		items = (TableItem[]) updateResults.obj;
+		items = (TableItem[]) updateResults.obj1;
 
 		hasBrokenItem = false;
 		for (int i = 0; i < items.length; i++)
@@ -1323,14 +1444,14 @@ public class LigeiroView extends ViewPart
 			{
 				public void run()
 				{
-					this.obj = ((TableItem) obj).getData();
+					this.obj1 = ((TableItem) obj1).getData();
 				}
 			};
 			Display.getDefault().syncExec(updateResults);
 
-			if (updateResults.obj instanceof InputFile)
+			if (updateResults.obj1 instanceof InputFile)
 			{
-				InputFile inputFile = (InputFile) updateResults.obj;
+				InputFile inputFile = (InputFile) updateResults.obj1;
 
 				try
 				{
@@ -1349,7 +1470,7 @@ public class LigeiroView extends ViewPart
 							Color goodItemColor = new Color(form.getShell().getDisplay(),
 									Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
 
-							((TableItem)this.obj).setForeground(goodItemColor);
+							((TableItem)this.obj1).setForeground(goodItemColor);
 
 							updateFilesSumamary(loadReport);
 						}
@@ -1373,7 +1494,7 @@ public class LigeiroView extends ViewPart
 							Color brokeItemColor = new Color(form.getShell().getDisplay(),
 									Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
 
-							((TableItem)this.obj).setForeground(brokeItemColor);
+							((TableItem)this.obj1).setForeground(brokeItemColor);
 						}
 					});
 				}
@@ -1390,11 +1511,11 @@ public class LigeiroView extends ViewPart
 			{
 				public void run()
 				{
-					StringBuilder sb = (StringBuilder) this.obj;
+					StringBuilder sbMessage = (StringBuilder) this.obj1;
 
 					// then show messages, if any
-					if (sb.length() > 0)
-						showInformation(sb.toString());
+					if (sbMessage.length() > 0)
+						showInformation(sbMessage.toString());
 					else
 						ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
 				}
@@ -1446,16 +1567,23 @@ public class LigeiroView extends ViewPart
 	 */
 	abstract class UpdateResults implements Runnable
 	{
-		Object obj;
+		Object obj1;
+		Object obj2;
 
 		public UpdateResults()
 		{
 			// empty
 		}
 
-		public UpdateResults(Object obj)
+		public UpdateResults(Object obj1)
 		{
-			this.obj = obj;
+			this.obj1 = obj1;
+		}
+
+		public UpdateResults(Object obj1, Object obj2)
+		{
+			this.obj1 = obj1;
+			this.obj2 = obj2;
 		}
 	}
 }

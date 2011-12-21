@@ -958,16 +958,7 @@ public class LigeiroView extends ViewPart
 		{
 			public void run()
 			{
-				Job job = new Job(Messages.LigeiroView_job_start_fpa_name)
-				{
-					@Override
-					protected IStatus run(IProgressMonitor monitor)
-					{
-						startFPAA();
-
-						return Status.OK_STATUS;
-					}
-				};
+				ActionJob job = new ActionJob(Messages.LigeiroView_job_start_fpa_name, true);
 
 				job.setUser(true);
 				job.schedule();
@@ -983,16 +974,7 @@ public class LigeiroView extends ViewPart
 		{
 			public void run()
 			{
-				Job job = new Job(Messages.LigeiroView_job_load_files_name)
-				{
-					@Override
-					protected IStatus run(IProgressMonitor monitor)
-					{
-						loadStatisticAndDependencyFiles(false);
-
-						return Status.OK_STATUS;
-					}
-				};
+				ActionJob job = new ActionJob(Messages.LigeiroView_job_load_files_name, false);
 
 				job.setUser(true);
 				job.schedule();
@@ -1112,478 +1094,573 @@ public class LigeiroView extends ViewPart
 		return false;
 	}
 
-	private void startFPAA()
+	/**
+	 * Job to execute the action in background.
+	 * 
+	 * @author Roque Pinel
+	 *
+	 */
+	class ActionJob extends Job
 	{
-		StringBuilder sbMessage = loadStatisticAndDependencyFiles(true);
+		boolean startFPA;
 
-		/*
-		 * (Sync) Verifing if input files are ready.
-		 * 
-		 */
-		UpdateResults updateResults = new UpdateResults(sbMessage)
+		boolean canceled;
+
+		public ActionJob(String name, boolean startFPA)
 		{
-			public void run()
+			super(name);
+
+			this.startFPA = startFPA;
+			this.canceled = false;
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor)
+		{
+			if (startFPA)
 			{
-				StringBuilder sbMessage = (StringBuilder) this.obj1;
-
-				if (statisticTable.getTable().getItemCount() == 0)
-				{
-					Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_statistic_file);
-				}
-				if (dependencyTable.getTable().getItemCount() == 0)
-				{
-					Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_dependency_file);
-				}
-				if (br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileText.getText()))
-				{
-					Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_configuration_file);
-				}
-
-				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_configuration_file);
-
-				this.obj2 = configurationFileText.getText();
+				startFPAA();
 			}
-		};
-		Display.getDefault().syncExec(updateResults);
-
-		String configurationFileStr = (String) updateResults.obj2;
-
-		FPAConfig fpaConfig = null;
-
-		try
-		{
-			if (!br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileStr))
+			else
 			{
-				fpaConfig = core.readFPAConfiguration(configurationFileStr);
+				loadStatisticAndDependencyFiles();
+			}
 
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		protected void canceling()
+		{
+			this.canceled = true;
+		}
+
+		protected boolean isCanceled()
+		{
+			if (this.canceled)
+			{
 				/*
-				 * (Async) Marking the field as good input.
+				 * (sync) Cleaning all data before cancelling.
 				 * 
 				 */
-				Display.getDefault().asyncExec(new UpdateResults()
+				Display.getDefault().syncExec(new UpdateResults()
 				{
 					public void run()
 					{
-						Color goodItemColor = new Color(form.getShell().getDisplay(),
-								Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
+						if (startFPA)
+						{
+							// cleaning the function tables 
+							dfTableProvider.clear();
+							tfTableProvider.clear();
 
-						configurationFileText.setForeground(goodItemColor);
+							// cleaning the results
+							unadjustedDFTotalText.setText("");
+							unadjustedTFTotalText.setText("");
+							unadjustedFPATotalText.setText("");
+							vafText.setText("");
+							adjustedFPATotalText.setText("");
+						}
+
+						if (core == null)
+							core.clear();
+
+						// cleaning the summary table
+						summaryProvider.clear();
+						summaryTable.refresh();
 					}
 				});
 			}
+
+			return this.canceled;
 		}
-		catch (ReadXMLException e)
+
+		private void startFPAA()
 		{
+			StringBuilder sbMessage = loadStatisticAndDependencyFiles();
+
+			// if is canceled
+			if (sbMessage == null && this.isCanceled())
+				return;
+
 			/*
-			 * (Async) Marking the field as broken input.
+			 * (Sync) Verifing if input files are ready.
 			 * 
 			 */
-			Display.getDefault().asyncExec(new UpdateResults(sbMessage)
-			{
-				public void run()
-				{
-					Util.appendMessage((StringBuilder) this.obj1, Messages.LigeiroView_error_load_configuration_file);
-
-					Color brokenItemColor = new Color(form.getShell().getDisplay(),
-							Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
-
-					configurationFileText.setForeground(brokenItemColor);
-				}
-			});
-		}
-
-
-
-		if (sbMessage.length() > 0)
-		{
-			/*
-			 * (Async) Showing the error messages.
-			 * 
-			 */
-			Display.getDefault().asyncExec(new UpdateResults(sbMessage)
-			{
-				public void run()
-				{
-					showInformation(((StringBuilder) this.obj1).toString());
-				}
-			});
-
-			return;
-		}
-
-		/*
-		 * (Sync) Wrinting the console.
-		 * and clearing the DF table.
-		 */
-		Display.getDefault().syncExec(new UpdateResults()
-		{
-			public void run()
-			{
-				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_starting_fpa);
-
-				dfTableProvider.clear();
-			}
-		});
-
-		FPAReport fpaReport = core.startFunctionPointAnalysis(fpaConfig);
-
-		for (ReportResult reportResult : fpaReport.getDFReport())
-		{
-			Result result = new Result();
-			result.setNamespace(reportResult.getNamespace());
-			result.setElement(reportResult.getElement());
-			result.setType(reportResult.getType());
-			result.setRet_ftr(reportResult.getRet_ftr());
-			result.setDet(reportResult.getDet());
-			result.setComplexity(reportResult.getComplexity());
-			result.setComplexityValue(reportResult.getComplexityValue());
-
-			/*
-			 * (Async) Updating the table.
-			 */
-			Display.getDefault().asyncExec(new UpdateResults(result)
-			{
-				public void run()
-				{
-					dfTableProvider.addResult((Result) this.obj1);
-				}
-			});
-		}
-
-		/*
-		 * (Sync) Updating results.
-		 */
-		Display.getDefault().syncExec(new UpdateResults(fpaReport)
-		{
-			public void run()
-			{
-				FPAReport fpaReport = (FPAReport) this.obj1;
-
-				dfTable.refresh();
-
-				ConsoleUtil.writeTableResume(form, Messages.LigeiroView_results_table_data_function, fpaReport.getDFReport().size());
-
-				unadjustedDFTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
-
-				tfTableProvider.clear();
-			}
-		});
-
-		for (ReportResult reportResult : fpaReport.getTFReport())
-		{
-			Result result = new Result();
-			result.setNamespace(reportResult.getNamespace());
-			result.setElement(reportResult.getElement());
-			result.setType(reportResult.getType());
-			result.setRet_ftr(reportResult.getRet_ftr());
-			result.setDet(reportResult.getDet());
-			result.setComplexity(reportResult.getComplexity());
-			result.setComplexityValue(reportResult.getComplexityValue());
-
-			/*
-			 * (Async) Updating the table.
-			 */
-			Display.getDefault().asyncExec(new UpdateResults(result)
-			{
-				public void run()
-				{
-					tfTableProvider.addResult((Result) this.obj1);
-				}
-			});
-		}
-
-		/*
-		 * (Sync) Updating results.
-		 */
-		Display.getDefault().asyncExec(new UpdateResults(fpaReport, fpaConfig)
-		{
-			public void run()
-			{
-				FPAReport fpaReport = (FPAReport) this.obj1;
-				FPAConfig fpaConfig = (FPAConfig) this.obj2;
-
-				tfTable.refresh();
-
-				ConsoleUtil.writeTableResume(form, Messages.LigeiroView_results_table_transaction_function,fpaReport.getTFReport().size());
-
-				unadjustedTFTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
-
-				unadjustedFPATotalText.setText(Integer.toString(fpaReport.getReportTotal()));
-
-				vafText.setText(Double.toString(fpaConfig.getVaf()));
-
-				adjustedFPATotalText.setText(Double.toString(fpaReport.getAdjustedReportTotal(fpaConfig.getVaf())));
-
-				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
-			}
-		});
-	}
-
-	private StringBuilder loadStatisticAndDependencyFiles(boolean startFPA)
-	{
-		if (core == null)
-			core = new Core();
-
-		core.clear();
-
-		StringBuilder sbMessage = new StringBuilder();
-
-		/*
-		 * (Sync) Wait for the tables and cosole to be ready.
-		 * 
-		 */
-		UpdateResults updateResults = new UpdateResults()
-		{
-			public void run()
-			{
-				// clearing the summary table
-				summaryProvider.clear();
-				summaryTable.refresh();
-
-				// getting the console ready
-				ConsoleUtil.clearConsole();
-				ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_statistic_files);
-
-				// getting the values from the table
-				this.obj1 = statisticTable.getTable().getItems();
-			}
-		};
-		Display.getDefault().syncExec(updateResults);
-
-		TableItem[] items = (TableItem[]) updateResults.obj1;
-
-		boolean hasBrokenItem = false;
-		for (int i = 0; i < items.length; i++)
-		{
-			/*
-			 * (Sync) Reading the data from the table.
-			 */
-			updateResults = new UpdateResults(items[i])
-			{
-				public void run()
-				{
-					this.obj1 = ((TableItem) obj1).getData();
-				}
-			};
-			Display.getDefault().syncExec(updateResults);
-
-			if (updateResults.obj1 instanceof InputFile)
-			{
-				InputFile inputFile = (InputFile) updateResults.obj1;
-
-				try
-				{
-					final LoadReport loadReport = core.readStatistics(inputFile.getPath());
-
-					/*
-					 * (Async) Updating the tables.
-					 */
-					Display.getDefault().asyncExec(new UpdateResults(items[i])
-					{
-						public void run()
-						{
-							ConsoleUtil.writeFile(form, loadReport.getFileName());
-							ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
-
-							Color goodItemColor = new Color(form.getShell().getDisplay(),
-									Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
-
-							((TableItem)this.obj1).setForeground(goodItemColor);
-
-							updateFilesSumamary(loadReport);
-						}
-					});
-				}
-				catch (ReadXMLException e)
-				{
-					if (!hasBrokenItem)
-					{
-						hasBrokenItem = true;
-						Util.appendMessage(sbMessage, Messages.LigeiroView_error_load_statistic_file);
-					}
-
-					/*
-					 * (Async) Coloring the broken item.
-					 */
-					Display.getDefault().asyncExec(new UpdateResults(items[i])
-					{
-						public void run()
-						{
-							Color brokenItemColor = new Color(form.getShell().getDisplay(),
-									Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
-
-							((TableItem)this.obj1).setForeground(brokenItemColor);
-						}
-					});
-				}
-			}
-		}
-
-		/*
-		 * (Sync) Getting the values from table.
-		 */
-		updateResults = new UpdateResults()
-		{
-			public void run()
-			{
-				// getting the values from the table
-				this.obj1 = dependencyTable.getTable().getItems();
-			}
-		};
-		Display.getDefault().syncExec(updateResults);
-
-		items = (TableItem[]) updateResults.obj1;
-
-		hasBrokenItem = false;
-		for (int i = 0; i < items.length; i++)
-		{
-			/*
-			 * (Sync) Reading the data from the table.
-			 */
-			updateResults = new UpdateResults(items[i])
-			{
-				public void run()
-				{
-					this.obj1 = ((TableItem) obj1).getData();
-				}
-			};
-			Display.getDefault().syncExec(updateResults);
-
-			if (updateResults.obj1 instanceof InputFile)
-			{
-				InputFile inputFile = (InputFile) updateResults.obj1;
-
-				try
-				{
-					final LoadReport loadReport = core.readDependencies(inputFile.getPath());
-
-					/*
-					 * (Async) Updating the tables.
-					 */
-					Display.getDefault().asyncExec(new UpdateResults(items[i])
-					{
-						public void run()
-						{
-							ConsoleUtil.writeFile(form, loadReport.getFileName());
-							ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
-
-							Color goodItemColor = new Color(form.getShell().getDisplay(),
-									Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
-
-							((TableItem)this.obj1).setForeground(goodItemColor);
-
-							updateFilesSumamary(loadReport);
-						}
-					});
-				}
-				catch (ReadXMLException e)
-				{
-					if (!hasBrokenItem)
-					{
-						hasBrokenItem = true;
-						Util.appendMessage(sbMessage, Messages.LigeiroView_error_load_dependency_file);
-					}
-
-					/*
-					 * (Async) Coloring the broken item.
-					 */
-					Display.getDefault().asyncExec(new UpdateResults(items[i])
-					{
-						public void run()
-						{
-							Color brokeItemColor = new Color(form.getShell().getDisplay(),
-									Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
-
-							((TableItem)this.obj1).setForeground(brokeItemColor);
-						}
-					});
-				}
-			}
-		}
-
-		// if it will not start FPA
-		if (!startFPA)
-		{
-			/*
-			 * (Async) Showing the final result, good or bad.
-			 */
-			Display.getDefault().asyncExec(new UpdateResults(sbMessage)
+			UpdateResults updateResults = new UpdateResults(sbMessage)
 			{
 				public void run()
 				{
 					StringBuilder sbMessage = (StringBuilder) this.obj1;
 
-					// then show messages, if any
-					if (sbMessage.length() > 0)
-						showInformation(sbMessage.toString());
-					else
-						ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
+					if (statisticTable.getTable().getItemCount() == 0)
+					{
+						Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_statistic_file);
+					}
+					if (dependencyTable.getTable().getItemCount() == 0)
+					{
+						Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_dependency_file);
+					}
+					if (br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileText.getText()))
+					{
+						Util.appendMessage(sbMessage, Messages.LigeiroView_error_no_configuration_file);
+					}
+
+					ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_configuration_file);
+
+					this.obj2 = configurationFileText.getText();
+				}
+			};
+			Display.getDefault().syncExec(updateResults);
+
+			String configurationFileStr = (String) updateResults.obj2;
+
+			FPAConfig fpaConfig = null;
+
+			try
+			{
+				if (!br.ufrj.cos.pinel.ligeiro.common.Util.isEmptyOrNull(configurationFileStr))
+				{
+					fpaConfig = core.readFPAConfiguration(configurationFileStr);
+
+					/*
+					 * (Async) Marking the field as good input.
+					 * 
+					 */
+					Display.getDefault().asyncExec(new UpdateResults()
+					{
+						public void run()
+						{
+							Color goodItemColor = new Color(form.getShell().getDisplay(),
+									Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
+
+							configurationFileText.setForeground(goodItemColor);
+						}
+					});
+				}
+			}
+			catch (ReadXMLException e)
+			{
+				/*
+				 * (Async) Marking the field as broken input.
+				 * 
+				 */
+				Display.getDefault().asyncExec(new UpdateResults(sbMessage)
+				{
+					public void run()
+					{
+						Util.appendMessage((StringBuilder) this.obj1, Messages.LigeiroView_error_load_configuration_file);
+
+						Color brokenItemColor = new Color(form.getShell().getDisplay(),
+								Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
+
+						configurationFileText.setForeground(brokenItemColor);
+					}
+				});
+			}
+
+			if (sbMessage.length() > 0)
+			{
+				/*
+				 * (Async) Showing the error messages.
+				 * 
+				 */
+				Display.getDefault().asyncExec(new UpdateResults(sbMessage)
+				{
+					public void run()
+					{
+						showInformation(((StringBuilder) this.obj1).toString());
+					}
+				});
+
+				return;
+			}
+
+			/*
+			 * (Sync) Wrinting the console.
+			 * and clearing the DF table.
+			 */
+			Display.getDefault().syncExec(new UpdateResults()
+			{
+				public void run()
+				{
+					ConsoleUtil.writeSection(form, Messages.LigeiroView_console_starting_fpa);
+
+					dfTableProvider.clear();
+				}
+			});
+
+			FPAReport fpaReport = core.startFunctionPointAnalysis(fpaConfig);
+
+			for (ReportResult reportResult : fpaReport.getDFReport())
+			{
+				if (this.isCanceled())
+					return;
+
+				Result result = new Result();
+				result.setNamespace(reportResult.getNamespace());
+				result.setElement(reportResult.getElement());
+				result.setType(reportResult.getType());
+				result.setRet_ftr(reportResult.getRet_ftr());
+				result.setDet(reportResult.getDet());
+				result.setComplexity(reportResult.getComplexity());
+				result.setComplexityValue(reportResult.getComplexityValue());
+
+				/*
+				 * (Async) Updating the table.
+				 */
+				Display.getDefault().asyncExec(new UpdateResults(result)
+				{
+					public void run()
+					{
+						dfTableProvider.addResult((Result) this.obj1);
+					}
+				});
+			}
+
+			/*
+			 * (Sync) Updating results.
+			 */
+			Display.getDefault().syncExec(new UpdateResults(fpaReport)
+			{
+				public void run()
+				{
+					FPAReport fpaReport = (FPAReport) this.obj1;
+
+					dfTable.refresh();
+
+					ConsoleUtil.writeTableResume(form, Messages.LigeiroView_results_table_data_function, fpaReport.getDFReport().size());
+
+					unadjustedDFTotalText.setText(Integer.toString(fpaReport.getDFReportTotal()));
+
+					tfTableProvider.clear();
+				}
+			});
+
+			for (ReportResult reportResult : fpaReport.getTFReport())
+			{
+				if (this.isCanceled())
+					return;
+
+				Result result = new Result();
+				result.setNamespace(reportResult.getNamespace());
+				result.setElement(reportResult.getElement());
+				result.setType(reportResult.getType());
+				result.setRet_ftr(reportResult.getRet_ftr());
+				result.setDet(reportResult.getDet());
+				result.setComplexity(reportResult.getComplexity());
+				result.setComplexityValue(reportResult.getComplexityValue());
+
+				/*
+				 * (Async) Updating the table.
+				 */
+				Display.getDefault().asyncExec(new UpdateResults(result)
+				{
+					public void run()
+					{
+						tfTableProvider.addResult((Result) this.obj1);
+					}
+				});
+			}
+
+			/*
+			 * (Sync) Updating results.
+			 */
+			Display.getDefault().asyncExec(new UpdateResults(fpaReport, fpaConfig)
+			{
+				public void run()
+				{
+					FPAReport fpaReport = (FPAReport) this.obj1;
+					FPAConfig fpaConfig = (FPAConfig) this.obj2;
+
+					tfTable.refresh();
+
+					ConsoleUtil.writeTableResume(form, Messages.LigeiroView_results_table_transaction_function,fpaReport.getTFReport().size());
+
+					unadjustedTFTotalText.setText(Integer.toString(fpaReport.getTFReportTotal()));
+
+					unadjustedFPATotalText.setText(Integer.toString(fpaReport.getReportTotal()));
+
+					vafText.setText(Double.toString(fpaConfig.getVaf()));
+
+					adjustedFPATotalText.setText(Double.toString(fpaReport.getAdjustedReportTotal(fpaConfig.getVaf())));
+
+					ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
 				}
 			});
 		}
 
-		return sbMessage;
-	}
+		private StringBuilder loadStatisticAndDependencyFiles()
+		{
+			if (core == null)
+				core = new Core();
 
-	private void updateFilesSumamary(LoadReport loadReport)
-	{
-		SummaryElement element = null;
+			core.clear();
 
-		if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_CLASS))
-		{
-			element = summaryProvider.getSummaryClass();
-		}
-		else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_DEPENDENCY))
-		{
-			element = summaryProvider.getSummaryDependency();
-		}
-		else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_ENTITY))
-		{
-			element = summaryProvider.getSummaryEntity();
-		}
-		else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_SERVICE))
-		{
-			element = summaryProvider.getSummaryService();
-		}
-		else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_USE_CASE))
-		{
-			element = summaryProvider.getSummaryUseCase();
+			StringBuilder sbMessage = new StringBuilder();
+
+			/*
+			 * (Sync) Wait for the tables and cosole to be ready.
+			 * 
+			 */
+			UpdateResults updateResults = new UpdateResults()
+			{
+				public void run()
+				{
+					// cleaning the summary table
+					summaryProvider.clear();
+					summaryTable.refresh();
+
+					// getting the console ready
+					ConsoleUtil.clearConsole();
+					ConsoleUtil.writeSection(form, Messages.LigeiroView_console_reading_statistic_files);
+
+					// getting the values from the table
+					this.obj1 = statisticTable.getTable().getItems();
+				}
+			};
+			Display.getDefault().syncExec(updateResults);
+
+			TableItem[] items = (TableItem[]) updateResults.obj1;
+
+			boolean hasBrokenItem = false;
+			for (int i = 0; i < items.length; i++)
+			{
+				if (this.isCanceled())
+					return null;
+
+				/*
+				 * (Sync) Reading the data from the table.
+				 */
+				updateResults = new UpdateResults(items[i])
+				{
+					public void run()
+					{
+						this.obj1 = ((TableItem) obj1).getData();
+					}
+				};
+				Display.getDefault().syncExec(updateResults);
+
+				if (updateResults.obj1 instanceof InputFile)
+				{
+					InputFile inputFile = (InputFile) updateResults.obj1;
+
+					try
+					{
+						final LoadReport loadReport = core.readStatistics(inputFile.getPath());
+
+						/*
+						 * (Async) Updating the tables.
+						 */
+						Display.getDefault().asyncExec(new UpdateResults(items[i])
+						{
+							public void run()
+							{
+								ConsoleUtil.writeFile(form, loadReport.getFileName());
+								ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
+
+								Color goodItemColor = new Color(form.getShell().getDisplay(),
+										Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
+
+								((TableItem)this.obj1).setForeground(goodItemColor);
+
+								updateFilesSumamary(loadReport);
+							}
+						});
+					}
+					catch (ReadXMLException e)
+					{
+						if (!hasBrokenItem)
+						{
+							hasBrokenItem = true;
+							Util.appendMessage(sbMessage, Messages.LigeiroView_error_load_statistic_file);
+						}
+
+						/*
+						 * (Async) Coloring the broken item.
+						 */
+						Display.getDefault().asyncExec(new UpdateResults(items[i])
+						{
+							public void run()
+							{
+								Color brokenItemColor = new Color(form.getShell().getDisplay(),
+										Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
+
+								((TableItem)this.obj1).setForeground(brokenItemColor);
+							}
+						});
+					}
+				}
+			}
+
+			/*
+			 * (Sync) Getting the values from table.
+			 */
+			updateResults = new UpdateResults()
+			{
+				public void run()
+				{
+					// getting the values from the table
+					this.obj1 = dependencyTable.getTable().getItems();
+				}
+			};
+			Display.getDefault().syncExec(updateResults);
+
+			items = (TableItem[]) updateResults.obj1;
+
+			hasBrokenItem = false;
+			for (int i = 0; i < items.length; i++)
+			{
+				if (this.isCanceled())
+					return null;
+
+				/*
+				 * (Sync) Reading the data from the table.
+				 */
+				updateResults = new UpdateResults(items[i])
+				{
+					public void run()
+					{
+						this.obj1 = ((TableItem) obj1).getData();
+					}
+				};
+				Display.getDefault().syncExec(updateResults);
+
+				if (updateResults.obj1 instanceof InputFile)
+				{
+					InputFile inputFile = (InputFile) updateResults.obj1;
+
+					try
+					{
+						final LoadReport loadReport = core.readDependencies(inputFile.getPath());
+
+						/*
+						 * (Async) Updating the tables.
+						 */
+						Display.getDefault().asyncExec(new UpdateResults(items[i])
+						{
+							public void run()
+							{
+								ConsoleUtil.writeFile(form, loadReport.getFileName());
+								ConsoleUtil.writeElements(form, loadReport.getElementsRead(), loadReport.getType());
+
+								Color goodItemColor = new Color(form.getShell().getDisplay(),
+										Constants.COLOR_BLACK_R, Constants.COLOR_BLACK_G, Constants.COLOR_BLACK_B);
+
+								((TableItem)this.obj1).setForeground(goodItemColor);
+
+								updateFilesSumamary(loadReport);
+							}
+						});
+					}
+					catch (ReadXMLException e)
+					{
+						if (!hasBrokenItem)
+						{
+							hasBrokenItem = true;
+							Util.appendMessage(sbMessage, Messages.LigeiroView_error_load_dependency_file);
+						}
+
+						/*
+						 * (Async) Coloring the broken item.
+						 */
+						Display.getDefault().asyncExec(new UpdateResults(items[i])
+						{
+							public void run()
+							{
+								Color brokeItemColor = new Color(form.getShell().getDisplay(),
+										Constants.COLOR_RED_R, Constants.COLOR_RED_G, Constants.COLOR_RED_B);
+
+								((TableItem)this.obj1).setForeground(brokeItemColor);
+							}
+						});
+					}
+				}
+			}
+
+			// if it will not start FPA
+			if (!this.startFPA)
+			{
+				/*
+				 * (Async) Showing the final result, good or bad.
+				 */
+				Display.getDefault().asyncExec(new UpdateResults(sbMessage)
+				{
+					public void run()
+					{
+						StringBuilder sbMessage = (StringBuilder) this.obj1;
+
+						// then show messages, if any
+						if (sbMessage.length() > 0)
+							showInformation(sbMessage.toString());
+						else
+							ConsoleUtil.writeSection(form, Messages.LigeiroView_console_done);
+					}
+				});
+			}
+
+			return sbMessage;
 		}
 
-		if (element != null)
+		private void updateFilesSumamary(LoadReport loadReport)
 		{
-			element.setType(Util.getLoadReportType(loadReport.getType(), loadReport.getElementsRead() > 1));
-			element.addTotal(loadReport.getElementsRead());
+			SummaryElement element = null;
 
-			summaryTable.refresh();
+			if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_CLASS))
+			{
+				element = summaryProvider.getSummaryClass();
+			}
+			else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_DEPENDENCY))
+			{
+				element = summaryProvider.getSummaryDependency();
+			}
+			else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_ENTITY))
+			{
+				element = summaryProvider.getSummaryEntity();
+			}
+			else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_SERVICE))
+			{
+				element = summaryProvider.getSummaryService();
+			}
+			else if (loadReport.getType().equals(br.ufrj.cos.pinel.ligeiro.common.Constants.XML_USE_CASE))
+			{
+				element = summaryProvider.getSummaryUseCase();
+			}
+
+			if (element != null)
+			{
+				element.setType(Util.getLoadReportType(loadReport.getType(), loadReport.getElementsRead() > 1));
+				element.addTotal(loadReport.getElementsRead());
+
+				summaryTable.refresh();
+			}
 		}
-	}
 
-	/**
-	 * Helps to update the results using
-	 * the UI Thread.
-	 * 
-	 * @author Roque Pinel
-	 */
-	abstract class UpdateResults implements Runnable
-	{
-		Object obj1;
-		Object obj2;
-
-		public UpdateResults()
+		/**
+		 * Helps to update the results using
+		 * the UI Thread.
+		 * 
+		 * @author Roque Pinel
+		 */
+		abstract class UpdateResults implements Runnable
 		{
-			// empty
-		}
+			Object obj1;
+			Object obj2;
 
-		public UpdateResults(Object obj1)
-		{
-			this.obj1 = obj1;
-		}
+			public UpdateResults()
+			{
+				// empty
+			}
 
-		public UpdateResults(Object obj1, Object obj2)
-		{
-			this.obj1 = obj1;
-			this.obj2 = obj2;
+			public UpdateResults(Object obj1)
+			{
+				this.obj1 = obj1;
+			}
+
+			public UpdateResults(Object obj1, Object obj2)
+			{
+				this.obj1 = obj1;
+				this.obj2 = obj2;
+			}
 		}
 	}
 }

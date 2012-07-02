@@ -89,6 +89,8 @@ public class Messages extends NLS
 	public static String LigeiroView_console_element_plural;
 	public static String LigeiroView_console_starting_fpa;
 	public static String LigeiroView_console_done;
+	public static String LigeiroView_console_runtime;
+	public static String LigeiroView_console_runtime_ms;
 	public static String LigeiroView_xml_type_class;
 	public static String LigeiroView_xml_type_class_plural;
 	public static String LigeiroView_xml_type_dependency;

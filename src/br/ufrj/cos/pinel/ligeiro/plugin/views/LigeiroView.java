@@ -2,6 +2,7 @@ package br.ufrj.cos.pinel.ligeiro.plugin.views;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -118,7 +119,9 @@ public class LigeiroView extends ViewPart
 	private Text vafText;
 	private Text adjustedFPATotalText;
 
-	private Core core; 
+	private Core core;
+	private Calendar startTime;
+	private Calendar endTime;
 
 	/**
 	 * The constructor.
@@ -1117,13 +1120,34 @@ public class LigeiroView extends ViewPart
 		@Override
 		protected IStatus run(IProgressMonitor monitor)
 		{
-			if (startFPA)
+			startTime = Calendar.getInstance();
+			try
 			{
-				startFPAA();
+				if (startFPA)
+				{
+					startFPAA();
+				}
+				else
+				{
+					loadStatisticAndDependencyFiles();
+				}
 			}
-			else
+			finally
 			{
-				loadStatisticAndDependencyFiles();
+				endTime = Calendar.getInstance();
+
+				/*
+				 * (Sync) Updating results.
+				 */
+				Display.getDefault().asyncExec(new UpdateResults()
+				{
+					public void run()
+					{
+						ConsoleUtil.writeSection(form, Messages.LigeiroView_console_runtime + " "
+							+ Long.toString(endTime.getTimeInMillis() - startTime.getTimeInMillis())
+							+ " " + Messages.LigeiroView_console_runtime_ms);
+					}
+				});
 			}
 
 			return Status.OK_STATUS;

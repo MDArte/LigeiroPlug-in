@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %Bundle-Name
+Bundle-SymbolicName: LigeiroPlug-in; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: br.ufrj.cos.pinel.ligeiro.plugin.LigeiroPlugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui.views,
+ org.eclipse.ui.forms,
+ org.eclipse.ui.console,
+ org.eclipse.jdt.ui,
+ org.eclipse.debug.ui,
+ br.ufrj.cos.pinel.ligeiro
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

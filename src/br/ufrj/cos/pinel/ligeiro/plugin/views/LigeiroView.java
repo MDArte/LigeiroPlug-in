@@ -45,6 +45,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
+import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
@@ -59,6 +60,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import br.ufrj.cos.pinel.ligeiro.Core;
 import br.ufrj.cos.pinel.ligeiro.common.FPAConfig;
+import br.ufrj.cos.pinel.ligeiro.exception.LigeiroException;
 import br.ufrj.cos.pinel.ligeiro.plugin.LigeiroPlugin;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.ConsoleUtil;
 import br.ufrj.cos.pinel.ligeiro.plugin.common.Constants;
@@ -123,6 +125,8 @@ public class LigeiroView extends ViewPart
 	private Calendar startTime;
 	private Calendar endTime;
 
+	private FPAReport fpaReport;
+
 	/**
 	 * The constructor.
 	 */
@@ -138,6 +142,8 @@ public class LigeiroView extends ViewPart
 
 		tfTableProvider = new ResultsTableProvider();
 		tfTableComparator = new ResultTableComparator();
+
+		fpaReport = null;
 	}
 
 	/**
@@ -716,7 +722,20 @@ public class LigeiroView extends ViewPart
 		rowlayout.marginBottom = 2;
 		toolbarComposite.setLayout(rowlayout);
 		resultSection.setTextClient(toolbarComposite);
+
 		ImageHyperlink imageHyperLink = new ImageHyperlink(toolbarComposite, SWT.LEFT);
+		imageHyperLink.setBackgroundImage(toolbarComposite.getBackgroundImage());
+		imageHyperLink.setToolTipText(Messages.LigeiroView_results_toolbar_export_csv);
+		imageHyperLink.setImage(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_CSV).createImage());
+		imageHyperLink.addHyperlinkListener(new HyperlinkAdapter()
+		{
+			public void linkActivated(HyperlinkEvent e)
+			{
+				exportCSV();
+			}
+		});
+
+		imageHyperLink = new ImageHyperlink(toolbarComposite, SWT.LEFT);
 		imageHyperLink.setBackgroundImage(toolbarComposite.getBackgroundImage());
 		imageHyperLink.setToolTipText(Messages.LigeiroView_results_toolbar_clear_tip);
 		imageHyperLink.setImage(LigeiroPlugin.getImageDescriptor(LigeiroPlugin.IMG_TRASH).createImage());
@@ -1028,6 +1047,8 @@ public class LigeiroView extends ViewPart
 
 	private void resetResults()
 	{
+		fpaReport = null;
+
 		dfTableProvider.clear();
 		dfTable.refresh();
 		unadjustedDFTotalText.setText(""); //$NON-NLS-1$
@@ -1039,6 +1060,54 @@ public class LigeiroView extends ViewPart
 		unadjustedFPATotalText.setText(""); //$NON-NLS-1$
 		vafText.setText(""); //$NON-NLS-1$
 		adjustedFPATotalText.setText(""); //$NON-NLS-1$
+	}
+
+	private void exportCSV()
+	{
+		if (fpaReport == null)
+		{
+			showInformation(Messages.LigeiroView_error_no_fpa_report);
+			return;
+		}
+
+		ElementTreeSelectionDialog dialog = new ElementTreeSelectionDialog(form.getShell(),
+				new WorkbenchLabelProvider(), new BaseWorkbenchContentProvider());
+		dialog.setTitle(Messages.LigeiroView_results_export_csv_dialog_title);
+		dialog.setMessage(Messages.LigeiroView_results_export_csv_dialog_message);
+		dialog.setInput(ResourcesPlugin.getWorkspace().getRoot());
+		int status = dialog.open();
+
+		if (status == Window.OK && dialog.getResult() != null)
+		{
+			Object[] results = dialog.getResult();
+
+			if (results.length > 0)
+			{
+				if (results[0] instanceof org.eclipse.core.resources.IProject
+					|| results[0] instanceof org.eclipse.core.resources.IFolder)
+				{
+					org.eclipse.core.resources.IResource resource = (org.eclipse.core.resources.IResource) results[0];
+
+					String directoryPath = resource.getLocationURI().getPath();
+
+					try
+					{
+						br.ufrj.cos.pinel.ligeiro.common.Util.writeCSVReport(fpaReport, directoryPath + Messages.LigeiroView_results_export_csv_default_file);
+					}
+					catch (LigeiroException e)
+					{
+						showInformation(Messages.LigeiroView_error_export_csv);
+					}
+				}
+				else
+				{
+					showInformation(Messages.LigeiroView_error_type_not_folder);
+					return;
+				}
+			}
+
+
+		}
 	}
 
 	private void loadPreviousInformation()
@@ -1313,7 +1382,7 @@ public class LigeiroView extends ViewPart
 				}
 			});
 
-			FPAReport fpaReport = core.startFunctionPointAnalysis(fpaConfig);
+			fpaReport = core.startFunctionPointAnalysis(fpaConfig);
 
 			for (ReportResult reportResult : fpaReport.getDFReport())
 			{

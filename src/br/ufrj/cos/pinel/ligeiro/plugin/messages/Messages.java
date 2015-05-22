@@ -54,6 +54,7 @@ public class Messages extends NLS
 	public static String LigeiroView_control_configuration_add_dialog_title;
 	public static String LigeiroView_control_configuration_add_dialog_message;
 	public static String LigeiroView_results_section_title;
+	public static String LigeiroView_results_toolbar_export_csv;
 	public static String LigeiroView_results_toolbar_clear_tip;
 	public static String LigeiroView_results_table_namespace;
 	public static String LigeiroView_results_table_element;
@@ -79,6 +80,9 @@ public class Messages extends NLS
 	public static String LigeiroView_results_plus;
 	public static String LigeiroView_results_times;
 	public static String LigeiroView_results_equals;
+	public static String LigeiroView_results_export_csv_dialog_title;
+	public static String LigeiroView_results_export_csv_dialog_message;
+	public static String LigeiroView_results_export_csv_default_file;
 	public static String LigeiroView_console_title;
 	public static String LigeiroView_console_reading_configuration_file;
 	public static String LigeiroView_console_reading_statistic_files;
@@ -107,10 +111,13 @@ public class Messages extends NLS
 	public static String LigeiroView_error_no_configuration_file;
 	public static String LigeiroView_error_load_configuration_file;
 	public static String LigeiroView_error_type_not_file;
+	public static String LigeiroView_error_type_not_folder;
 	public static String LigeiroView_error_no_statistic_file;
 	public static String LigeiroView_error_no_dependency_file;
 	public static String LigeiroView_error_load_statistic_file;
 	public static String LigeiroView_error_load_dependency_file;
+	public static String LigeiroView_error_no_fpa_report;
+	public static String LigeiroView_error_export_csv;
 
 	static {
 		// initialize resource bundle

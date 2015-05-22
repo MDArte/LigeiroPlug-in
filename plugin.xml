@@ -4,11 +4,11 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            name="%plugin.view.category.name"
+            name="Ligeiro"
             id="LigeiroPlug-in">
       </category>
       <view
-            name="%plugin.view.name"
+            name="Ligeiro"
             icon="icons/ligeiro.gif"
             category="LigeiroPlug-in"
             class="br.ufrj.cos.pinel.ligeiro.plugin.views.LigeiroView"
@@ -36,7 +36,7 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            name="%plugin.perspective.name"
+            name="Ligeiro"
             icon="icons/ligeiro.gif"
             category="LigeiroPlug-in"
             class="br.ufrj.cos.pinel.ligeiro.plugin.perspectives.LigeiroPerspectiveFactory"

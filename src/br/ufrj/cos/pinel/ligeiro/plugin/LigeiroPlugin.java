@@ -21,6 +21,7 @@ public class LigeiroPlugin extends AbstractUIPlugin
 	public static final String PLUGIN_ID = "LigeiroPlug-in"; //$NON-NLS-1$
 
 	public static final String IMG_LIGEIRO = "icons/ligeiro.gif"; //$NON-NLS-1$
+	public static final String IMG_CSV = "icons/csv.gif"; //$NON-NLS-1$
 	public static final String IMG_RUN = "icons/run.gif"; //$NON-NLS-1$
 	public static final String IMG_PROPERTIES = "icons/properties.gif"; //$NON-NLS-1$
 	public static final String IMG_TRASH = "icons/trash.gif"; //$NON-NLS-1$
